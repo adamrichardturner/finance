@@ -1,9 +1,10 @@
 import type { MetaFunction } from '@remix-run/node'
+import { Link } from '@remix-run/react'
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'New Remix App' },
-    { name: 'description', content: 'Welcome to Remix!' },
+    { title: 'Banking App' },
+    { name: 'description', content: 'Finance and Banking Dashboard' },
   ]
 }
 
@@ -13,7 +14,7 @@ export default function Index() {
       <div className='flex flex-col items-center gap-16'>
         <header className='flex flex-col items-center gap-9'>
           <h1 className='leading text-2xl font-bold text-gray-800 dark:text-gray-100'>
-            Welcome to <span className='sr-only'>Remix</span>
+            Banking App
           </h1>
           <div className='h-[144px] w-[434px]'>
             <img
@@ -30,23 +31,16 @@ export default function Index() {
         </header>
         <nav className='flex flex-col items-center justify-center gap-4 rounded-3xl border border-gray-200 p-6 dark:border-gray-700'>
           <p className='leading-6 text-gray-700 dark:text-gray-200'>
-            What&apos;s next?
+            Banking Application
           </p>
-          <ul>
-            {resources.map(({ href, text, icon }) => (
-              <li key={href}>
-                <a
-                  className='group flex items-center gap-3 self-stretch p-3 leading-normal text-blue-700 hover:underline dark:text-blue-500'
-                  href={href}
-                  target='_blank'
-                  rel='noreferrer'
-                >
-                  {icon}
-                  {text}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <div className='mt-4 flex flex-col gap-2'>
+            <Link
+              to='/finance'
+              className='rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+            >
+              View Banking Dashboard
+            </Link>
+          </div>
         </nav>
       </div>
     </div>

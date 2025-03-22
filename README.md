@@ -1,39 +1,94 @@
-# Welcome to Remix!
+# Banking App
 
-- 📖 [Remix docs](https://remix.run/docs)
+A modern banking application built with Remix, PostgreSQL, and Knex.
 
-## Development
+## Features
 
-Run the dev server:
+- Display banking transactions, balances, budgets, and pots
+- Database-driven backend with PostgreSQL
+- Docker support for easy development
 
-```shellscript
+## Prerequisites
+
+- Node.js (v20+)
+- Docker and Docker Compose
+- npm or yarn
+
+## Setup
+
+1. Clone the repository:
+
+```bash
+git clone <repository-url>
+cd finance
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Start the application with database:
+
+```bash
+npm run dev:with-db
+```
+
+This script will:
+
+- Start PostgreSQL using Docker
+- Run database migrations and seed data
+- Start the Remix development server
+
+Alternatively, you can start components separately:
+
+```bash
+# Start PostgreSQL only
+npm run docker:up
+
+# Initialize the database
+npm run db:init
+
+# Start the development server
 npm run dev
 ```
 
-## Deployment
+4. Open your browser at http://localhost:3000
 
-First, build your app for production:
+## Database Management
 
-```sh
+- Run migrations: `npm run db:migrate`
+- Run seeds: `npm run db:seed`
+- Rollback migrations: `npm run db:rollback`
+
+## Docker Commands
+
+- Start services: `npm run docker:up`
+- Stop services: `npm run docker:down`
+- Rebuild containers: `npm run docker:build`
+
+## Production Deployment
+
+Build the application:
+
+```bash
 npm run build
 ```
 
-Then run the app in production mode:
+Start the production server:
 
-```sh
-npm start
+```bash
+npm run start
 ```
 
-Now you'll need to pick a host to deploy it to.
+## Project Structure
 
-### DIY
-
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-- `build/server`
-- `build/client`
+- `/app` - Remix application
+- `/db` - Database migrations and seeds
+- `/public` - Static assets
+- `/app/services` - Business logic
+- `/app/routes` - Remix routes
 
 ## Styling
 
