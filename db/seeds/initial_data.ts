@@ -1,8 +1,14 @@
 import { Knex } from 'knex'
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
 
 export async function seed(knex: Knex): Promise<void> {
+  // Get directory path in ESM
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = dirname(__filename)
+
   // Read data from JSON file
   const dataPath = path.resolve(__dirname, '../../public/data.json')
   const jsonData = JSON.parse(fs.readFileSync(dataPath, 'utf8'))

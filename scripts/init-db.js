@@ -1,10 +1,15 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process')
-const path = require('path')
+import { execSync } from 'child_process'
+import { fileURLToPath } from 'url'
+import { dirname, resolve } from 'path'
+
+// Get the directory path of the current module
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 // Make sure we're in the project root
-process.chdir(path.resolve(__dirname, '..'))
+process.chdir(resolve(__dirname, '..'))
 
 // Create necessary directories if they don't exist
 try {
@@ -17,7 +22,7 @@ try {
 // Run migrations
 try {
   console.log('Running migrations...')
-  execSync('npx knex migrate:latest', { stdio: 'inherit' })
+  execSync('npm run db:migrate', { stdio: 'inherit' })
   console.log('Migrations complete')
 } catch (error) {
   console.error('Error running migrations:', error.message)
@@ -27,7 +32,7 @@ try {
 // Run seeds
 try {
   console.log('Running seeds...')
-  execSync('npx knex seed:run', { stdio: 'inherit' })
+  execSync('npm run db:seed', { stdio: 'inherit' })
   console.log('Seeding complete')
 } catch (error) {
   console.error('Error running seeds:', error.message)
