@@ -1,6 +1,9 @@
 # ----- Stage 1: Build -----
 FROM node:18-alpine AS builder
 
+# Install dependencies required for native modules like argon2
+RUN apk add --no-cache python3 make g++ gcc
+
 # Set working directory inside the container
 WORKDIR /app
 
@@ -19,20 +22,30 @@ RUN npm run build
 # ----- Stage 2: Production -----
 FROM node:18-alpine AS runner
 
+# Install runtime dependencies required for native modules
+RUN apk add --no-cache python3 make g++ gcc
+
 WORKDIR /app
 
 # Copy built files and production dependencies from the builder stage
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/package*.json ./
-
-# Install only production dependencies
-RUN npm install --production
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/server.js ./server.js
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.env ./.env
 
 # Expose the port your app will run on (default Remix port is 3000, but check your project)
 EXPOSE 3000
 
-# Define environment variables if needed (e.g., NODE_ENV)
+# Define environment variables (these will be overridden by docker-compose)
 ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOST=0.0.0.0
+ENV DB_USER=finance
+ENV DB_HOST=postgres
+ENV DB_PORT=5432
+ENV DB_NAME=finance
 
 # Start the Remix app (assuming your start script runs remix-serve)
 CMD [ "npm", "run", "start" ]

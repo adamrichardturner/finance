@@ -9,13 +9,27 @@ const __dirname = dirname(__filename)
 // Load environment variables from .env file
 config({ path: resolve(__dirname, '.env') })
 
-const { DATABASE_URL } = process.env
+const { DATABASE_URL, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME } =
+  process.env
+
+// Build connection from individual parts if available
+const buildConnectionFromEnv = () => {
+  if (DB_USER && DB_PASSWORD && DB_HOST && DB_PORT && DB_NAME) {
+    return {
+      host: DB_HOST,
+      port: parseInt(DB_PORT, 10),
+      user: DB_USER,
+      password: DB_PASSWORD,
+      database: DB_NAME,
+    }
+  }
+  return DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/finance'
+}
 
 export default {
   development: {
     client: 'pg',
-    connection:
-      DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/finance',
+    connection: buildConnectionFromEnv(),
     migrations: {
       directory: './db/migrations',
       extension: 'ts',
@@ -27,7 +41,7 @@ export default {
   },
   production: {
     client: 'pg',
-    connection: DATABASE_URL,
+    connection: buildConnectionFromEnv(),
     migrations: {
       directory: './db/migrations',
       extension: 'ts',

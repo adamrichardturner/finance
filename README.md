@@ -7,6 +7,7 @@ A modern banking application built with Remix, PostgreSQL, and Knex.
 - Display banking transactions, balances, budgets, and pots
 - Database-driven backend with PostgreSQL
 - Docker support for easy development
+- Secure authentication with session management
 
 ## Prerequisites
 
@@ -29,17 +30,29 @@ cd finance
 npm install
 ```
 
-3. Start the application with database:
+3. Create environment variables:
 
 ```bash
-npm run dev:with-db
+# Copy the example environment file
+cp .env.example .env
+
+# Edit the .env file with your secure credentials
+# Be sure to set DB_PASSWORD and SESSION_SECRET
+nano .env
+```
+
+4. Start the application with Docker:
+
+```bash
+./scripts/docker-start.sh
 ```
 
 This script will:
 
-- Start PostgreSQL using Docker
+- Process environment variables
+- Start PostgreSQL and the app using Docker Compose
 - Run database migrations and seed data
-- Start the Remix development server
+- Initialize the application
 
 Alternatively, you can start components separately:
 
@@ -54,7 +67,21 @@ npm run db:init
 npm run dev
 ```
 
-4. Open your browser at http://localhost:3000
+5. Open your browser at http://localhost:3000
+
+## Environment Variables
+
+The application uses environment variables for configuration:
+
+| Variable       | Description                   | Default     |
+| -------------- | ----------------------------- | ----------- |
+| DB_USER        | Database username             | finance     |
+| DB_PASSWORD    | Database password             | (required)  |
+| DB_HOST        | Database host                 | localhost   |
+| DB_PORT        | Database port                 | 5432        |
+| DB_NAME        | Database name                 | finance     |
+| SESSION_SECRET | Secret for session encryption | (required)  |
+| NODE_ENV       | Application environment       | development |
 
 ## Database Management
 
@@ -64,9 +91,20 @@ npm run dev
 
 ## Docker Commands
 
-- Start services: `npm run docker:up`
+- Start all services: `./scripts/docker-start.sh`
+- Start services only: `npm run docker:up`
 - Stop services: `npm run docker:down`
 - Rebuild containers: `npm run docker:build`
+- View logs: `npm run docker:logs`
+- Connect to database: `npm run docker:psql`
+- Access app shell: `npm run docker:shell`
+
+## Changing Database Password
+
+To change the database password:
+
+1. Update the DB_PASSWORD in your .env file
+2. Run `./scripts/docker-start.sh` to rebuild containers with the new password
 
 ## Production Deployment
 

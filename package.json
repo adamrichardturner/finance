@@ -8,7 +8,7 @@
     "dev": "remix vite:dev",
     "dev:with-db": "./scripts/dev.sh",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "start": "remix-serve ./build/server/index.js",
+    "start": "node server.js",
     "typecheck": "tsc",
     "format": "prettier --write .",
     "db:migrate": "node --loader ts-node/esm node_modules/.bin/knex migrate:latest",
@@ -17,7 +17,11 @@
     "db:init": "node scripts/init-db.js",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "docker:build": "docker-compose build"
+    "docker:build": "docker-compose build",
+    "docker:restart": "docker-compose down && docker-compose up -d",
+    "docker:logs": "docker-compose logs -f",
+    "docker:shell": "docker-compose exec app sh",
+    "docker:psql": "docker-compose exec postgres psql -U finance -d finance"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
@@ -30,7 +34,9 @@
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "compression": "^1.8.0",
     "dotenv": "^16.4.7",
+    "express": "^4.21.2",
     "isbot": "^4.1.0",
     "knex": "^3.1.0",
     "lucide-react": "^0.477.0",
