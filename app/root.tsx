@@ -31,6 +31,10 @@ export const links: LinksFunction = () => [
   },
   {
     rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap',
+  },
+  {
+    rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
   },
 ]
@@ -78,7 +82,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className='min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white'>
+      <body className='min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-sans'>
         {/* Don't show the theme toggle on login/register/home pages */}
         {!['/login', '/register', '/'].includes(location.pathname) && (
           <button
@@ -128,5 +132,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  console.log('Rendering App (root) component')
   return <Outlet />
 }
