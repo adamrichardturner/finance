@@ -1,5 +1,4 @@
-import { Link } from '@remix-run/react'
-import { ChevronsLeft } from 'lucide-react'
+import { Link, useLocation } from '@remix-run/react'
 import {
   Sidebar,
   SidebarContent as SidebarContentSection,
@@ -11,132 +10,82 @@ import {
   SidebarProvider,
   useSidebar,
 } from '~/components/ui/sidebar'
-import { useEffect, useState } from 'react'
 
-// TabBar component for tablet view
+type MenuItem = {
+  name: string
+  path: string
+  icon: string
+  label: string
+}
+
+const MENU_ITEMS: MenuItem[] = [
+  {
+    name: 'overview',
+    path: '/dashboard',
+    icon: '/assets/icons/OverviewIcon.svg',
+    label: 'Overview',
+  },
+  {
+    name: 'transactions',
+    path: '/transactions',
+    icon: '/assets/icons/TransactionsIcon.svg',
+    label: 'Transactions',
+  },
+  {
+    name: 'budgets',
+    path: '/budgets',
+    icon: '/assets/icons/BudgetsIcon.svg',
+    label: 'Budgets',
+  },
+  {
+    name: 'pots',
+    path: '/pots',
+    icon: '/assets/icons/PotsIcon.svg',
+    label: 'Pots',
+  },
+  {
+    name: 'bills',
+    path: '/bills',
+    icon: '/assets/icons/RecurringBillsIcon.svg',
+    label: 'Recurring bills',
+  },
+]
+
 function TabBar() {
-  const [currentPath, setCurrentPath] = useState('')
-
-  // Update the current path on navigation
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setCurrentPath(window.location.pathname)
-    }
-  }, [])
+  const location = useLocation()
 
   const isActive = (path: string): boolean => {
     if (path === '/dashboard') {
-      return currentPath === '/dashboard' || currentPath === '/'
+      return location.pathname === '/dashboard' || location.pathname === '/'
     }
-    return currentPath === path
+    return location.pathname === path
   }
 
   return (
     <div className='md:hidden fixed bottom-0 left-0 right-0 bg-black h-[68px] flex justify-around items-center z-50'>
-      <Link
-        to='/dashboard'
-        className='flex flex-col items-center justify-center h-full w-1/5'
-      >
-        <div className='relative flex flex-col items-center pt-3'>
-          {isActive('/dashboard') && (
-            <div className='absolute -top-1 w-1.5 h-1.5 rounded-full bg-[#277C78]'></div>
-          )}
-          <img
-            src='/assets/icons/OverviewIcon.svg'
-            alt='Overview'
-            className={`h-5 w-5 mb-1 ${isActive('/dashboard') ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]' : 'opacity-70'}`}
-          />
-          <span
-            className={`text-xs transition-colors ${isActive('/dashboard') ? 'text-[#277C78]' : 'text-gray-300'}`}
-          >
-            Overview
-          </span>
-        </div>
-      </Link>
-
-      <Link
-        to='/transactions'
-        className='flex flex-col items-center justify-center h-full w-1/5'
-      >
-        <div className='relative flex flex-col items-center pt-3'>
-          {isActive('/transactions') && (
-            <div className='absolute -top-1 w-1.5 h-1.5 rounded-full bg-[#277C78]'></div>
-          )}
-          <img
-            src='/assets/icons/TransactionsIcon.svg'
-            alt='Transactions'
-            className={`h-5 w-5 mb-1 ${isActive('/transactions') ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]' : 'opacity-70'}`}
-          />
-          <span
-            className={`text-xs transition-colors ${isActive('/transactions') ? 'text-[#277C78]' : 'text-gray-300'}`}
-          >
-            Transactions
-          </span>
-        </div>
-      </Link>
-
-      <Link
-        to='/budgets'
-        className='flex flex-col items-center justify-center h-full w-1/5'
-      >
-        <div className='relative flex flex-col items-center pt-3'>
-          {isActive('/budgets') && (
-            <div className='absolute -top-1 w-1.5 h-1.5 rounded-full bg-[#277C78]'></div>
-          )}
-          <img
-            src='/assets/icons/BudgetsIcon.svg'
-            alt='Budgets'
-            className={`h-5 w-5 mb-1 ${isActive('/budgets') ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]' : 'opacity-70'}`}
-          />
-          <span
-            className={`text-xs transition-colors ${isActive('/budgets') ? 'text-[#277C78]' : 'text-gray-300'}`}
-          >
-            Budgets
-          </span>
-        </div>
-      </Link>
-
-      <Link
-        to='/pots'
-        className='flex flex-col items-center justify-center h-full w-1/5'
-      >
-        <div className='relative flex flex-col items-center pt-3'>
-          {isActive('/pots') && (
-            <div className='absolute -top-1 w-1.5 h-1.5 rounded-full bg-[#277C78]'></div>
-          )}
-          <img
-            src='/assets/icons/PotsIcon.svg'
-            alt='Pots'
-            className={`h-5 w-5 mb-1 ${isActive('/pots') ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]' : 'opacity-70'}`}
-          />
-          <span
-            className={`text-xs transition-colors ${isActive('/pots') ? 'text-[#277C78]' : 'text-gray-300'}`}
-          >
-            Pots
-          </span>
-        </div>
-      </Link>
-
-      <Link
-        to='/bills'
-        className='flex flex-col items-center justify-center h-full w-1/5'
-      >
-        <div className='relative flex flex-col items-center pt-3'>
-          {isActive('/bills') && (
-            <div className='absolute -top-1 w-1.5 h-1.5 rounded-full bg-[#277C78]'></div>
-          )}
-          <img
-            src='/assets/icons/RecurringBillsIcon.svg'
-            alt='Recurring Bills'
-            className={`h-5 w-5 mb-1 ${isActive('/bills') ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]' : 'opacity-70'}`}
-          />
-          <span
-            className={`text-xs transition-colors ${isActive('/bills') ? 'text-[#277C78]' : 'text-gray-300'}`}
-          >
-            Bills
-          </span>
-        </div>
-      </Link>
+      {MENU_ITEMS.map((item) => (
+        <Link
+          key={item.name}
+          to={item.path}
+          className='flex flex-col items-center justify-center h-full w-1/5'
+        >
+          <div className='relative flex flex-col items-center pt-3'>
+            {isActive(item.path) && (
+              <div className='absolute -top-1 w-1.5 h-1.5 rounded-full bg-[#277C78]'></div>
+            )}
+            <img
+              src={item.icon}
+              alt={item.label}
+              className={`h-5 w-5 mb-1 ${isActive(item.path) ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]' : 'opacity-70'}`}
+            />
+            <span
+              className={`text-xs transition-colors ${isActive(item.path) ? 'text-[#277C78]' : 'text-gray-300'}`}
+            >
+              {item.label}
+            </span>
+          </div>
+        </Link>
+      ))}
     </div>
   )
 }
@@ -151,7 +100,7 @@ export function SidebarContents() {
       side='left'
       variant='sidebar'
       collapsible='icon'
-      className='hidden md:block bg-gray-900 text-white border-r-0 [border-radius:0px_var(--spacing-200,16px)_var(--spacing-200,16px)_0px]'
+      className='hidden md:block bg-gray-900 text-white border-r-0 [border-radius:0px_var(--spacing-200,16px)_var(--spacing-200,16px)_0px] [&.group[data-collapsible="icon"]_.group-data-\[collapsible\=icon\]\:\!size-8]:!w-[3rem]'
     >
       <SidebarHeader
         className={`p-4 flex flex-row justify-between items-center ${isCollapsed ? 'px-4 py-[40px]' : 'px-[32px] py-[40px]'}`}
@@ -175,147 +124,69 @@ export function SidebarContents() {
 
       <SidebarContentSection>
         <SidebarMenu>
-          <SidebarMenuItem className='group/overview'>
-            <SidebarMenuButton
-              asChild
-              tooltip='Overview'
-              className={`${isCollapsed ? 'py-4 px-4 flex justify-center md:h-auto' : 'h-[56px] px-[32px] py-[16px]'} text-white data-[active=true]:bg-gray-800 group-hover/overview:bg-[#F8F4F0] border-l-4 border-l-transparent group-hover/overview:border-l-[#277C78] transition-all duration-200`}
-            >
-              <Link
-                to='/dashboard'
-                className={`flex ${isCollapsed ? 'justify-center md:h-auto' : 'items-center'}`}
+          {MENU_ITEMS.map((item) => (
+            <SidebarMenuItem key={item.name} className={`group/${item.name}`}>
+              <SidebarMenuButton
+                asChild
+                tooltip={item.label}
+                className={`${
+                  isCollapsed
+                    ? 'flex items-center w-full justify-center p-4'
+                    : 'h-[56px] px-[26px] py-[16px]'
+                } text-white data-[active=true]:bg-gray-800 group-hover/${item.name}:bg-[#F8F4F0] border-l-4 border-l-transparent group-hover/${item.name}:border-l-[#277C78] transition-all duration-200 w-full`}
               >
-                <img
-                  src='/assets/icons/OverviewIcon.svg'
-                  alt='Overview'
-                  className={`${isCollapsed ? 'h-auto w-auto' : 'h-5 w-5'} transition-all duration-200 group-hover/overview:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]`}
-                />
-                {!isCollapsed && (
-                  <span className='font-[600] ml-2 text-gray-300 transition-colors duration-200 group-hover/overview:text-gray-900'>
-                    Overview
-                  </span>
-                )}
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem className='group/transactions'>
-            <SidebarMenuButton
-              asChild
-              tooltip='Transactions'
-              className={`${isCollapsed ? 'py-4 px-4 flex justify-center md:h-auto' : 'h-[56px] px-[32px] py-[16px]'} text-white data-[active=true]:bg-gray-800 group-hover/transactions:bg-[#F8F4F0] border-l-4 border-l-transparent group-hover/transactions:border-l-[#277C78] transition-all duration-200`}
-            >
-              <Link
-                to='/transactions'
-                className={`flex ${isCollapsed ? 'justify-center md:h-auto' : 'items-center'}`}
-              >
-                <img
-                  src='/assets/icons/TransactionsIcon.svg'
-                  alt='Transactions'
-                  className={`${isCollapsed ? 'h-auto w-auto' : 'h-5 w-5'} transition-all duration-200 group-hover/transactions:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]`}
-                />
-                {!isCollapsed && (
-                  <span className='font-[600] ml-2 text-gray-300 transition-colors duration-200 group-hover/transactions:text-gray-900'>
-                    Transactions
-                  </span>
-                )}
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem className='group/budgets'>
-            <SidebarMenuButton
-              asChild
-              tooltip='Budgets'
-              className={`${isCollapsed ? 'py-4 px-4 flex justify-center md:h-auto' : 'h-[56px] px-[32px] py-[16px]'} text-white data-[active=true]:bg-gray-800 group-hover/budgets:bg-[#F8F4F0] border-l-4 border-l-transparent group-hover/budgets:border-l-[#277C78] transition-all duration-200`}
-            >
-              <Link
-                to='/budgets'
-                className={`flex ${isCollapsed ? 'justify-center md:h-auto' : 'items-center'}`}
-              >
-                <img
-                  src='/assets/icons/BudgetsIcon.svg'
-                  alt='Budgets'
-                  className={`${isCollapsed ? 'h-auto w-auto' : 'h-5 w-5'} transition-all duration-200 group-hover/budgets:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]`}
-                />
-                {!isCollapsed && (
-                  <span className='font-[600] ml-2 text-gray-300 transition-colors duration-200 group-hover/budgets:text-gray-900'>
-                    Budgets
-                  </span>
-                )}
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem className='group/pots'>
-            <SidebarMenuButton
-              asChild
-              tooltip='Pots'
-              className={`${isCollapsed ? 'py-4 px-4 flex justify-center md:h-auto' : 'h-[56px] px-[32px] py-[16px]'} text-white data-[active=true]:bg-gray-800 group-hover/pots:bg-[#F8F4F0] border-l-4 border-l-transparent group-hover/pots:border-l-[#277C78] transition-all duration-200`}
-            >
-              <Link
-                to='/pots'
-                className={`flex ${isCollapsed ? 'justify-center md:h-auto' : 'items-center'}`}
-              >
-                <img
-                  src='/assets/icons/PotsIcon.svg'
-                  alt='Pots'
-                  className={`${isCollapsed ? 'h-auto w-auto' : 'h-5 w-5'} transition-all duration-200 group-hover/pots:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]`}
-                />
-                {!isCollapsed && (
-                  <span className='font-[600] ml-2 text-gray-300 transition-colors duration-200 group-hover/pots:text-gray-900'>
-                    Pots
-                  </span>
-                )}
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem className='group/bills'>
-            <SidebarMenuButton
-              asChild
-              tooltip='Recurring bills'
-              className={`${isCollapsed ? 'py-4 px-4 flex justify-center md:h-auto' : 'h-[56px] px-[32px] py-[16px]'} text-white data-[active=true]:bg-gray-800 group-hover/bills:bg-[#F8F4F0] border-l-4 border-l-transparent group-hover/bills:border-l-[#277C78] transition-all duration-200`}
-            >
-              <Link
-                to='/bills'
-                className={`flex ${isCollapsed ? 'justify-center md:h-auto' : 'items-center'}`}
-              >
-                <img
-                  src='/assets/icons/RecurringBillsIcon.svg'
-                  alt='Recurring Bills'
-                  className={`${isCollapsed ? 'h-auto w-auto' : 'h-5 w-5'} transition-all duration-200 group-hover/bills:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]`}
-                />
-                {!isCollapsed && (
-                  <span className='font-[600] ml-2 text-gray-300 transition-colors duration-200 group-hover/bills:text-gray-900'>
-                    Recurring bills
-                  </span>
-                )}
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+                <Link
+                  to={item.path}
+                  className={`flex ${
+                    isCollapsed ? 'justify-center' : 'justify-start'
+                  } items-center w-full gap-4`}
+                >
+                  <div className='flex items-center justify-center'>
+                    <img
+                      src={item.icon}
+                      alt={item.label}
+                      className={`w-6 transition-all duration-200 hover:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]`}
+                    />
+                  </div>
+                  {!isCollapsed && (
+                    <span className='font-[600] text-gray-300 transition-colors duration-200 group-hover/${item.name}:text-gray-900'>
+                      {item.label}
+                    </span>
+                  )}
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
       </SidebarContentSection>
 
       <SidebarFooter className='group/minimize'>
         <SidebarMenuButton
-          className={`w-full ${isCollapsed ? 'py-4 px-4 flex justify-center md:h-auto' : 'h-[56px] px-[32px] py-[16px] justify-start'} text-white border-0 group-hover/minimize:bg-[#F8F4F0] border-l-4 border-l-transparent group-hover/minimize:border-l-[#277C78] transition-all duration-200`}
+          className={`w-full ${
+            isCollapsed
+              ? 'flex items-center justify-center p-4 !w-[3rem] !min-w-[3rem]'
+              : 'h-[56px] px-[26px] py-[16px]'
+          } text-white border-0 mb-[132px] border-l-4 border-l-transparent transition-all duration-200 hover:bg-[#F8F4F0] hover:border-l-[#277C78]`}
           tooltip='Minimize Menu'
           onClick={toggleSidebar}
         >
           <div
-            className={`flex ${isCollapsed ? 'justify-center md:h-auto' : 'items-start'}`}
+            className={`flex ${
+              isCollapsed
+                ? 'justify-center items-center w-full'
+                : 'items-center gap-4'
+            }`}
           >
-            <img
-              src='/assets/icons/MinimizeIcon.svg'
-              alt='Minimize Sidebar'
-              className={`${isCollapsed ? 'h-auto w-auto' : 'h-5 w-5'} transition-all duration-200 group-hover/minimize:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]`}
-            />
-            {!isCollapsed && (
-              <span className='ml-2 text-gray-300 transition-colors duration-200 group-hover/minimize:text-gray-900'>
-                Minimize Menu
-              </span>
-            )}
+            <div className='flex items-center justify-center'>
+              <img
+                src='/assets/icons/MinimizeIcon.svg'
+                alt='Minimize Sidebar'
+                className={`w-6 transition-all duration-200`}
+              />
+            </div>
+            <span className='text-gray-300 transition-colors duration-200 hover:text-gray-900 group-data-[collapsible=icon]:hidden'>
+              Minimize Menu
+            </span>
           </div>
         </SidebarMenuButton>
       </SidebarFooter>
@@ -324,15 +195,6 @@ export function SidebarContents() {
 }
 
 export function AppSidebar() {
-  const [currentPath, setCurrentPath] = useState('')
-
-  // Update the current path on navigation
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setCurrentPath(window.location.pathname)
-    }
-  }, [])
-
   return (
     <>
       <SidebarProvider>

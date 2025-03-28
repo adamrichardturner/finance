@@ -1,45 +1,13 @@
 import * as React from 'react'
-import { Link, useLocation } from '@remix-run/react'
-import {
-  LayoutDashboard,
-  WalletCards,
-  Settings,
-  BarChart3,
-  BellRing,
-  LogOut,
-  Menu,
-} from 'lucide-react'
-
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarTrigger,
-  SidebarProvider,
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  useSidebar,
-} from '~/components/ui/sidebar'
-import { cn } from '~/lib/utils'
+import { useLocation } from '@remix-run/react'
+import { Menu } from 'lucide-react'
+import { SidebarProvider, useSidebar } from '~/components/ui/sidebar'
 import { AppSidebar } from '../Sidebar'
 
 interface AppLayoutProps {
   children: React.ReactNode
 }
 
-function isActiveRoute(pathname: string, route: string): boolean {
-  if (route === '/dashboard' && pathname === '/dashboard') {
-    return true
-  }
-  if (route !== '/dashboard' && pathname.startsWith(route)) {
-    return true
-  }
-  return false
-}
-
-// Create a simple mobile menu button component using useSidebar
 function MobileMenuButton() {
   const { toggleSidebar } = useSidebar()
 
@@ -56,16 +24,6 @@ function MobileMenuButton() {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const location = useLocation()
-
-  // Add debug logs
-  console.log('Rendering AppLayout with SidebarProvider')
-
-  // Use React.useEffect for additional debugging
-  React.useEffect(() => {
-    console.log('Inside SidebarProvider (from effect)')
-  }, [])
-
   return (
     <SidebarProvider>
       <div className='flex min-h-screen'>

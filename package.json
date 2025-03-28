@@ -6,6 +6,7 @@
   "scripts": {
     "build": "remix vite:build",
     "dev": "remix vite:dev",
+    "dev:start": "docker run -u=1000:1000 -v $(pwd):/app -w=/app -d -p 3000:3000 --rm --name=nodedev --network=my_network node bash -c 'npm install && npm run dev'",
     "dev:with-db": "./scripts/dev.sh",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "node server.js",

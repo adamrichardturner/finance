@@ -19,72 +19,61 @@ export default {
         ],
       },
       colors: {
-        // Beige palette
         beige: {
-          '100': '#D8D4C9', // Light Beige
-          '500': '#9B9081', // Beige
+          '100': '#D8D4C9',
+          '500': '#9B9081',
         },
-
-        // Gray palette
         gray: {
-          '100': '#F1F1F2', // Lightest Gray
-          '300': '#DADADA', // Light Gray
-          '500': '#5E5E63', // Medium Gray
-          '900': '#1D1D1F', // Dark Gray (almost black)
+          '100': '#F1F1F2',
+          '300': '#DADADA',
+          '500': '#5E5E63',
+          '900': '#1D1D1F',
         },
-
-        // Secondary colors
         green: {
-          '500': '#427C76', // Green
+          '500': '#427C76',
         },
         yellow: {
-          '500': '#F2C89C', // Yellow/Cream
+          '500': '#F2C89C',
         },
         cyan: {
-          '500': '#A8CDD7', // Cyan/Light Blue
+          '500': '#A8CDD7',
         },
         navy: {
-          '500': '#45465D', // Navy Blue
+          '500': '#45465D',
         },
         red: {
-          '500': '#DC6746', // Red/Orange-Red
+          '500': '#DC6746',
         },
         purple: {
-          '300': '#AA93BA', // Light Purple
-          '500': '#8D7CBE', // Purple
+          '300': '#AA93BA',
+          '500': '#8D7CBE',
         },
-
-        // Extended color palette
         turquoise: {
-          '500': '#5B857C', // Turquoise
+          '500': '#5B857C',
         },
         brown: {
-          '500': '#9E826F', // Brown
+          '500': '#9E826F',
         },
         magenta: {
-          '500': '#B3456F', // Magenta/Deep Pink
+          '500': '#B3456F',
         },
         blue: {
-          '500': '#5B6A83', // Blue
+          '500': '#5B6A83',
         },
         'navy-gray': {
-          '500': '#5E646C', // Navy Gray
+          '500': '#5E646C',
         },
         'army-green': {
-          '500': '#777349', // Army Green
+          '500': '#777349',
         },
         gold: {
-          '500': '#CEC25D', // Gold
+          '500': '#CEC25D',
         },
         orange: {
-          '500': '#DD8C45', // Orange
+          '500': '#DD8C45',
         },
-
-        // Basic colors
         white: '#FFFFFF',
         black: '#000000',
-
-        // Accent and theme colors
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
