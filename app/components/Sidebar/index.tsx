@@ -76,10 +76,16 @@ function TabBar() {
             <img
               src={item.icon}
               alt={item.label}
-              className={`h-5 w-5 mb-1 ${isActive(item.path) ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]' : 'opacity-70'}`}
+              className={`h-5 w-5 mb-1 ${
+                isActive(item.path)
+                  ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]'
+                  : 'opacity-70'
+              }`}
             />
             <span
-              className={`text-xs transition-colors ${isActive(item.path) ? 'text-[#277C78]' : 'text-gray-300'}`}
+              className={`text-xs transition-colors ${
+                isActive(item.path) ? 'text-[#277C78]' : 'text-gray-300'
+              }`}
             >
               {item.label}
             </span>
@@ -92,6 +98,7 @@ function TabBar() {
 
 export function SidebarContents() {
   const { state, toggleSidebar } = useSidebar()
+  const location = useLocation()
 
   const isCollapsed = state === 'collapsed'
 
@@ -103,7 +110,9 @@ export function SidebarContents() {
       className='hidden md:block bg-gray-900 text-white border-r-0 [border-radius:0px_var(--spacing-200,16px)_var(--spacing-200,16px)_0px] [&.group[data-collapsible="icon"]_.group-data-\[collapsible\=icon\]\:\!size-8]:!w-[3rem]'
     >
       <SidebarHeader
-        className={`p-4 flex flex-row justify-between items-center ${isCollapsed ? 'px-4 py-[40px]' : 'px-[32px] py-[40px]'}`}
+        className={`p-4 flex flex-row justify-between items-center ${
+          isCollapsed ? 'px-4 py-[40px]' : 'px-[32px] py-[40px]'
+        }`}
       >
         <div className='flex items-center'>
           {isCollapsed ? (
@@ -124,49 +133,58 @@ export function SidebarContents() {
 
       <SidebarContentSection>
         <SidebarMenu>
-          {MENU_ITEMS.map((item) => (
-            <SidebarMenuItem key={item.name} className={`group/${item.name}`}>
-              <SidebarMenuButton
-                asChild
-                tooltip={item.label}
-                className={`${
-                  isCollapsed
-                    ? 'flex items-center w-full justify-center p-4'
-                    : 'h-[56px] px-[26px] py-[16px]'
-                } text-white data-[active=true]:bg-gray-800 group-hover/${item.name}:bg-[#F8F4F0] border-l-4 border-l-transparent group-hover/${item.name}:border-l-[#277C78] transition-all duration-200 w-full`}
-              >
-                <Link
-                  to={item.path}
-                  className={`flex ${
-                    isCollapsed ? 'justify-center' : 'justify-start'
-                  } items-center w-full gap-4`}
+          {MENU_ITEMS.map((item) => {
+            const isActive =
+              location.pathname === item.path ||
+              (item.path === '/dashboard' && location.pathname === '/')
+
+            return (
+              <SidebarMenuItem key={item.name} className='group'>
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.label}
+                  className={`group/button ${
+                    isCollapsed
+                      ? 'flex items-center justify-center p-4'
+                      : 'flex w-[300px] h-[56px] px-[32px] py-[16px] items-center gap-[16px]'
+                  } text-white border-l-4 border-l-transparent rounded-r-[12px] hover:bg-[#F8F4F0] hover:border-l-[#277C78] data-[active=true]:bg-[#F8F4F0] data-[active=true]:border-l-[#277C78]`}
+                  data-active={isActive}
                 >
-                  <div className='flex items-center justify-center'>
-                    <img
-                      src={item.icon}
-                      alt={item.label}
-                      className={`w-6 transition-all duration-200 hover:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]`}
-                    />
-                  </div>
-                  {!isCollapsed && (
-                    <span className='font-[600] text-gray-300 transition-colors duration-200 group-hover/${item.name}:text-gray-900'>
+                  <Link
+                    to={item.path}
+                    className={`flex ${
+                      isCollapsed
+                        ? 'justify-center items-center'
+                        : 'items-center gap-4'
+                    } w-full`}
+                  >
+                    <div className='flex items-center justify-center'>
+                      <img
+                        src={item.icon}
+                        alt={item.label}
+                        className={`w-6 group-hover/button:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)] data-[active=true]:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]`}
+                      />
+                    </div>
+                    <span
+                      className={`text-[#B3B3B3] font-["Public_Sans"] text-[16px] font-bold leading-[150%] group-hover/button:text-[#201F24] data-[active=true]:text-[#201F24] ${isCollapsed ? 'hidden' : 'block'}`}
+                    >
                       {item.label}
                     </span>
-                  )}
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )
+          })}
         </SidebarMenu>
       </SidebarContentSection>
 
       <SidebarFooter className='group/minimize'>
         <SidebarMenuButton
-          className={`w-full ${
+          className={`group/minimize-button ${
             isCollapsed
-              ? 'flex items-center justify-center p-4 !w-[3rem] !min-w-[3rem]'
-              : 'h-[56px] px-[26px] py-[16px]'
-          } text-white border-0 mb-[132px] border-l-4 border-l-transparent transition-all duration-200 hover:bg-[#F8F4F0] hover:border-l-[#277C78]`}
+              ? 'flex items-center justify-center p-4'
+              : 'flex h-[56px] px-[32px] py-[16px] items-center gap-[16px]'
+          } text-white mb-[132px] border-l-4 border-l-transparent rounded-r-[12px] hover:bg-[#F8F4F0] hover:border-l-[#277C78]`}
           tooltip='Minimize Menu'
           onClick={toggleSidebar}
         >
@@ -181,10 +199,12 @@ export function SidebarContents() {
               <img
                 src='/assets/icons/MinimizeIcon.svg'
                 alt='Minimize Sidebar'
-                className={`w-6 transition-all duration-200`}
+                className='w-6 group-hover/minimize-button:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]'
               />
             </div>
-            <span className='text-gray-300 transition-colors duration-200 hover:text-gray-900 group-data-[collapsible=icon]:hidden'>
+            <span
+              className={`text-[#B3B3B3] font-["Public_Sans"] text-[16px] font-bold leading-[150%] group-hover/minimize-button:text-[#201F24] ${isCollapsed ? 'hidden' : 'block'}`}
+            >
               Minimize Menu
             </span>
           </div>
