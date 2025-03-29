@@ -6,8 +6,10 @@ import {
   UserWithPassword,
 } from '~/types/auth.types'
 
-// Define a constant for demo user ID
-export const DEMO_USER_ID = 'demo-user-id'
+// Import environment variables from server
+import { getDemoUserEnv } from '~/utils/env.server'
+
+const { demoUserId: DEMO_USER_ID, demoUserPasswordHash } = getDemoUserEnv()
 
 // Create a demo user object
 export const DEMO_USER: User = {
@@ -18,12 +20,13 @@ export const DEMO_USER: User = {
   mfa_enabled: false,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
+  is_demo: true,
 }
 
 // Create a demo user with password for authentication
 export const DEMO_USER_WITH_PASSWORD: UserWithPassword = {
   ...DEMO_USER,
-  password_hash: '$2a$10$demoPasswordHashForDemoUserOnly',
+  password_hash: demoUserPasswordHash,
   previous_passwords: [],
   failed_login_attempts: 0,
   lockout_until: undefined,
@@ -33,9 +36,24 @@ export const DEMO_USER_WITH_PASSWORD: UserWithPassword = {
   last_ip_address: undefined,
 }
 
-export async function findUserById(id: string): Promise<User | null> {
+/**
+ * Check if a given ID matches the demo user ID
+ */
+function isMatchingDemoUserId(id: string | number): boolean {
+  if (typeof DEMO_USER_ID === 'number' && typeof id === 'string') {
+    return DEMO_USER_ID === parseInt(id, 10)
+  }
+
+  if (typeof DEMO_USER_ID === 'string' && typeof id === 'number') {
+    return parseInt(DEMO_USER_ID, 10) === id
+  }
+
+  return DEMO_USER_ID === id
+}
+
+export async function findUserById(id: string | number): Promise<User | null> {
   // Return the demo user if the ID matches
-  if (id === DEMO_USER_ID) {
+  if (isMatchingDemoUserId(id)) {
     return DEMO_USER
   }
 
@@ -50,7 +68,7 @@ export async function findUserById(id: string): Promise<User | null> {
         'created_at',
         'updated_at'
       )
-      .where('id', id)
+      .where('id', String(id))
       .first()
 
     return user || null
@@ -138,11 +156,11 @@ export async function createUser(
 }
 
 export async function updateUser(
-  id: string,
+  id: string | number,
   data: Partial<UserWithPassword>
 ): Promise<User> {
   // For demo user, just return the updated user without hitting the database
-  if (id === DEMO_USER_ID) {
+  if (isMatchingDemoUserId(id)) {
     // Create an updated version of the demo user
     const updatedDemoUser = {
       ...DEMO_USER,
@@ -154,7 +172,7 @@ export async function updateUser(
 
   try {
     const [updatedUser] = await db<User>('users')
-      .where('id', id)
+      .where('id', String(id))
       .update(data)
       .returning([
         'id',
@@ -174,12 +192,12 @@ export async function updateUser(
 }
 
 export async function updateLoginAttempt(
-  userId: string,
+  userId: string | number,
   success: boolean,
   data: Partial<LoginAttempt>
 ): Promise<void> {
   // For demo user, don't update login attempts
-  if (userId === DEMO_USER_ID) {
+  if (isMatchingDemoUserId(userId)) {
     return
   }
 
@@ -322,7 +340,7 @@ export async function revokeAllUserRefreshTokens(
   userId: string
 ): Promise<void> {
   // Don't need to do anything for demo user
-  if (userId === DEMO_USER_ID) {
+  if (isMatchingDemoUserId(userId)) {
     return
   }
 

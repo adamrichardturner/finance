@@ -3,9 +3,9 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from '@remix-run/node'
-import { Form, Link, useActionData, useSearchParams } from '@remix-run/react'
+import { Form, useActionData, useSearchParams } from '@remix-run/react'
 import { createUserSession, getUserId } from '~/services/auth/session.server'
-import { DEMO_USER_ID } from '~/repositories/user.repository'
+import { getDemoUserEnv } from '~/utils/env.server'
 import { Button } from '~/components/ui/button'
 
 type ActionData = {
@@ -13,6 +13,9 @@ type ActionData = {
     general?: string
   }
 }
+
+// Get demo user ID from environment
+const { demoUserId: DEMO_USER_ID } = getDemoUserEnv()
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request)
@@ -40,7 +43,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    // Create demo user session
+    // Create demo user session - use DEMO_USER_ID directly
     return createUserSession({
       request,
       userId: DEMO_USER_ID,
@@ -64,6 +67,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function Login() {
   const [searchParams] = useSearchParams()
   const redirectTo = searchParams.get('redirectTo') || '/overview'
+  const message = searchParams.get('message')
   const actionData = useActionData<ActionData>()
 
   return (
@@ -90,6 +94,7 @@ export default function Login() {
         <div className='w-full max-w-md bg-white rounded-lg p-8'>
           <div className='text-center mb-10'>
             <h2 className='text-3xl font-bold mb-2'>Login</h2>
+            {message && <p className='text-sm text-blue-600 mt-2'>{message}</p>}
           </div>
 
           {actionData?.fieldErrors?.general && (

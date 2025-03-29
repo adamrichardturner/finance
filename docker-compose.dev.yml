@@ -1,16 +1,15 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: node:18-alpine
+    command: sh -c "npm install && node scripts/dev-init-db.js && npm run dev -- --host 0.0.0.0 --port 3000"
     ports:
-      - '${PORT:-3000}:${PORT:-3000}'
+      - '3000:3000'
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      - PORT=${PORT:-3000}
-      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3000
+      - NODE_ENV=development
       - DB_USER=${DB_USER:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-postgres}
       - DB_HOST=postgres
@@ -18,11 +17,14 @@ services:
       - DB_NAME=${DB_NAME:-finance}
       - DATABASE_URL=postgres://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:${DB_PORT:-5432}/${DB_NAME:-finance}
       - SESSION_SECRET=${SESSION_SECRET:-dev-secret}
+      - DOCKER_ENV=true
+      - HOST=0.0.0.0
       - DEMO_USER_ID=${DEMO_USER_ID}
       - DEMO_PASSWORD_HASH=${DEMO_PASSWORD_HASH}
     volumes:
       - ./:/app
       - /app/node_modules
+    working_dir: /app
 
   postgres:
     image: postgres:15
@@ -33,7 +35,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-dev-data:/var/lib/postgresql/data
       - ./scripts/init-postgres-processed.sql:/docker-entrypoint-initdb.d/init-postgres.sql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${DB_USER}']
@@ -42,4 +44,4 @@ services:
       retries: 5
 
 volumes:
-  postgres-data:
+  postgres-dev-data:

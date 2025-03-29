@@ -1,13 +1,16 @@
 import { createCookieSessionStorage, redirect } from '@remix-run/node'
 import { authCookie, refreshTokenCookie } from './auth.service'
 import * as userRepository from '~/repositories/user.repository'
-import { AuthSession, User } from '~/types/auth.types'
-import { compare, hash } from 'bcryptjs'
+import { User } from '~/types/auth.types'
+import { getDemoUserEnv } from '~/utils/env.server'
 
 // Create session storage
 const sessionStorage = createCookieSessionStorage({
   cookie: authCookie,
 })
+
+// Get demo user ID from environment
+const { demoUserId: DEMO_USER_ID } = getDemoUserEnv()
 
 // Get the user session from a request
 export async function getUserSession(request: Request) {
@@ -15,11 +18,13 @@ export async function getUserSession(request: Request) {
 }
 
 // Get the current user ID from the session
-export async function getUserId(request: Request): Promise<string | null> {
+export async function getUserId(
+  request: Request
+): Promise<string | number | null> {
   const session = await getUserSession(request)
   const userId = session.get('userId')
 
-  if (!userId || typeof userId !== 'string') {
+  if (!userId || (typeof userId !== 'string' && typeof userId !== 'number')) {
     return null
   }
 
@@ -34,7 +39,7 @@ export async function getUser(request: Request) {
     return null
   }
 
-  const user = await userRepository.findUserById(userId)
+  const user = await userRepository.findUserById(String(userId))
   return user
 }
 
@@ -62,7 +67,7 @@ export async function createUserSession({
   redirectTo,
 }: {
   request: Request
-  userId: string
+  userId: string | number | null
   expirationSeconds?: number
   remember?: boolean
   redirectTo: string
@@ -166,12 +171,10 @@ export async function updateUserProfile(
  * Login as a demo user without credentials
  */
 export async function loginDemoUser(request: Request): Promise<Response> {
-  const demoUserId = 'demo-user-id'
-
   // Create a session for the demo user
   return createUserSession({
     request,
-    userId: demoUserId,
+    userId: DEMO_USER_ID,
     remember: false,
     redirectTo: '/overview',
   })
@@ -180,36 +183,13 @@ export async function loginDemoUser(request: Request): Promise<Response> {
 /**
  * Retrieves a user by their ID
  */
-export async function getUserById(userId: string): Promise<User | null> {
+export async function getUserById(
+  userId: string | number
+): Promise<User | null> {
   if (!userId) {
     return null
   }
 
-  // Special case for demo user
-  if (userId === 'demo-user-id') {
-    const demoUser: User = {
-      id: 'demo-user-id',
-      email: 'demo@example.com',
-      full_name: 'Demo User',
-      email_verified: true,
-      mfa_enabled: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    }
-    return demoUser
-  }
-
-  // In a real app, you would fetch the user from your database here
-  // For now, we'll simulate a user for demonstration purposes
-  const mockUser: User = {
-    id: userId,
-    email: 'user@example.com',
-    full_name: 'Example User',
-    email_verified: true,
-    mfa_enabled: false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }
-
-  return mockUser
+  // Get user from repository
+  return userRepository.findUserById(String(userId))
 }

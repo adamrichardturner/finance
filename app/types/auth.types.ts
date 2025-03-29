@@ -1,11 +1,12 @@
 export interface User {
-  id: string
+  id: string | number
   email: string
   full_name: string
   email_verified: boolean
   mfa_enabled: boolean
   created_at: string
   updated_at: string
+  is_demo?: boolean
 }
 
 export interface UserWithPassword extends User {
@@ -23,7 +24,7 @@ export interface UserWithPassword extends User {
 
 export interface RefreshToken {
   id: string
-  user_id: string
+  user_id: string | number
   token: string
   expires_at: Date
   is_revoked: boolean
@@ -34,7 +35,7 @@ export interface RefreshToken {
 
 export interface LoginAttempt {
   id?: number
-  user_id: string
+  user_id: string | number
   ip_address: string
   user_agent?: string
   location?: string

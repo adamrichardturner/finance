@@ -9,14 +9,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   await requireUserId(request)
 
   const user = await getUser(request)
-  const isDemoUser = user?.id === 'demo-user-id'
 
-  return { user, isDemoUser }
+  return { user }
 }
 
 export default function DashboardPage() {
-  const { user, isDemoUser } = useLoaderData<typeof loader>()
-  const { financialData, loading, error } = useFinancialData(isDemoUser)
+  const { user } = useLoaderData<typeof loader>()
+  const { financialData, loading, error } = useFinancialData()
 
   if (loading) {
     return (

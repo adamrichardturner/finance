@@ -3,23 +3,55 @@
 # Ensure the script exits if any command fails
 set -e
 
-# Check if .env file exists
-if [ ! -f .env ]; then
-  echo "Error: .env file not found. Please create one before running this script."
-  exit 1
+echo "Starting PostgreSQL and App containers..."
+
+# Load environment variables
+if [ -f .env ]; then
+  echo "Loading environment variables from .env file"
+  export $(grep -v '^#' .env | xargs)
+else
+  echo "No .env file found. Using default environment variables."
 fi
 
-# Export environment variables manually
-export NODE_ENV=development
-export DATABASE_URL=postgres://finance:UHHw@!.Di*bcJaz-a3LJ*Q8-@localhost:5432/finance
-export DB_USER=finance
-export DB_PASSWORD="UHHw@!.Di*bcJaz-a3LJ*Q8-"
-export DB_HOST=localhost
-export DB_PORT=5432
-export DB_NAME=finance
-export SESSION_SECRET=n6L-FfNhDosCEuMxRFch3HuGjM6y_-KM
+# Create a network if it doesn't exist
+docker network inspect my_network >/dev/null 2>&1 || docker network create my_network
 
-echo "Exported environment variables for Docker Compose"
+# Set environment variables for PostgreSQL
+export DB_USER=${DB_USER}
+export DB_PASSWORD=${DB_PASSWORD}
+export DB_NAME=${DB_NAME}
+
+# Check if SESSION_SECRET is set
+if [ -z "$SESSION_SECRET" ]; then
+  echo "Warning: SESSION_SECRET not set. Generating a random one."
+  export SESSION_SECRET=$(openssl rand -hex 32)
+  echo "SESSION_SECRET=$SESSION_SECRET" >> .env
+fi
+
+# Start PostgreSQL container
+echo "Starting PostgreSQL container..."
+docker run --name postgres-finance \
+  -e POSTGRES_USER=$DB_USER \
+  -e POSTGRES_PASSWORD=$DB_PASSWORD \
+  -e POSTGRES_DB=$DB_NAME \
+  -p 5432:5432 \
+  -d \
+  --network=my_network \
+  postgres:15
+
+echo "PostgreSQL container started"
+
+# Wait for PostgreSQL to be ready
+echo "Waiting for PostgreSQL to be ready..."
+sleep 5
+
+# Print connection info
+echo "PostgreSQL connection info:"
+echo "Host: localhost"
+echo "Port: 5432"
+echo "User: $DB_USER"
+echo "Password: $DB_PASSWORD"
+echo "Database: $DB_NAME"
 
 # Stop any existing containers
 echo "Stopping any existing containers..."

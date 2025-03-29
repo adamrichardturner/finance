@@ -1,45 +1,20 @@
 import { useState, useEffect } from 'react'
-import demoData from '../../public/data.json'
+import { AppTransaction } from '~/utils/transform-data'
 
 // Define types for financial data
 export interface FinancialData {
   balance: number
   income: number
   expenses: number
-  transactions: Transaction[]
+  transactions: AppTransaction[]
   budgets: any[]
   pots: any[]
 }
 
-export interface Transaction {
-  id: string
-  date: string
-  description: string
-  amount: number
-  type: string
-  category: string
-  avatar?: string
-}
-
 /**
- * Transform transaction data from the JSON format to our application format
+ * Custom hook to fetch and manage financial data
  */
-function transformTransaction(transaction: any): Transaction {
-  return {
-    id: Math.random().toString(36).substring(2, 9),
-    date: new Date(transaction.date).toISOString().slice(0, 10),
-    description: transaction.name,
-    amount: transaction.amount,
-    type: transaction.amount > 0 ? 'income' : 'expense',
-    category: transaction.category,
-    avatar: transaction.avatar,
-  }
-}
-
-/**
- * Custom hook to fetch and manage financial data based on the user type
- */
-export function useFinancialData(isDemoUser: boolean) {
+export function useFinancialData() {
   const [financialData, setFinancialData] = useState<FinancialData>({
     balance: 0,
     income: 0,
@@ -57,38 +32,27 @@ export function useFinancialData(isDemoUser: boolean) {
       try {
         setLoading(true)
 
-        if (isDemoUser) {
-          // Use the data from data.json for demo users
-          const balance = demoData.balance.current
-          const income = demoData.balance.income
-          const expenses = demoData.balance.expenses
+        // Fetch data from the API endpoint
+        const response = await fetch('/api/financial-data')
 
-          // Transform transactions to our application format
-          const transactions = demoData.transactions
-            .slice(0, 10)
-            .map(transformTransaction)
-
-          setFinancialData({
-            balance,
-            income,
-            expenses,
-            transactions,
-            budgets: demoData.budgets,
-            pots: demoData.pots,
-          })
-        } else {
-          // For regular users, fetch from database
-          // For now, we'll use mock data
-          setFinancialData({
-            balance: 4836.92,
-            income: 3814.25,
-            expenses: 1700.5,
-            transactions: [],
-            budgets: [],
-            pots: [],
-          })
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch financial data: ${response.statusText}`
+          )
         }
+
+        const data = await response.json()
+
+        setFinancialData({
+          balance: data.balance || 0,
+          income: data.income || 0,
+          expenses: data.expenses || 0,
+          transactions: data.transactions || [],
+          budgets: data.budgets || [],
+          pots: data.pots || [],
+        })
       } catch (err) {
+        console.error('Error loading financial data:', err)
         setError(err instanceof Error ? err : new Error(String(err)))
       } finally {
         setLoading(false)
@@ -96,7 +60,7 @@ export function useFinancialData(isDemoUser: boolean) {
     }
 
     loadData()
-  }, [isDemoUser])
+  }, [])
 
   return { financialData, loading, error }
 }

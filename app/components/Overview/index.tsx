@@ -12,7 +12,7 @@ const Overview: React.FC<OverviewProps> = ({ balance, income, expenses }) => {
   return (
     <div className='w-full'>
       <PageTitle title='Overview' />
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[24px]'>
         <Pill
           title='Total Balance'
           amount={formatCurrency(balance)}

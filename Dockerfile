@@ -10,14 +10,17 @@ WORKDIR /app
 # Copy package.json and package-lock.json (or yarn.lock) first to leverage Docker cache
 COPY package*.json ./
 
-# Install dependencies (use --production=false to install all packages if you have devDependencies for building)
+# Install dependencies
 RUN npm install
 
 # Copy the rest of the application source code
 COPY . .
 
-# Build the Remix app
-RUN npm run build
+# Set the Docker environment flag
+ENV DOCKER_ENV=true
+
+# Build only the frontend without database operations
+RUN npm run build:fe
 
 # ----- Stage 2: Production -----
 FROM node:18-alpine AS runner
@@ -33,19 +36,16 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/server.js ./server.js
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.env ./.env
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/app/lib ./app/lib
 
-# Expose the port your app will run on (default Remix port is 3000, but check your project)
-EXPOSE 3000
-
-# Define environment variables (these will be overridden by docker-compose)
+# Set production port (default port will be set by server.js based on NODE_ENV)
 ENV NODE_ENV=production
-ENV PORT=3000
 ENV HOST=0.0.0.0
-ENV DB_USER=finance
-ENV DB_HOST=postgres
-ENV DB_PORT=5432
-ENV DB_NAME=finance
+ENV DOCKER_ENV=true
 
-# Start the Remix app (assuming your start script runs remix-serve)
-CMD [ "npm", "run", "start" ]
+# Expose both development and production ports
+EXPOSE 3000 6000
+
+# Start the app
+CMD ["npm", "run", "start:with-db"]
