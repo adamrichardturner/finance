@@ -1,5 +1,4 @@
 import { LoaderFunctionArgs } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
 import { getUser, requireUserId } from '~/services/auth/session.server'
 import { AppLayout } from '~/components/layouts/AppLayout'
 import Overview from '~/components/Overview'
@@ -13,8 +12,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return { user }
 }
 
-export default function DashboardPage() {
-  const { user } = useLoaderData<typeof loader>()
+export default function OverviewPage() {
   const { financialData, loading, error } = useFinancialData()
 
   if (loading) {
@@ -44,6 +42,9 @@ export default function DashboardPage() {
           balance={financialData.balance}
           income={financialData.income}
           expenses={financialData.expenses}
+          pots={financialData.pots}
+          budgets={financialData.budgets}
+          transactions={financialData.transactions}
         />
       </div>
     </AppLayout>
