@@ -7,6 +7,7 @@ export default {
     extend: {
       fontFamily: {
         sans: [
+          'Public Sans',
           'Inter',
           'ui-sans-serif',
           'system-ui',
@@ -19,37 +20,60 @@ export default {
       },
       colors: {
         beige: {
-          '100': 'var(--color-beige-100)',
+          '100': '#D8D4C9',
+          '500': '#9B9081',
         },
-        grey: {
-          '100': 'var(--color-grey-100)',
-          '200': 'var(--color-grey-200)',
-          '300': 'var(--color-grey-300)',
-          '400': 'var(--color-grey-400)',
-          '500': 'var(--color-grey-500)',
-          '600': 'var(--color-grey-600)',
-          '700': 'var(--color-grey-700)',
-          '800': 'var(--color-grey-800)',
-          '900': 'var(--color-grey-900)',
+        gray: {
+          '100': '#F1F1F2',
+          '300': '#DADADA',
+          '500': '#5E5E63',
+          '900': '#1D1D1F',
         },
-        green: 'var(--color-green)',
-        yellow: 'var(--color-yellow)',
-        cyan: 'var(--color-cyan)',
-        pink: 'var(--color-pink)',
-        orange: 'var(--color-orange)',
-        'light-blue': 'var(--color-light-blue)',
-        purple: 'var(--color-purple)',
-        turquoise: 'var(--color-turquoise)',
-        brown: 'var(--color-brown)',
-        red: 'var(--color-red)',
-        'navy-blue': 'var(--color-navy-blue)',
-        'army-green': 'var(--color-army-green)',
-        gold: 'var(--color-gold)',
-        'navy-grey': 'var(--color-navy-grey)',
-        white: 'var(--color-white)',
-        black: 'var(--color-black)',
-
-        // Additional palette using CSS variables (unchanged)
+        green: {
+          '500': '#427C76',
+        },
+        yellow: {
+          '500': '#F2C89C',
+        },
+        cyan: {
+          '500': '#A8CDD7',
+        },
+        navy: {
+          '500': '#45465D',
+        },
+        red: {
+          '500': '#DC6746',
+        },
+        purple: {
+          '300': '#AA93BA',
+          '500': '#8D7CBE',
+        },
+        turquoise: {
+          '500': '#5B857C',
+        },
+        brown: {
+          '500': '#9E826F',
+        },
+        magenta: {
+          '500': '#B3456F',
+        },
+        blue: {
+          '500': '#5B6A83',
+        },
+        'navy-gray': {
+          '500': '#5E646C',
+        },
+        'army-green': {
+          '500': '#777349',
+        },
+        gold: {
+          '500': '#CEC25D',
+        },
+        orange: {
+          '500': '#DD8C45',
+        },
+        white: '#FFFFFF',
+        black: '#000000',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
@@ -89,6 +113,16 @@ export default {
           '3': 'hsl(var(--chart-3))',
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
+        },
+        sidebar: {
+          DEFAULT: 'hsl(var(--sidebar-background))',
+          foreground: 'hsl(var(--sidebar-foreground))',
+          primary: 'hsl(var(--sidebar-primary))',
+          'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+          accent: 'hsl(var(--sidebar-accent))',
+          'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+          border: 'hsl(var(--sidebar-border))',
+          ring: 'hsl(var(--sidebar-ring))',
         },
       },
       borderRadius: {

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "remix vite:build",
     "dev": "remix vite:dev",
+    "dev:start": "docker run -u=1000:1000 -v $(pwd):/app -w=/app -d -p 3000:3000 --rm --name=nodedev --network=my_network node bash -c 'npm install && npm run dev'",
     "dev:with-db": "./scripts/dev.sh",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "node server.js",
@@ -24,7 +25,10 @@
     "docker:psql": "docker-compose exec postgres psql -U finance -d finance"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.6",
+    "@radix-ui/react-separator": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-tooltip": "^1.1.8",
     "@remix-run/express": "^2.16.2",
     "@remix-run/node": "^2.16.0",
     "@remix-run/react": "^2.16.0",
@@ -37,6 +41,7 @@
     "compression": "^1.8.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "framer-motion": "^12.6.2",
     "isbot": "^4.1.0",
     "knex": "^3.1.0",
     "lucide-react": "^0.477.0",
