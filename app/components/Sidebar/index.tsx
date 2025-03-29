@@ -1,4 +1,5 @@
 import { Link, useLocation } from '@remix-run/react'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   Sidebar,
   SidebarContent as SidebarContentSection,
@@ -102,23 +103,59 @@ export function SidebarContents() {
 
   const isCollapsed = state === 'collapsed'
 
-  // Function to handle minimize button click - update to not hide text when expanding
+  // Updated handleMinimize to remove direct DOM manipulation
   const handleMinimize = () => {
-    if (!isCollapsed) {
-      const textElements = document.querySelectorAll('.sidebar-menu-text')
-      textElements.forEach((el) => {
-        ;(el as HTMLElement).style.display = 'none'
-      })
-    } else {
-      setTimeout(() => {
-        const textElements = document.querySelectorAll('.sidebar-menu-text')
-        textElements.forEach((el) => {
-          ;(el as HTMLElement).style.display = 'block'
-        })
-      }, 150)
-    }
-
     toggleSidebar()
+  }
+
+  // Framer Motion animation variants
+  const buttonVariants = {
+    initial: {
+      backgroundColor: 'transparent',
+      borderLeftColor: 'transparent',
+      borderLeftWidth: '4px',
+    },
+    hover: {
+      backgroundColor: '#F8F4F0',
+      borderLeftColor: '#277C78',
+      borderLeftWidth: '4px',
+    },
+    active: {
+      backgroundColor: '#F8F4F0',
+      borderLeftColor: '#277C78',
+      borderLeftWidth: '4px',
+    },
+  }
+
+  const iconVariants = {
+    initial: { filter: 'none' },
+    hover: {
+      filter:
+        'invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%)',
+    },
+    active: {
+      filter:
+        'invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%)',
+    },
+  }
+
+  const textVariants = {
+    initial: { color: '#B3B3B3' },
+    hover: { color: '#201F24' },
+    active: { color: '#201F24' },
+  }
+
+  // Text animation variants
+  const textDisplayVariants = {
+    hidden: { opacity: 0, display: 'none', transition: { duration: 0.01 } },
+    visible: {
+      opacity: 1,
+      display: 'block',
+      transition: {
+        delay: 0.15,
+        duration: 0.2,
+      },
+    },
   }
 
   return (
@@ -126,11 +163,14 @@ export function SidebarContents() {
       side='left'
       variant='sidebar'
       collapsible='icon'
-      className='hidden md:block bg-gray-900 text-white border-r-0 [border-radius:0px_var(--spacing-200,16px)_var(--spacing-200,16px)_0px] [&.group[data-collapsible="icon"]_.group-data-\[collapsible\=icon\]\:\!size-8]:!w-[92px]'
+      className={
+        `${isCollapsed ? 'w-[92px]' : 'w-[300px]'}` +
+        `hidden md:block bg-gray-900 text-white border-r-0 [border-radius:0px_var(--spacing-200,16px)_var(--spacing-200,16px)_0px] [&.group[data-collapsible="icon"]_.group-data-\[collapsible\=icon\]\:\!size-8]:!w-[92px]`
+      }
     >
       <SidebarHeader
         className={`p-4 flex flex-row justify-between items-center ${
-          isCollapsed ? 'px-4 py-[40px]' : 'px-[32px] py-[40px]'
+          isCollapsed ? 'px-4 py-[40px] justify-center' : 'px-[32px] py-[40px]'
         }`}
       >
         <div className='flex items-center'>
@@ -158,38 +198,65 @@ export function SidebarContents() {
               (item.path === '/dashboard' && location.pathname === '/')
 
             return (
-              <SidebarMenuItem key={item.name} className='group'>
+              <SidebarMenuItem
+                key={item.name}
+                className='group w-full flex justify-center'
+              >
                 <SidebarMenuButton
                   asChild
                   tooltip={item.label}
-                  className={`group/button ${
+                  className={`${
                     isCollapsed
-                      ? 'flex items-center justify-center p-4 mr-[4px]'
+                      ? 'flex w-[92px] items-center justify-center p-4 mr-[4px]'
                       : 'flex w-[300px] h-[56px] px-[32px] py-[16px] items-center gap-[16px]'
-                  } text-white border-l-4 border-l-transparent rounded-r-[12px] hover:bg-[#F8F4F0] hover:border-l-[#277C78] data-[active=true]:bg-[#F8F4F0] data-[active=true]:border-l-[#277C78] transition-none`}
+                  } text-white rounded-r-[12px]`}
                   data-active={isActive}
                 >
-                  <Link
-                    to={item.path}
+                  <motion.div
+                    initial='initial'
+                    whileHover='hover'
+                    animate={isActive ? 'active' : 'initial'}
+                    variants={buttonVariants}
+                    transition={{ duration: 0.2 }}
                     className={`flex ${
                       isCollapsed
-                        ? 'justify-center items-center'
+                        ? 'justify-center items-center w-full'
                         : 'items-center gap-4'
-                    } w-full transition-none`}
+                    } w-full cursor-pointer`}
                   >
-                    <div className='flex items-center justify-center'>
-                      <img
-                        src={item.icon}
-                        alt={item.label}
-                        className={`${isCollapsed ? 'w-[30px] h-[30px]' : 'w-6'} ${isActive ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]' : ''} group-hover/button:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)] transition-none`}
-                      />
-                    </div>
-                    <span
-                      className={`sidebar-menu-text text-[#B3B3B3] font-["Public_Sans"] text-[16px] font-bold leading-[150%] group-hover/button:text-[#201F24] data-[active=true]:text-[#201F24] transition-none ${isCollapsed ? 'hidden' : 'block'}`}
+                    <Link
+                      to={item.path}
+                      className={`flex ${
+                        isCollapsed
+                          ? 'justify-center items-center w-full'
+                          : 'items-center gap-4'
+                      } w-full cursor-pointer`}
                     >
-                      {item.label}
-                    </span>
-                  </Link>
+                      <div className='flex items-center justify-center'>
+                        <motion.img
+                          src={item.icon}
+                          alt={item.label}
+                          variants={iconVariants}
+                          transition={{ duration: 0.2 }}
+                          className={`${isCollapsed ? 'w-[24px] h-[24px]' : 'w-6'}`}
+                        />
+                      </div>
+                      <AnimatePresence>
+                        {!isCollapsed && (
+                          <motion.span
+                            key='text'
+                            initial='hidden'
+                            animate='visible'
+                            exit='hidden'
+                            variants={textDisplayVariants}
+                            className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-bold leading-[150%]`}
+                          >
+                            {item.label}
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </Link>
+                  </motion.div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )
@@ -197,37 +264,65 @@ export function SidebarContents() {
         </SidebarMenu>
       </SidebarContentSection>
 
-      <SidebarFooter className='group/minimize p-0'>
-        <SidebarMenuButton
-          onClick={handleMinimize}
-          asChild
-          tooltip='Minimize Menu'
-          className={`group/button ${
-            isCollapsed
-              ? 'flex items-center justify-center p-4 mr-[4px]'
-              : 'flex w-[300px] h-[56px] px-[32px] py-[16px] items-center gap-[16px]'
-          } text-white border-l-4 border-l-transparent rounded-r-[12px] hover:bg-[#F8F4F0] hover:border-l-[#277C78] data-[active=true]:bg-[#F8F4F0] data-[active=true]:border-l-[#277C78] transition-none`}
-        >
-          <Link
-            to={'/'}
-            className={`flex ${
-              isCollapsed ? 'justify-center items-center' : 'items-center gap-4'
-            } w-full transition-none`}
+      <SidebarFooter className='group/minimize p-0 w-full flex items-center justify-center mb-12'>
+        <SidebarMenuItem className='group w-full flex justify-center'>
+          <SidebarMenuButton
+            asChild
+            tooltip='Minimize Menu'
+            data-active={false}
+            className={`${
+              isCollapsed
+                ? 'flex w-[92px] items-center justify-center p-4 mr-[4px]'
+                : 'flex w-[300px] h-[56px] px-[32px] py-[16px] items-center gap-[16px]'
+            } text-white rounded-r-[12px]`}
           >
-            <div className='flex items-center justify-center'>
-              <img
-                src='/assets/icons/MinimizeIcon.svg'
-                alt='Minimize Menu'
-                className={`${isCollapsed ? 'w-[30px] h-[30px]' : 'w-6'} group-hover/button:[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)] transition-none`}
-              />
-            </div>
-            <span
-              className={`sidebar-menu-text text-[#B3B3B3] font-["Public_Sans"] text-[16px] font-bold leading-[150%] group-hover/button:text-[#201F24] data-[active=true]:text-[#201F24] transition-none ${isCollapsed ? 'hidden' : 'block'}`}
+            <motion.div
+              initial='initial'
+              whileHover='hover'
+              animate='initial'
+              variants={buttonVariants}
+              transition={{ duration: 0.2 }}
+              className={`flex ${
+                isCollapsed
+                  ? 'justify-center items-center w-full'
+                  : 'items-center gap-4'
+              } w-full cursor-pointer`}
+              onClick={handleMinimize}
             >
-              Minimize Menu
-            </span>
-          </Link>
-        </SidebarMenuButton>
+              <div
+                className={`flex ${
+                  isCollapsed
+                    ? 'justify-center items-center w-full'
+                    : 'items-center gap-4'
+                } w-full`}
+              >
+                <div className='flex items-center justify-center'>
+                  <motion.img
+                    src='/assets/icons/MinimizeIcon.svg'
+                    alt='Minimize Menu'
+                    variants={iconVariants}
+                    transition={{ duration: 0.2 }}
+                    className={`${isCollapsed ? 'w-[24px] h-[24px]' : 'w-6'}`}
+                  />
+                </div>
+                <AnimatePresence>
+                  {!isCollapsed && (
+                    <motion.span
+                      key='minimize-text'
+                      initial='hidden'
+                      animate='visible'
+                      exit='hidden'
+                      variants={textDisplayVariants}
+                      className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-bold leading-[150%]`}
+                    >
+                      Minimize Menu
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       </SidebarFooter>
     </Sidebar>
   )

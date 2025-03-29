@@ -41,6 +41,7 @@
     "compression": "^1.8.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "framer-motion": "^12.6.2",
     "isbot": "^4.1.0",
     "knex": "^3.1.0",
     "lucide-react": "^0.477.0",
