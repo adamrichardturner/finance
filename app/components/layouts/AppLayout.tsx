@@ -26,17 +26,18 @@ function MobileMenuButton() {
 export function AppLayout({ children }: AppLayoutProps) {
   return (
     <SidebarProvider>
-      <div className='flex min-h-screen'>
+      <div className='flex min-h-screen w-full'>
         <AppSidebar />
-        {/* Mobile header */}
-        <div className='fixed top-0 left-0 right-0 z-40 flex h-16 items-center border-b bg-background px-4 lg:hidden'>
-          <MobileMenuButton />
-          <span className='font-semibold'>FinanceApp</span>
-        </div>
+        {/* Content wrapper - takes all remaining width */}
+        <div className='flex flex-col flex-1 w-full min-h-screen'>
+          {/* Mobile header */}
+          <div className='fixed top-0 left-0 right-0 z-40 flex h-16 items-center border-b bg-background px-4 lg:hidden'>
+            <MobileMenuButton />
+            <span className='font-semibold'>FinanceApp</span>
+          </div>
 
-        {/* Content */}
-        <div className='flex-1 pt-16 lg:pt-0'>
-          <main className='container p-4 lg:p-6'>{children}</main>
+          {/* Main content area */}
+          <main className='flex-1 w-full h-full p-[40px]'>{children}</main>
         </div>
       </div>
     </SidebarProvider>
