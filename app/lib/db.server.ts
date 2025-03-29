@@ -1,47 +1,39 @@
-import knex from 'knex'
-import config from '../../knexfile'
+import { type Knex } from 'knex'
+import knexPkg from 'knex'
 
-const environment = process.env.NODE_ENV || 'development'
-const knexConfig = config[environment as keyof typeof config]
+// Handle both ESM and CJS module formats
+const knex = knexPkg.default || knexPkg
 
-let db: ReturnType<typeof knex> | null = null
+// Define the direct connection config
+const connectionConfig = {
+  client: 'pg',
+  connection: {
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  },
 
-try {
-  db = knex(knexConfig)
-  console.log('Database connection initialized')
-} catch (error) {
-  console.error('Failed to connect to database:', error)
-  console.log('Application will run in demo mode only')
+  migrations: {
+    directory: './db/migrations',
+    extension: 'ts',
+  },
+  seeds: {
+    directory: './db/seeds',
+    extension: 'ts',
+  },
 }
 
-// Create a proxy to intercept database calls
-const dbProxy = new Proxy({} as ReturnType<typeof knex>, {
-  get: (target, prop) => {
-    if (!db) {
-      console.warn(
-        `Database unavailable, using demo mode. Attempted to access ${String(prop)}`
-      )
+// Initialize database connection immediately
+let dbInstance: Knex
 
-      // Return a dummy function for method calls
-      return () => ({
-        where: () => ({
-          first: () => Promise.resolve(null),
-          update: () => Promise.resolve([]),
-          // Add other common method chains
-          select: () => ({
-            where: () => ({
-              first: () => Promise.resolve(null),
-            }),
-          }),
-          insert: () => Promise.resolve([null]),
-          returning: () => Promise.resolve([null]),
-        }),
-      })
-    }
+try {
+  dbInstance = knex(connectionConfig)
+  console.log('Database connection initialized')
+} catch (error) {
+  console.error('Failed to initialize database:', error)
+  throw new Error('Database connection could not be established')
+}
 
-    // Use the actual database connection if available
-    return (db as any)[prop]
-  },
-})
-
-export default dbProxy as ReturnType<typeof knex>
+export default dbInstance

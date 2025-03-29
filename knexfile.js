@@ -32,11 +32,11 @@ export default {
     connection: buildConnectionFromEnv(),
     migrations: {
       directory: './db/migrations',
-      extension: 'ts',
+      extension: 'js',
     },
     seeds: {
       directory: './db/seeds',
-      extension: 'ts',
+      extension: 'js',
     },
   },
   production: {
@@ -44,11 +44,11 @@ export default {
     connection: buildConnectionFromEnv(),
     migrations: {
       directory: './db/migrations',
-      extension: 'ts',
+      extension: 'js',
     },
     seeds: {
       directory: './db/seeds',
-      extension: 'ts',
+      extension: 'js',
     },
     pool: {
       min: 2,

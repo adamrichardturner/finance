@@ -1,33 +1,102 @@
 import { DollarSignIcon, TrendingUpIcon, TrendingDownIcon } from 'lucide-react'
 import PageTitle from '../PageTitle'
 import Pill from './Pill'
+import Pots from './Pots'
+import BudgetChart from './BudgetChart'
+import TransactionsOverview from './TransactionsOverview'
+import RecurringBills from './RecurringBills'
+import { Pot, Budget } from '~/types/finance.types'
+import { AppTransaction } from '~/utils/transform-data'
+import { useNavigate } from '@remix-run/react'
 
 interface OverviewProps {
   balance: number
   income: number
   expenses: number
+  pots: Pot[]
+  budgets: Budget[]
+  transactions: AppTransaction[]
 }
 
-const Overview: React.FC<OverviewProps> = ({ balance, income, expenses }) => {
+const Overview: React.FC<OverviewProps> = ({
+  balance,
+  income,
+  expenses,
+  pots,
+  budgets,
+  transactions,
+}) => {
+  const navigate = useNavigate()
+  const handleNavigate = (path: string) => {
+    navigate(path)
+  }
+
+  // Common hover style for all cards
+  const hoverClass =
+    'cursor-pointer hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-shadow duration-200'
+
   return (
     <div className='w-full'>
       <PageTitle title='Overview' />
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-        <Pill
-          title='Total Balance'
-          amount={formatCurrency(balance)}
-          icon={<DollarSignIcon className='text-blue-500' size={24} />}
-        />
-        <Pill
-          title='Income'
-          amount={formatCurrency(income)}
-          icon={<TrendingUpIcon className='text-green-500' size={24} />}
-        />
-        <Pill
-          title='Expenses'
-          amount={formatCurrency(expenses)}
-          icon={<TrendingDownIcon className='text-red-500' size={24} />}
-        />
+      <div className='flex flex-col gap-[32px]'>
+        {/* Pills - Equal width */}
+        <div className='grid grid-cols-3 gap-[24px]'>
+          <div className={hoverClass}>
+            <Pill
+              title='Total Balance'
+              amount={formatCurrency(balance)}
+              icon={<DollarSignIcon className='text-blue-500' size={24} />}
+            />
+          </div>
+          <div className={hoverClass}>
+            <Pill
+              title='Income'
+              amount={formatCurrency(income)}
+              icon={<TrendingUpIcon className='text-green-500' size={24} />}
+            />
+          </div>
+          <div className={hoverClass}>
+            <Pill
+              title='Expenses'
+              amount={formatCurrency(expenses)}
+              icon={<TrendingDownIcon className='text-red-500' size={24} />}
+            />
+          </div>
+        </div>
+
+        {/* Two column layout with custom widths: 7/12 and 5/12 */}
+        <div className='grid grid-cols-12 gap-[24px]'>
+          {/* Left column - 7/12 width */}
+          <div className='col-span-12 md:col-span-7 flex flex-col gap-[32px]'>
+            <div className={hoverClass} onClick={() => handleNavigate('/pots')}>
+              <Pots pots={pots} />
+            </div>
+
+            <div
+              className={hoverClass}
+              onClick={() => handleNavigate('/transactions')}
+            >
+              <TransactionsOverview transactions={transactions} />
+            </div>
+          </div>
+
+          {/* Right column - 5/12 width */}
+          <div className='col-span-12 md:col-span-5 flex flex-col gap-[32px]'>
+            <div
+              className={hoverClass}
+              onClick={() => handleNavigate('/budgets')}
+            >
+              <BudgetChart budgets={budgets} />
+            </div>
+
+            <div
+              className={`${hoverClass} flex-1`}
+              onClick={() => handleNavigate('/recurring-bills')}
+            >
+              <RecurringBills bills={transactions} />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

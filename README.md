@@ -131,3 +131,59 @@ npm run start
 ## Styling
 
 This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v20 or later)
+- Docker and Docker Compose
+
+### Setting up the development environment
+
+1. Clone the repository
+2. Create a `.env` file based on the example:
+
+```bash
+cp .env.example .env
+```
+
+3. Make sure your `.env` file contains the following variables:
+
+```
+DB_USER=finance
+DB_PASSWORD=finance-password
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=finance
+SESSION_SECRET=your_session_secret
+DEMO_USER_ID=1
+DEMO_PASSWORD_HASH=$2b$10$jhE2KcwlTVoe/uRWe/G/Z.9HT3Xbp13Tu6qBOPc0mLCCZO6w3YcIe
+```
+
+4. Start the development environment:
+
+```bash
+npm run dev:with-db
+```
+
+This will:
+
+- Start PostgreSQL in a Docker container
+- Run migrations and add demo data
+- Start the Remix development server
+
+For more detailed information about the development environment, see [DEVELOPMENT.md](DEVELOPMENT.md).
+
+## Using the application
+
+Once the application is running, you can access it at http://localhost:3000.
+
+Use the demo account to log in:
+
+- Email: demo@example.com
+- Password: demo-password
+
+## License
+
+[MIT](LICENSE)
