@@ -173,7 +173,7 @@ export async function loginDemoUser(request: Request): Promise<Response> {
     request,
     userId: demoUserId,
     remember: false,
-    redirectTo: '/dashboard',
+    redirectTo: '/overview',
   })
 }
 

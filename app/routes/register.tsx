@@ -24,7 +24,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request)
 
   if (userId) {
-    return redirect('/dashboard')
+    return redirect('/overview')
   }
 
   return {}

@@ -22,7 +22,7 @@ type MenuItem = {
 const MENU_ITEMS: MenuItem[] = [
   {
     name: 'overview',
-    path: '/dashboard',
+    path: '/overview',
     icon: '/assets/icons/OverviewIcon.svg',
     label: 'Overview',
   },
@@ -56,8 +56,8 @@ function TabBar() {
   const location = useLocation()
 
   const isActive = (path: string): boolean => {
-    if (path === '/dashboard') {
-      return location.pathname === '/dashboard' || location.pathname === '/'
+    if (path === '/overview') {
+      return location.pathname === '/overview' || location.pathname === '/'
     }
     return location.pathname === path
   }
@@ -100,62 +100,10 @@ function TabBar() {
 export function SidebarContents() {
   const { state, toggleSidebar } = useSidebar()
   const location = useLocation()
-
   const isCollapsed = state === 'collapsed'
 
-  // Updated handleMinimize to remove direct DOM manipulation
   const handleMinimize = () => {
     toggleSidebar()
-  }
-
-  // Framer Motion animation variants
-  const buttonVariants = {
-    initial: {
-      backgroundColor: 'transparent',
-      borderLeftColor: 'transparent',
-      borderLeftWidth: '4px',
-    },
-    hover: {
-      backgroundColor: '#F8F4F0',
-      borderLeftColor: '#277C78',
-      borderLeftWidth: '4px',
-    },
-    active: {
-      backgroundColor: '#F8F4F0',
-      borderLeftColor: '#277C78',
-      borderLeftWidth: '4px',
-    },
-  }
-
-  const iconVariants = {
-    initial: { filter: 'none' },
-    hover: {
-      filter:
-        'invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%)',
-    },
-    active: {
-      filter:
-        'invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%)',
-    },
-  }
-
-  const textVariants = {
-    initial: { color: '#B3B3B3' },
-    hover: { color: '#201F24' },
-    active: { color: '#201F24' },
-  }
-
-  // Text animation variants
-  const textDisplayVariants = {
-    hidden: { opacity: 0, display: 'none', transition: { duration: 0.01 } },
-    visible: {
-      opacity: 1,
-      display: 'block',
-      transition: {
-        delay: 0.15,
-        duration: 0.2,
-      },
-    },
   }
 
   return (
@@ -191,11 +139,13 @@ export function SidebarContents() {
       </SidebarHeader>
 
       <SidebarContentSection>
-        <SidebarMenu>
+        <SidebarMenu
+          className={`${!isCollapsed ? 'pr-[24px]' : ''} flex flex-col gap-2`}
+        >
           {MENU_ITEMS.map((item) => {
             const isActive =
               location.pathname === item.path ||
-              (item.path === '/dashboard' && location.pathname === '/')
+              (item.path === '/overview' && location.pathname === '/')
 
             return (
               <SidebarMenuItem
@@ -265,7 +215,9 @@ export function SidebarContents() {
       </SidebarContentSection>
 
       <SidebarFooter className='group/minimize p-0 w-full flex items-center justify-center mb-12'>
-        <SidebarMenuItem className='group w-full flex justify-center'>
+        <SidebarMenuItem
+          className={`${!isCollapsed ? 'pr-[24px]' : ''} group w-full flex justify-center`}
+        >
           <SidebarMenuButton
             asChild
             tooltip='Minimize Menu'
@@ -338,4 +290,46 @@ export function AppSidebar() {
       <div className='md:hidden h-[68px]'></div>
     </>
   )
+}
+
+const buttonVariants = {
+  initial: {
+    backgroundColor: 'transparent',
+    borderLeftColor: 'transparent',
+    borderLeftWidth: '4px',
+  },
+  hover: {
+    backgroundColor: '#F8F4F0',
+    borderLeftColor: '#277C78',
+    borderLeftWidth: '4px',
+  },
+  active: {
+    backgroundColor: '#F8F4F0',
+    borderLeftColor: '#277C78',
+    borderLeftWidth: '4px',
+  },
+}
+
+const iconVariants = {
+  initial: { filter: 'none' },
+  hover: {
+    filter:
+      'invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%)',
+  },
+  active: {
+    filter:
+      'invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%)',
+  },
+}
+
+const textDisplayVariants = {
+  hidden: { opacity: 0, display: 'none', transition: { duration: 0.01 } },
+  visible: {
+    opacity: 1,
+    display: 'block',
+    transition: {
+      delay: 0.15,
+      duration: 0.2,
+    },
+  },
 }
