@@ -28,7 +28,7 @@ const MENU_ITEMS: MenuItem[] = [
   },
   {
     name: 'transactions',
-    path: '/transactions',
+    path: '/monzo-auth',
     icon: '/assets/icons/TransactionsIcon.svg',
     label: 'Transactions',
   },

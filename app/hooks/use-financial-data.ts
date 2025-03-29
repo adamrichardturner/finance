@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import demoData from '../../public/data.json'
+import demoDataJson from '../lib/data.json'
 
 // Define types for financial data
 export interface FinancialData {
@@ -21,25 +21,41 @@ export interface Transaction {
   avatar?: string
 }
 
-/**
- * Transform transaction data from the JSON format to our application format
- */
-function transformTransaction(transaction: any): Transaction {
-  return {
+// Create structured demo data from the JSON
+const demoData: FinancialData = {
+  balance: demoDataJson.balance.current,
+  income: demoDataJson.balance.income,
+  expenses: demoDataJson.balance.expenses,
+  transactions: demoDataJson.transactions.slice(0, 10).map((tx) => ({
     id: Math.random().toString(36).substring(2, 9),
-    date: new Date(transaction.date).toISOString().slice(0, 10),
-    description: transaction.name,
-    amount: transaction.amount,
-    type: transaction.amount > 0 ? 'income' : 'expense',
-    category: transaction.category,
-    avatar: transaction.avatar,
-  }
+    date: new Date(tx.date).toISOString().slice(0, 10),
+    description: tx.name,
+    amount: tx.amount,
+    type: tx.amount > 0 ? 'income' : 'expense',
+    category: tx.category,
+    avatar: tx.avatar,
+  })),
+  budgets: [],
+  pots: [],
+}
+
+// Default financial data for non-demo users
+const defaultFinancialData: FinancialData = {
+  balance: 4836.92,
+  income: 3814.25,
+  expenses: 1700.5,
+  transactions: [],
+  budgets: [],
+  pots: [],
 }
 
 /**
  * Custom hook to fetch and manage financial data based on the user type
  */
-export function useFinancialData(isDemoUser: boolean) {
+export function useFinancialData(
+  isDemoUser: boolean,
+  requestUrlOrRequest?: string | Request
+) {
   const [financialData, setFinancialData] = useState<FinancialData>({
     balance: 0,
     income: 0,
@@ -51,52 +67,22 @@ export function useFinancialData(isDemoUser: boolean) {
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [monzoConnected, setMonzoConnected] = useState(false)
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true)
-
-        if (isDemoUser) {
-          // Use the data from data.json for demo users
-          const balance = demoData.balance.current
-          const income = demoData.balance.income
-          const expenses = demoData.balance.expenses
-
-          // Transform transactions to our application format
-          const transactions = demoData.transactions
-            .slice(0, 10)
-            .map(transformTransaction)
-
-          setFinancialData({
-            balance,
-            income,
-            expenses,
-            transactions,
-            budgets: demoData.budgets,
-            pots: demoData.pots,
-          })
-        } else {
-          // For regular users, fetch from database
-          // For now, we'll use mock data
-          setFinancialData({
-            balance: 4836.92,
-            income: 3814.25,
-            expenses: 1700.5,
-            transactions: [],
-            budgets: [],
-            pots: [],
-          })
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)))
-      } finally {
-        setLoading(false)
-      }
+    // Synchronously set the demo data and return if we're in demo mode
+    if (isDemoUser) {
+      console.log('Using demo data:', demoData)
+      setFinancialData(demoData)
+      setLoading(false)
+      return
     }
 
-    loadData()
+    // Just use default data for non-demo users in the browser
+    console.log('Using default non-demo data')
+    setFinancialData(defaultFinancialData)
+    setLoading(false)
   }, [isDemoUser])
 
-  return { financialData, loading, error }
+  return { financialData, loading, error, monzoConnected }
 }

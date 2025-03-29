@@ -19,6 +19,41 @@ export default defineConfig({
         v3_lazyRouteDiscovery: true,
       },
     }),
+    // Custom plugin to resolve the remix:manifest warning
+    {
+      name: 'remix-manifest-resolver',
+      resolveId(id) {
+        if (id === 'remix:manifest') {
+          return id
+        }
+      },
+      load(id) {
+        if (id === 'remix:manifest') {
+          return 'export default {}'
+        }
+      },
+    },
     tsconfigPaths(),
   ],
+  build: {
+    manifest: true,
+  },
+  optimizeDeps: {
+    include: ['@remix-run/react'],
+  },
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
+  // Configure React compiler (React Fast Refresh)
+  server: {
+    hmr: true,
+  },
+  css: {
+    devSourcemap: true,
+  },
+  // Configure React compiler
+  esbuild: {
+    jsx: 'automatic',
+    jsxImportSource: 'react',
+  },
 })

@@ -165,7 +165,10 @@ export async function updateUserProfile(
 /**
  * Login as a demo user without credentials
  */
-export async function loginDemoUser(request: Request): Promise<Response> {
+export async function loginDemoUser(
+  request: Request,
+  redirectTo: string = '/overview'
+): Promise<Response> {
   const demoUserId = 'demo-user-id'
 
   // Create a session for the demo user
@@ -173,7 +176,7 @@ export async function loginDemoUser(request: Request): Promise<Response> {
     request,
     userId: demoUserId,
     remember: false,
-    redirectTo: '/dashboard',
+    redirectTo,
   })
 }
 

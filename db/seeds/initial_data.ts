@@ -10,7 +10,7 @@ export async function seed(knex: Knex): Promise<void> {
   const __dirname = dirname(__filename)
 
   // Read data from JSON file
-  const dataPath = path.resolve(__dirname, '../../public/data.json')
+  const dataPath = path.resolve(__dirname, '../../app/lib/data.json')
   const jsonData = JSON.parse(fs.readFileSync(dataPath, 'utf8'))
 
   // Clear existing tables

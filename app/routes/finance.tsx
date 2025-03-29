@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { getUser, requireUserId } from '~/services/auth/session.server'
-import demoData from '../../public/data.json'
+import demoData from '../lib/data.json'
 import { useState } from 'react'
 import { AppLayout } from '~/components/layouts/AppLayout'
 
