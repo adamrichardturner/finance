@@ -20,7 +20,7 @@ const Pots: React.FC<PotsProps> = ({ pots }) => {
   }
 
   return (
-    <Card className='p-[32px] h-2/3 flex flex-col gap-4 shadow-none'>
+    <Card className='p-[32px] flex flex-col gap-4 shadow-none'>
       <CardHeader className='flex p-0 flex-row justify-between items-center w-full'>
         <CardTitle className='text-[20px]'>Pots</CardTitle>
         <div className='text-[14px] text-[#696868] font-[500] flex flex-row items-center justify-end gap-[12px]'>

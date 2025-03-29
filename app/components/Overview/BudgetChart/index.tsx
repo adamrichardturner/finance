@@ -1,6 +1,5 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
 import Pointer from '../../../../public/assets/icons/Pointer.svg'
-import PieIcon from '../../../../public/assets/icons/DollarJar.svg'
 import { ChartContainer, ChartTooltipContent } from '~/components/ui/charts'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { cn } from '~/lib/utils'
@@ -12,15 +11,6 @@ interface BudgetChartProps {
   title?: string
 }
 
-interface BudgetSummaryProps {
-  total: string
-  data: Array<{
-    name: string
-    value: number
-    fill: string
-  }>
-}
-
 const BudgetChart: React.FC<BudgetChartProps> = ({
   budgets,
   title = 'Budget Allocation',
@@ -29,7 +19,7 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
     return null
   }
 
-  const { chartData, formattedTotal } = transformBudgetsToChart(budgets)
+  const { chartData, formattedTotal, total } = transformBudgetsToChart(budgets)
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -38,6 +28,33 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value)
+  }
+
+  // Calculate spent amount (for this demo, we'll use a percentage of the budget)
+  const spentAmount = Math.round(total * 0.35) // 35% of total budget for demo purposes
+  const formattedSpentAmount = formatCurrency(spentAmount)
+  const formattedLimit = formatCurrency(total)
+
+  // Helper function to create lighter and darker shades
+  const getLighterShade = (color: string, percent: number = 30): string => {
+    // For simplicity, assuming color is in hex format '#RRGGBB'
+    // In a real app, you might want to use a color library
+    if (!color.startsWith('#')) return color
+
+    const hex = color.slice(1)
+    // Convert hex to rgb
+    const r = parseInt(hex.slice(0, 2), 16)
+    const g = parseInt(hex.slice(2, 4), 16)
+    const b = parseInt(hex.slice(4, 6), 16)
+
+    // Lighten
+    const lighter = (value: number) =>
+      Math.min(255, value + Math.round((255 - value) * (percent / 100)))
+
+    // Convert back to hex
+    return `#${lighter(r).toString(16).padStart(2, '0')}${lighter(g)
+      .toString(16)
+      .padStart(2, '0')}${lighter(b).toString(16).padStart(2, '0')}`
   }
 
   return (
@@ -52,85 +69,91 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
         </div>
       </CardHeader>
       <div className='flex flex-row gap-4'>
-        <BudgetSummary total={formattedTotal} data={chartData} />
-        <ChartContainer className='flex-1 h-[200px]'>
+        <div className='relative flex-shrink-0 w-[220px] h-[220px]'>
           <ResponsiveContainer width='100%' height='100%'>
             <PieChart>
+              {/* Define gradients for each slice */}
+              <defs>
+                {chartData.map((entry, index) => (
+                  <radialGradient
+                    key={`gradient-${index}`}
+                    id={`gradient-${index}`}
+                    cx='50%'
+                    cy='50%'
+                    r='50%'
+                    fx='50%'
+                    fy='50%'
+                  >
+                    <stop
+                      offset='0%'
+                      stopColor={getLighterShade(entry.fill, 40)}
+                    />
+                    <stop offset='75%' stopColor={entry.fill} />
+                    <stop offset='100%' stopColor={entry.fill} />
+                  </radialGradient>
+                ))}
+              </defs>
+
+              {/* Shadow effect - outer pie */}
               <Pie
                 data={chartData}
                 dataKey='value'
                 nameKey='name'
                 cx='50%'
                 cy='50%'
-                outerRadius={80}
-                innerRadius={40}
+                outerRadius={100}
+                innerRadius={70}
                 paddingAngle={2}
-                label={({ name, percent }) =>
-                  `${name}: ${(percent * 100).toFixed(0)}%`
-                }
-                labelLine={false}
+                stroke='none'
+                startAngle={90}
+                endAngle={-270}
               >
                 {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                  <Cell
+                    key={`cell-outer-${index}`}
+                    fill={`url(#gradient-${index})`}
+                  />
                 ))}
               </Pie>
+
               <Tooltip
                 content={<ChartTooltipContent formatter={formatCurrency} />}
               />
             </PieChart>
           </ResponsiveContainer>
-        </ChartContainer>
+
+          {/* Center text showing spent and limit */}
+          <div className='absolute inset-0 flex flex-col items-center justify-center text-center'>
+            <h3 className='text-[32px] font-bold leading-8'>
+              {formattedSpentAmount}
+            </h3>
+            <p className='text-[14px] text-[#696868]'>
+              of {formattedLimit} limit
+            </p>
+          </div>
+        </div>
+
+        <div className='flex-1 flex flex-col justify-center gap-4 pl-4'>
+          {chartData.slice(0, 4).map((category, index) => (
+            <div key={index} className='flex items-center gap-4'>
+              <div
+                className='w-1 h-[40px] rounded-full'
+                style={{ backgroundColor: category.fill }}
+              ></div>
+              <div className='flex flex-col'>
+                <span className='text-[12px] font-[400] text-[#696868]'>
+                  {category.name}
+                </span>
+                <span className='text-[14px] font-[700]'>
+                  {formatCurrency(category.value)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </Card>
   )
 }
 
 export default BudgetChart
-
-const BudgetSummary: React.FC<BudgetSummaryProps> = ({ total, data }) => {
-  return (
-    <div className='p-4 bg-[#F8F4F0] flex flex-col justify-between w-5/12 rounded-lg'>
-      <div className='flex items-center mb-4'>
-        <div>
-          <img
-            src={PieIcon}
-            alt='Budget Icon'
-            className={`h-[40px] w-[40px] mb-1`}
-          />
-        </div>
-        <div className='pl-[16px]'>
-          <span className='text-color-grey-500 text-[14px]'>Total Budget</span>
-          <h3 className='text-[24px] font-semibold'>{total}</h3>
-        </div>
-      </div>
-      <div className='flex flex-col space-y-3'>
-        {data.slice(0, 4).map((item, index) => (
-          <div key={index} className='flex items-center'>
-            <span
-              className={cn('w-3 h-3 rounded-full mr-2')}
-              style={{ backgroundColor: item.fill }}
-            />
-            <div className='flex flex-col'>
-              <div className='flex justify-between w-full'>
-                <span className='text-[13px] text-[#696868]'>{item.name}</span>
-                <span className='text-[13px] font-semibold'>
-                  {new Intl.NumberFormat('en-GB', {
-                    style: 'currency',
-                    currency: 'GBP',
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  }).format(item.value)}
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
-        {data.length > 4 && (
-          <div className='text-[12px] text-[#696868] italic'>
-            +{data.length - 4} more categories
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}

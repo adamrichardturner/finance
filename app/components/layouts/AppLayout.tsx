@@ -37,7 +37,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           </div>
 
           {/* Main content area */}
-          <main className='flex-1 w-full h-full p-[40px] max-w-[1200px]'>
+          <main className='flex-1 w-full h-full p-[40px] max-w-[1100px]'>
             {children}
           </main>
         </div>

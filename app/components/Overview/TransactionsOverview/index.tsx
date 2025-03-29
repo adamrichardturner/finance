@@ -40,14 +40,14 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
       <CardHeader className='flex p-0 flex-row justify-between items-center w-full'>
         <CardTitle className='text-[20px]'>{title}</CardTitle>
         <div className='text-[14px] text-[#696868] font-[500] flex flex-row items-center justify-end gap-[12px]'>
-          See Details
+          View All
           <span>
             <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2`} />
           </span>
         </div>
       </CardHeader>
       <div className='flex flex-col divide-y'>
-        {transactions.slice(0, 4).map((transaction, index) => (
+        {transactions.slice(0, 5).map((transaction, index) => (
           <div
             key={transaction.id || index}
             className='py-4 first:pt-0 last:pb-0'
