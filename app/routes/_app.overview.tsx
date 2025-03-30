@@ -1,4 +1,4 @@
-import { json, type MetaFunction } from '@remix-run/node'
+import { type MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import Overview from '~/components/Overview'
 import { Budget, Pot, Transaction } from '~/types/finance.types'

@@ -7,6 +7,7 @@ import {
 } from '@remix-run/react'
 import type { LinksFunction, MetaFunction } from '@remix-run/node'
 import './tailwind.css'
+import { QueryProvider } from './providers/query-client'
 
 export const meta: MetaFunction = () => {
   return [
@@ -56,5 +57,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   console.log('Rendering App (root) component')
-  return <Outlet />
+  return (
+    <QueryProvider>
+      <Outlet />
+    </QueryProvider>
+  )
 }

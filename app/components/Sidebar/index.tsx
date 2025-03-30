@@ -12,6 +12,23 @@ import {
   useSidebar,
 } from '~/components/ui/sidebar'
 
+// Add custom styles to the head
+const CUSTOM_STYLES = `
+  .filter-active-icon {
+    filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%);
+  }
+  
+  .sidebar-menu-container:hover .sidebar-hover-icon {
+    filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%);
+  }
+`
+// Add styles to document head
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style')
+  style.innerHTML = CUSTOM_STYLES
+  document.head.appendChild(style)
+}
+
 type MenuItem = {
   name: string
   path: string
@@ -182,9 +199,7 @@ export function SidebarContents() {
       </SidebarHeader>
 
       <SidebarContentSection>
-        <SidebarMenu
-          className={`${!isCollapsed ? 'pr-[24px]' : ''} flex flex-col gap-2`}
-        >
+        <SidebarMenu className='flex flex-col gap-2 pr-6'>
           {MENU_ITEMS.map((item) => {
             const isActive =
               location.pathname === item.path ||
@@ -193,45 +208,32 @@ export function SidebarContents() {
             return (
               <SidebarMenuItem
                 key={item.name}
-                className='group w-full flex justify-center'
+                className='w-full flex justify-center'
               >
-                <SidebarMenuButton
-                  asChild
-                  tooltip={item.label}
-                  className={`${
-                    isCollapsed
-                      ? 'flex w-[92px] items-center justify-center p-4 mr-[4px]'
-                      : 'flex w-[300px] h-[56px] px-[32px] py-[16px] items-center gap-[16px]'
-                  } text-white rounded-r-[12px]`}
-                  data-active={isActive}
-                >
-                  <motion.div
-                    initial='initial'
-                    whileHover='hover'
-                    animate={isActive ? 'active' : 'initial'}
-                    variants={buttonVariants}
-                    transition={{ duration: 0.2 }}
-                    className={`flex ${
+                <Link to={item.path} className='w-full'>
+                  <SidebarMenuButton
+                    tooltip={item.label}
+                    className={`${
                       isCollapsed
-                        ? 'justify-center items-center w-full'
-                        : 'items-center gap-4'
-                    } w-full cursor-pointer`}
+                        ? 'flex w-[92px] items-center justify-center p-4'
+                        : 'flex h-[56px] px-[32px] py-[16px] items-center gap-[16px]'
+                    } text-white rounded-r-[12px] hover:bg-[#F8F4F0] sidebar-menu-container`}
+                    data-active={isActive}
                   >
-                    <Link
-                      to={item.path}
+                    <div
                       className={`flex ${
                         isCollapsed
                           ? 'justify-center items-center w-full'
                           : 'items-center gap-4'
-                      } w-full cursor-pointer`}
+                      } w-full h-full cursor-pointer`}
                     >
                       <div className='flex items-center justify-center'>
-                        <motion.img
+                        <img
                           src={item.icon}
                           alt={item.label}
-                          variants={iconVariants}
-                          transition={{ duration: 0.2 }}
-                          className={`${isCollapsed ? 'w-[24px] h-[24px]' : 'w-6'}`}
+                          className={`${isCollapsed ? 'w-[24px] h-[24px]' : 'w-6'} 
+                            ${isActive ? 'filter-active-icon' : ''} 
+                            sidebar-hover-icon transition-all duration-200`}
                         />
                       </div>
                       <AnimatePresence>
@@ -248,74 +250,57 @@ export function SidebarContents() {
                           </motion.span>
                         )}
                       </AnimatePresence>
-                    </Link>
-                  </motion.div>
-                </SidebarMenuButton>
+                    </div>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
             )
           })}
         </SidebarMenu>
       </SidebarContentSection>
 
-      <SidebarFooter className='group/minimize p-0 w-full flex items-center justify-center mb-12'>
-        <SidebarMenuItem
-          className={`${!isCollapsed ? 'pr-[24px]' : ''} group w-full flex justify-center`}
-        >
+      <SidebarFooter className='p-0 w-full flex items-center justify-center mb-12'>
+        <SidebarMenuItem className='w-full flex justify-center'>
           <SidebarMenuButton
-            asChild
             tooltip='Minimize Menu'
             data-active={false}
             className={`${
               isCollapsed
-                ? 'flex w-[92px] items-center justify-center p-4 mr-[4px]'
+                ? 'flex w-[92px] items-center justify-center p-4'
                 : 'flex w-[300px] h-[56px] px-[32px] py-[16px] items-center gap-[16px]'
-            } text-white rounded-r-[12px]`}
+            } text-white rounded-r-[12px] hover:bg-[#F8F4F0] sidebar-menu-container`}
+            onClick={handleMinimize}
           >
-            <motion.div
-              initial='initial'
-              whileHover='hover'
-              animate='initial'
-              variants={buttonVariants}
-              transition={{ duration: 0.2 }}
+            <div
               className={`flex ${
                 isCollapsed
                   ? 'justify-center items-center w-full'
                   : 'items-center gap-4'
-              } w-full cursor-pointer`}
-              onClick={handleMinimize}
+              } w-full h-full cursor-pointer`}
             >
-              <div
-                className={`flex ${
-                  isCollapsed
-                    ? 'justify-center items-center w-full'
-                    : 'items-center gap-4'
-                } w-full`}
-              >
-                <div className='flex items-center justify-center'>
-                  <motion.img
-                    src='/assets/icons/MinimizeIcon.svg'
-                    alt='Minimize Menu'
-                    variants={iconVariants}
-                    transition={{ duration: 0.2 }}
-                    className={`${isCollapsed ? 'w-[24px] h-[24px]' : 'w-6'}`}
-                  />
-                </div>
-                <AnimatePresence>
-                  {!isCollapsed && (
-                    <motion.span
-                      key='minimize-text'
-                      initial='hidden'
-                      animate='visible'
-                      exit='hidden'
-                      variants={textDisplayVariants}
-                      className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-bold leading-[150%]`}
-                    >
-                      Minimize Menu
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+              <div className='flex items-center justify-center'>
+                <img
+                  src='/assets/icons/MinimizeIcon.svg'
+                  alt='Minimize Menu'
+                  className={`${isCollapsed ? 'w-[24px] h-[24px]' : 'w-6'} 
+                    sidebar-hover-icon transition-all duration-200`}
+                />
               </div>
-            </motion.div>
+              <AnimatePresence>
+                {!isCollapsed && (
+                  <motion.span
+                    key='minimize-text'
+                    initial='hidden'
+                    animate='visible'
+                    exit='hidden'
+                    variants={textDisplayVariants}
+                    className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-bold leading-[150%]`}
+                  >
+                    Minimize Menu
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </div>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarFooter>
@@ -340,12 +325,12 @@ const buttonVariants = {
   initial: {
     backgroundColor: 'transparent',
     borderLeftColor: 'transparent',
-    borderLeftWidth: '4px',
+    borderLeftWidth: '0px',
   },
   hover: {
     backgroundColor: '#F8F4F0',
-    borderLeftColor: '#277C78',
-    borderLeftWidth: '4px',
+    borderLeftColor: 'transparent',
+    borderLeftWidth: '0px',
   },
   active: {
     backgroundColor: '#F8F4F0',
