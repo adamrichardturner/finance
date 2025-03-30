@@ -12,6 +12,20 @@ export const meta: MetaFunction = () => {
 export default function TransactionsPage() {
   return (
     <div className='space-y-4'>
+      <style>
+        {`
+          /* Hide scrollbar appearance only */
+          #scrollable-transactions::-webkit-scrollbar {
+            display: none;
+            width: 0;
+          }
+          
+          #scrollable-transactions {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+        `}
+      </style>
       <PageTitle title='Transactions' />
       <Transactions />
     </div>

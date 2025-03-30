@@ -301,19 +301,44 @@ export function Transactions() {
         {/* Transactions table with infinite scroll */}
         <div
           id='scrollable-transactions'
-          className='overflow-auto'
+          className='overflow-auto hide-scrollbar'
           style={{
             maxHeight: '65vh',
             scrollBehavior: 'smooth',
             WebkitOverflowScrolling: 'touch',
-            msOverflowStyle: 'none' /* IE and Edge */,
-            scrollbarWidth: 'none' /* Firefox */,
+            overflowY: 'auto',
           }}
         >
           <style>
             {`
-              #scrollable-transactions::-webkit-scrollbar {
-                display: none;
+              /* Hide all scrollbars within transactions component */
+              #scrollable-transactions::-webkit-scrollbar,
+              .infinite-scroll-component::-webkit-scrollbar,
+              .infinite-scroll-component__outerdiv::-webkit-scrollbar,
+              .rounded-md::-webkit-scrollbar,
+              table::-webkit-scrollbar,
+              div::-webkit-scrollbar {
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+              }
+              
+              #scrollable-transactions,
+              .infinite-scroll-component,
+              .infinite-scroll-component__outerdiv,
+              .rounded-md,
+              table,
+              div {
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+              }
+              
+              /* Additional fix for InfiniteScroll component */
+              .infinite-scroll-component {
+                overflow: auto !important;
+                overflow-y: auto !important;
+                -ms-overflow-style: none !important;
+                scrollbar-width: none !important;
               }
             `}
           </style>
@@ -329,11 +354,12 @@ export function Transactions() {
             }
             scrollableTarget='scrollable-transactions'
             scrollThreshold={0.8}
-            style={{ overflow: 'hidden' }}
+            style={{ overflow: 'hidden', overflowY: 'auto' }}
+            className='hide-scrollbar'
           >
             {visibleTransactions.length > 0 ? (
-              <div className='rounded-md border'>
-                <Table>
+              <div className='rounded-md border hide-scrollbar'>
+                <Table className='hide-scrollbar'>
                   <TableHeader>
                     <TableRow>
                       <TableHead className='w-[240px]'>
