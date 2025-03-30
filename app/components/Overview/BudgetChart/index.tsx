@@ -57,6 +57,28 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
       .padStart(2, '0')}${lighter(b).toString(16).padStart(2, '0')}`
   }
 
+  // Budget items component that can be reused in different layouts
+  const BudgetItems = () => (
+    <>
+      {chartData.slice(0, 4).map((category, index) => (
+        <div key={index} className='flex items-center sm:justify-end gap-4'>
+          <div
+            className='w-1 h-[40px] rounded-full'
+            style={{ backgroundColor: category.fill }}
+          ></div>
+          <div className='flex flex-col w-[92px]'>
+            <span className='text-[12px] font-[400] text-[#696868]'>
+              {category.name}
+            </span>
+            <span className='text-[14px] font-[700]'>
+              {formatCurrency(category.value)}
+            </span>
+          </div>
+        </div>
+      ))}
+    </>
+  )
+
   return (
     <Card className='p-[32px] flex flex-col gap-4 shadow-none'>
       <CardHeader className='flex p-0 flex-row justify-between items-center w-full'>
@@ -68,89 +90,85 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
           </span>
         </div>
       </CardHeader>
-      <div className='flex flex-row gap-4'>
-        <div className='relative flex-shrink-0 w-[220px] h-[220px]'>
-          <ResponsiveContainer width='100%' height='100%'>
-            <PieChart>
-              {/* Define gradients for each slice */}
-              <defs>
-                {chartData.map((entry, index) => (
-                  <radialGradient
-                    key={`gradient-${index}`}
-                    id={`gradient-${index}`}
-                    cx='50%'
-                    cy='50%'
-                    r='50%'
-                    fx='50%'
-                    fy='50%'
-                  >
-                    <stop
-                      offset='0%'
-                      stopColor={getLighterShade(entry.fill, 40)}
+
+      {/* Responsive layout container */}
+      <div className='flex flex-col sm:flex-row gap-4'>
+        {/* Chart section - centered on small screens */}
+        <div className='flex justify-center sm:justify-start'>
+          <div className='relative flex-shrink-0 w-[220px] h-[220px]'>
+            <ResponsiveContainer width='100%' height='100%'>
+              <PieChart>
+                {/* Define gradients for each slice */}
+                <defs>
+                  {chartData.map((entry, index) => (
+                    <radialGradient
+                      key={`gradient-${index}`}
+                      id={`gradient-${index}`}
+                      cx='50%'
+                      cy='50%'
+                      r='50%'
+                      fx='50%'
+                      fy='50%'
+                    >
+                      <stop
+                        offset='0%'
+                        stopColor={getLighterShade(entry.fill, 40)}
+                      />
+                      <stop offset='75%' stopColor={entry.fill} />
+                      <stop offset='100%' stopColor={entry.fill} />
+                    </radialGradient>
+                  ))}
+                </defs>
+
+                {/* Shadow effect - outer pie */}
+                <Pie
+                  data={chartData}
+                  dataKey='value'
+                  nameKey='name'
+                  cx='50%'
+                  cy='50%'
+                  outerRadius={100}
+                  innerRadius={70}
+                  paddingAngle={2}
+                  stroke='none'
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-outer-${index}`}
+                      fill={`url(#gradient-${index})`}
                     />
-                    <stop offset='75%' stopColor={entry.fill} />
-                    <stop offset='100%' stopColor={entry.fill} />
-                  </radialGradient>
-                ))}
-              </defs>
+                  ))}
+                </Pie>
 
-              {/* Shadow effect - outer pie */}
-              <Pie
-                data={chartData}
-                dataKey='value'
-                nameKey='name'
-                cx='50%'
-                cy='50%'
-                outerRadius={100}
-                innerRadius={70}
-                paddingAngle={2}
-                stroke='none'
-                startAngle={90}
-                endAngle={-270}
-              >
-                {chartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-outer-${index}`}
-                    fill={`url(#gradient-${index})`}
-                  />
-                ))}
-              </Pie>
+                <Tooltip
+                  content={<ChartTooltipContent formatter={formatCurrency} />}
+                />
+              </PieChart>
+            </ResponsiveContainer>
 
-              <Tooltip
-                content={<ChartTooltipContent formatter={formatCurrency} />}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-
-          {/* Center text showing spent and limit */}
-          <div className='absolute inset-0 flex flex-col items-center justify-center text-center'>
-            <h3 className='text-[32px] font-bold leading-8'>
-              {formattedSpentAmount}
-            </h3>
-            <p className='text-[14px] text-[#696868]'>
-              of {formattedLimit} limit
-            </p>
+            {/* Center text showing spent and limit */}
+            <div className='absolute inset-0 flex flex-col items-center justify-center text-center'>
+              <h3 className='text-[32px] font-bold leading-8'>
+                {formattedSpentAmount}
+              </h3>
+              <p className='text-[14px] text-[#696868]'>
+                of {formattedLimit} limit
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className='flex-1 flex flex-col justify-center gap-4 pl-4'>
-          {chartData.slice(0, 4).map((category, index) => (
-            <div key={index} className='flex items-center gap-4'>
-              <div
-                className='w-1 h-[40px] rounded-full'
-                style={{ backgroundColor: category.fill }}
-              ></div>
-              <div className='flex flex-col'>
-                <span className='text-[12px] font-[400] text-[#696868]'>
-                  {category.name}
-                </span>
-                <span className='text-[14px] font-[700]'>
-                  {formatCurrency(category.value)}
-                </span>
-              </div>
-            </div>
-          ))}
+        {/* Larger screens: Budget items to the right of the chart */}
+        <div className='hidden sm:flex flex-1 flex-col justify-center gap-4 pl-4'>
+          <BudgetItems />
         </div>
+      </div>
+
+      {/* Small screens: Budget items in a 2-column grid below the chart */}
+      <div className='sm:hidden grid grid-cols-2 gap-4 mt-4'>
+        <BudgetItems />
       </div>
     </Card>
   )

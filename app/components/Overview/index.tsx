@@ -31,16 +31,14 @@ const Overview: React.FC<OverviewProps> = ({
     navigate(path)
   }
 
-  // Common hover style for all cards
   const hoverClass =
     'cursor-pointer hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-shadow duration-200'
 
   return (
-    <div className='w-full'>
+    <div className='w-full my-[60px] sm:my-[0px]'>
       <PageTitle title='Overview' />
       <div className='flex flex-col gap-[32px]'>
-        {/* Pills - Equal width */}
-        <div className='grid grid-cols-3 gap-[24px]'>
+        <div className='grid grid-cols-1 2xl:grid-cols-3 gap-[24px] md:hidden'>
           <div className={hoverClass}>
             <Pill
               title='Total Balance'
@@ -63,11 +61,8 @@ const Overview: React.FC<OverviewProps> = ({
             />
           </div>
         </div>
-
-        {/* Two column layout with custom widths: 7/12 and 5/12 */}
-        <div className='grid grid-cols-12 gap-[24px]'>
-          {/* Left column - 7/12 width */}
-          <div className='col-span-12 md:col-span-7 flex flex-col gap-[32px]'>
+        <div className='flex flex-col 2xl:grid 2xl:grid-cols-12 gap-[32px]'>
+          <div className='w-full 2xl:col-span-7 flex flex-col gap-[32px]'>
             <div className={hoverClass} onClick={() => handleNavigate('/pots')}>
               <Pots pots={pots} />
             </div>
@@ -80,8 +75,7 @@ const Overview: React.FC<OverviewProps> = ({
             </div>
           </div>
 
-          {/* Right column - 5/12 width */}
-          <div className='col-span-12 md:col-span-5 flex flex-col gap-[32px]'>
+          <div className='w-full 2xl:col-span-5 flex flex-col gap-[32px]'>
             <div
               className={hoverClass}
               onClick={() => handleNavigate('/budgets')}
