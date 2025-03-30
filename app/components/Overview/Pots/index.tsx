@@ -30,9 +30,19 @@ const Pots: React.FC<PotsProps> = ({ pots }) => {
           </span>
         </div>
       </CardHeader>
-      <div className='flex flex-row gap-4'>
-        <PotTotal total={formattedTotal} />
-        <PotGridSummary pots={pots} />
+
+      <div className='flex flex-col w-full flex-1 sm:flex-row gap-4'>
+        <div className='flex justify-center w-full flex-1 sm:justify-start'>
+          <PotTotal total={formattedTotal} />
+        </div>
+
+        <div className='hidden sm:block flex-1'>
+          <PotGridSummary pots={pots} />
+        </div>
+      </div>
+
+      <div className='sm:hidden mt-4'>
+        <PotGridSmallScreen pots={pots} />
       </div>
     </Card>
   )
@@ -42,7 +52,7 @@ export default Pots
 
 export const PotTotal: React.FC<PotTotal> = ({ total }) => {
   return (
-    <div className='p-4 bg-[#F8F4F0] flex items-center w-5/12 rounded-lg'>
+    <div className='p-4 bg-[#F8F4F0] flex items-center w-full sm:w-full rounded-lg'>
       <div>
         <img
           src={DollarJar}
@@ -58,6 +68,34 @@ export const PotTotal: React.FC<PotTotal> = ({ total }) => {
   )
 }
 
+const PotGridSmallScreen: React.FC<PotsProps> = ({ pots }) => {
+  if (!pots || pots.length <= 0) {
+    return null
+  }
+
+  return (
+    <div className='grid grid-cols-2 gap-4'>
+      {pots.slice(0, 4).map((pot) => (
+        <div key={pot.id} className='relative w-full h-full pl-4'>
+          <div
+            className='absolute left-0 top-0 h-full w-1 rounded-full'
+            style={{ backgroundColor: pot.theme }}
+          />
+
+          <div className='w-full rounded-lg flex flex-col justify-between h-full'>
+            <span className='block font-semibold text-[12px] font-[400] text-[#696868]'>
+              {pot.name}
+            </span>
+            <span className='block text-gray-700 font-[700] text-[14px]'>
+              £{pot.total}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 const PotGridSummary: React.FC<PotsProps> = ({ pots }) => {
   if (!pots || pots.length <= 0) {
     return null
@@ -67,13 +105,11 @@ const PotGridSummary: React.FC<PotsProps> = ({ pots }) => {
     <div className='bg-white flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4'>
       {pots.slice(0, 4).map((pot) => (
         <div key={pot.id} className='relative w-full h-full pl-4'>
-          {/* Vertical capsule border */}
           <div
             className='absolute left-0 top-0 h-full w-1 rounded-full'
             style={{ backgroundColor: pot.theme }}
           />
 
-          {/* Content container */}
           <div className='w-full rounded-lg flex flex-col justify-between h-full'>
             <span className='block font-semibold text-[12px] font-[400] text-[#696868]'>
               {pot.name}

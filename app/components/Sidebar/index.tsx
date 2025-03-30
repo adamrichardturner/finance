@@ -52,6 +52,49 @@ const MENU_ITEMS: MenuItem[] = [
   },
 ]
 
+// Mobile TabBar for small screens (xs only)
+function MobileTabBar() {
+  const location = useLocation()
+
+  const isActive = (path: string): boolean => {
+    if (path === '/overview') {
+      return location.pathname === '/overview' || location.pathname === '/'
+    }
+    return location.pathname === path
+  }
+
+  // For mobile, we'll use 4 items (excluding Pots)
+  const mobileMenuItems = MENU_ITEMS.filter((item) => item.name !== 'pots')
+
+  return (
+    <div className='sm:hidden fixed bottom-0 left-0 right-0 bg-black h-[68px] flex justify-around items-center z-50'>
+      {mobileMenuItems.map((item) => (
+        <Link
+          key={item.name}
+          to={item.path}
+          className='flex flex-col items-center justify-center h-full w-1/4'
+        >
+          <div className='relative flex flex-col items-center pt-3'>
+            {isActive(item.path) && (
+              <div className='absolute -top-1 w-1.5 h-1.5 rounded-full bg-[#277C78]'></div>
+            )}
+            <img
+              src={item.icon}
+              alt={item.label}
+              className={`h-5 w-5 mb-1 ${
+                isActive(item.path)
+                  ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]'
+                  : 'opacity-70'
+              }`}
+            />
+          </div>
+        </Link>
+      ))}
+    </div>
+  )
+}
+
+// Medium screens TabBar (sm to md)
 function TabBar() {
   const location = useLocation()
 
@@ -63,7 +106,7 @@ function TabBar() {
   }
 
   return (
-    <div className='md:hidden fixed bottom-0 left-0 right-0 bg-black h-[68px] flex justify-around items-center z-50'>
+    <div className='hidden sm:flex md:hidden fixed bottom-0 left-0 right-0 bg-black h-[68px] justify-around items-center z-50'>
       {MENU_ITEMS.map((item) => (
         <Link
           key={item.name}
@@ -287,6 +330,7 @@ export function AppSidebar() {
         <SidebarContents />
       </SidebarProvider>
       <TabBar />
+      <MobileTabBar />
       <div className='md:hidden h-[68px]'></div>
     </>
   )
