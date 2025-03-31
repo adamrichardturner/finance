@@ -1,8 +1,7 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
 import Pointer from '../../../../public/assets/icons/Pointer.svg'
-import { ChartContainer, ChartTooltipContent } from '~/components/ui/charts'
+import { ChartTooltipContent } from '~/components/ui/charts'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
-import { cn } from '~/lib/utils'
 import { Budget } from '~/types/finance.types'
 import { transformBudgetsToChart } from '~/transformers/budgetTransformer'
 

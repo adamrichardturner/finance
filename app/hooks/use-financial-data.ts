@@ -1,66 +1,59 @@
-import { useState, useEffect } from 'react'
-import { AppTransaction } from '~/utils/transform-data'
+import { useQuery } from '@tanstack/react-query'
+import { FinancialData } from '~/types/finance.types'
 
-// Define types for financial data
-export interface FinancialData {
-  balance: number
-  income: number
-  expenses: number
-  transactions: AppTransaction[]
-  budgets: any[]
-  pots: any[]
+// Initial empty financial data structure
+const initialFinancialData: FinancialData = {
+  balance: {
+    current: 0,
+    income: 0,
+    expenses: 0,
+  },
+  transactions: [],
+  budgets: [],
+  pots: [],
+}
+
+// Fetch financial data function
+async function fetchFinancialData(): Promise<FinancialData> {
+  console.log('Fetching financial data from API')
+  const response = await fetch('/api/financial-data')
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch financial data: ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  console.log(
+    `Fetched financial data with ${data.transactions.length} transactions`
+  )
+  return data
 }
 
 /**
- * Custom hook to fetch and manage financial data
+ * Custom hook to fetch and manage financial data using React Query
  */
 export function useFinancialData() {
-  const [financialData, setFinancialData] = useState<FinancialData>({
-    balance: 0,
-    income: 0,
-    expenses: 0,
-    transactions: [],
-    budgets: [],
-    pots: [],
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['financialData'],
+    queryFn: fetchFinancialData,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    // Provide placeholder data when no data is available
+    placeholderData: initialFinancialData,
+    // Use a better retry strategy for network issues
+    retry: 3,
+    retryDelay: (attempt: number) =>
+      Math.min(attempt > 1 ? 2 ** attempt * 1000 : 1000, 30 * 1000),
   })
 
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true)
-
-        // Fetch data from the API endpoint
-        const response = await fetch('/api/financial-data')
-
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch financial data: ${response.statusText}`
-          )
-        }
-
-        const data = await response.json()
-
-        setFinancialData({
-          balance: data.balance || 0,
-          income: data.income || 0,
-          expenses: data.expenses || 0,
-          transactions: data.transactions || [],
-          budgets: data.budgets || [],
-          pots: data.pots || [],
-        })
-      } catch (err) {
-        console.error('Error loading financial data:', err)
-        setError(err instanceof Error ? err : new Error(String(err)))
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadData()
-  }, [])
-
-  return { financialData, loading, error }
+  return {
+    financialData: data || initialFinancialData,
+    loading: isLoading,
+    error:
+      error instanceof Error
+        ? error
+        : error
+          ? new Error('Unknown error')
+          : null,
+  }
 }

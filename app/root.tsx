@@ -7,6 +7,7 @@ import {
 } from '@remix-run/react'
 import type { LinksFunction, MetaFunction } from '@remix-run/node'
 import './tailwind.css'
+import { QueryProvider } from './providers/query-client'
 
 export const meta: MetaFunction = () => {
   return [
@@ -36,6 +37,31 @@ export const links: LinksFunction = () => [
   },
 ]
 
+// Global styles for the application
+const globalStyles = `
+  /* Custom scrollbar hiding class */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+  }
+  
+  .hide-scrollbar {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  
+  /* Ensure content still scrolls but without showing scrollbars */
+  .scrollable-content {
+    overflow: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollable-content::-webkit-scrollbar {
+    display: none;
+  }
+`
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='en'>
@@ -44,8 +70,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <Meta />
         <Links />
+        <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
       </head>
-      <body className='min-h-screen bg-[#F8F4F0] w-full dark:bg-gray-900 text-gray-900 dark:text-white font-sans'>
+      <body className='min-h-screen bg-[#F8F4F0] w-full dark:bg-gray-900 text-gray-900 dark:text-white font-sans overflow-x-hidden'>
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -56,5 +83,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   console.log('Rendering App (root) component')
-  return <Outlet />
+  return (
+    <QueryProvider>
+      <Outlet />
+    </QueryProvider>
+  )
 }
