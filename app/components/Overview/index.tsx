@@ -63,7 +63,7 @@ const Overview: React.FC<OverviewProps> = ({
         </div>
         <div className='flex flex-col 2xl:grid 2xl:grid-cols-12 gap-[32px]'>
           <div className='w-full 2xl:col-span-7 flex flex-col gap-[32px]'>
-            <div className={hoverClass} onClick={() => handleNavigate('/pots')}>
+            <div className={hoverClass}>
               <Pots pots={pots} />
             </div>
 
@@ -76,17 +76,11 @@ const Overview: React.FC<OverviewProps> = ({
           </div>
 
           <div className='w-full 2xl:col-span-5 flex flex-col gap-[32px]'>
-            <div
-              className={hoverClass}
-              onClick={() => handleNavigate('/budgets')}
-            >
+            <div className={hoverClass}>
               <BudgetChart budgets={budgets} />
             </div>
 
-            <div
-              className={`${hoverClass} flex-1`}
-              onClick={() => handleNavigate('/recurring-bills')}
-            >
+            <div className={`${hoverClass} flex-1`}>
               <RecurringBills bills={transactions} />
             </div>
           </div>
