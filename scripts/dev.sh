@@ -47,5 +47,5 @@ npm run docker:migrate
 
 # Start the development server
 echo "Starting development server..."
-echo "The application will be available at http://localhost:5173"
-npm run dev -- --host 0.0.0.0 --port 3000 
+echo "The application will be available at http://localhost:6001"
+npm run dev -- --host 0.0.0.0 --port 6001 

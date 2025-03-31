@@ -1,9 +1,9 @@
 services:
   app:
     image: node:18-alpine
-    command: sh -c "npm install && node scripts/dev-init-db.js && npm run dev -- --host 0.0.0.0 --port 3000"
+    command: sh -c "npm install && node scripts/dev-init-db.js && npm run dev -- --host 0.0.0.0 --port 6001"
     ports:
-      - '3000:3000'
+      - '6001:6001'
     depends_on:
       postgres:
         condition: service_healthy
