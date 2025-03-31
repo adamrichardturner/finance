@@ -14,4 +14,4 @@ process.env.PORT = port.toString()
 console.log(`Setting PORT=${port} for NODE_ENV=${nodeEnv}`)
 
 // Export the port for programmatic usage
-module.exports = port
+export default port
