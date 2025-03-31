@@ -40,7 +40,7 @@ app.all(
 
 // Determine port based on environment
 const port =
-  process.env.PORT || (process.env.NODE_ENV === 'production' ? 5000 : 6001)
+  process.env.PORT || (process.env.NODE_ENV === 'production' ? 6000 : 6001)
 const host = process.env.HOST || '0.0.0.0'
 
 app.listen(port, host, () => {

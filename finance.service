@@ -1,0 +1,14 @@
+[Unit]
+Description=Finance Application
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=adam
+WorkingDirectory=/var/www/finance
+ExecStart=/usr/bin/npm run start:prod
+Restart=on-failure
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target 
