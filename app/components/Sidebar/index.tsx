@@ -80,30 +80,50 @@ function MobileTabBar() {
     return location.pathname === path
   }
 
+  const isEnabled = (name: string): boolean => {
+    return name === 'overview' || name === 'transactions'
+  }
+
   // Use all menu items including Pots
   return (
     <div className='sm:hidden fixed bottom-0 left-0 pl-2 right-0 bg-[#201F24] h-[52px] flex justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
-      {MENU_ITEMS.map((item) => (
-        <Link
-          key={item.name}
-          to={item.path}
-          className={`flex flex-col items-center justify-center h-full flex-1 ${
-            isActive(item.path)
-              ? 'rounded-t-lg border-b-4 border-[#277C78] bg-[#F8F4F0] py-[8px] px-0 pb-[12px] gap-[4px]'
-              : 'py-3'
-          }`}
-        >
-          <img
-            src={item.icon}
-            alt={item.label}
-            className={`h-5 w-5 ${
+      {MENU_ITEMS.map((item) => {
+        const enabled = isEnabled(item.name)
+
+        return enabled ? (
+          <Link
+            key={item.name}
+            to={item.path}
+            className={`flex flex-col items-center justify-center h-full flex-1 ${
               isActive(item.path)
-                ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]'
-                : 'opacity-70'
+                ? 'rounded-t-lg border-b-4 border-[#277C78] bg-[#F8F4F0] py-[8px] px-0 pb-[12px] gap-[4px]'
+                : 'py-3'
             }`}
-          />
-        </Link>
-      ))}
+          >
+            <img
+              src={item.icon}
+              alt={item.label}
+              className={`h-5 w-5 ${
+                isActive(item.path)
+                  ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]'
+                  : 'opacity-70'
+              }`}
+            />
+          </Link>
+        ) : (
+          <div
+            key={item.name}
+            className='flex flex-col items-center justify-center h-full flex-1 py-3 opacity-40 cursor-not-allowed'
+            aria-disabled={true}
+          >
+            <img
+              src={item.icon}
+              alt={item.label}
+              className='h-5 w-5 opacity-70'
+            />
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -119,36 +139,57 @@ function TabBar() {
     return location.pathname === path
   }
 
+  const isEnabled = (name: string): boolean => {
+    return name === 'overview' || name === 'transactions'
+  }
+
   return (
     <div className='hidden sm:flex md:hidden fixed bottom-0 left-0 right-0 bg-[#201F24] h-[52px] justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
-      {MENU_ITEMS.map((item) => (
-        <Link
-          key={item.name}
-          to={item.path}
-          className={`flex flex-col items-center justify-center h-full flex-1 ${
-            isActive(item.path)
-              ? 'rounded-t-lg border-b-4 border-[#277C78] bg-[#F8F4F0] py-[8px] px-0 pb-[12px] gap-[4px]'
-              : 'py-3 gap-1'
-          }`}
-        >
-          <img
-            src={item.icon}
-            alt={item.label}
-            className={`h-5 w-5 ${
+      {MENU_ITEMS.map((item) => {
+        const enabled = isEnabled(item.name)
+
+        return enabled ? (
+          <Link
+            key={item.name}
+            to={item.path}
+            className={`flex flex-col items-center justify-center h-full flex-1 ${
               isActive(item.path)
-                ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]'
-                : 'opacity-70'
-            }`}
-          />
-          <span
-            className={`text-xs ${
-              isActive(item.path) ? 'text-[#277C78]' : 'text-gray-300'
+                ? 'rounded-t-lg border-b-4 border-[#277C78] bg-[#F8F4F0] py-[8px] px-0 pb-[12px] gap-[4px]'
+                : 'py-3 gap-1'
             }`}
           >
-            {item.label}
-          </span>
-        </Link>
-      ))}
+            <img
+              src={item.icon}
+              alt={item.label}
+              className={`h-5 w-5 ${
+                isActive(item.path)
+                  ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]'
+                  : 'opacity-70'
+              }`}
+            />
+            <span
+              className={`text-xs ${
+                isActive(item.path) ? 'text-[#277C78]' : 'text-gray-300'
+              }`}
+            >
+              {item.label}
+            </span>
+          </Link>
+        ) : (
+          <div
+            key={item.name}
+            className='flex flex-col items-center justify-center h-full flex-1 py-3 gap-1 opacity-40 cursor-not-allowed'
+            aria-disabled={true}
+          >
+            <img
+              src={item.icon}
+              alt={item.label}
+              className='h-5 w-5 opacity-70'
+            />
+            <span className='text-xs text-gray-300'>{item.label}</span>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -174,6 +215,10 @@ export function SidebarContents() {
 
   const handleMinimize = () => {
     toggleSidebar()
+  }
+
+  const isEnabled = (name: string): boolean => {
+    return name === 'overview' || name === 'transactions'
   }
 
   return (
@@ -237,57 +282,112 @@ export function SidebarContents() {
               location.pathname === item.path ||
               (item.path === '/overview' && location.pathname === '/')
 
+            const enabled = isEnabled(item.name)
+
             return (
               <SidebarMenuItem key={item.name} className='w-full'>
-                <Link
-                  to={item.path}
-                  className={
-                    isCollapsed ? 'w-full flex flex-1 justify-center' : 'w-full'
-                  }
-                >
-                  <SidebarMenuButton
-                    tooltip={item.label}
-                    className={`${
+                {enabled ? (
+                  <Link
+                    to={item.path}
+                    className={
                       isCollapsed
-                        ? 'flex w-full h-[56px] items-center justify-center'
-                        : 'flex h-[56px] w-full items-center gap-[16px] px-4'
-                    } text-white rounded-lg hover:bg-[#F8F4F0] sidebar-menu-container`}
-                    data-active={isActive}
+                        ? 'w-full flex flex-1 justify-center'
+                        : 'w-full'
+                    }
                   >
-                    <div
-                      className={`flex ${
+                    <SidebarMenuButton
+                      tooltip={item.label}
+                      className={`${
                         isCollapsed
-                          ? 'justify-center items-center w-full'
-                          : 'items-center gap-4'
-                      } h-full cursor-pointer`}
+                          ? 'flex w-full h-[56px] items-center justify-center'
+                          : 'flex h-[56px] w-full items-center gap-[16px] px-4'
+                      } text-white rounded-lg hover:bg-[#F8F4F0] sidebar-menu-container`}
+                      data-active={isActive}
                     >
-                      <div className='flex items-center justify-center w-6 h-6'>
-                        <img
-                          src={item.icon}
-                          alt={item.label}
-                          className={`w-5 h-5 
-                            ${isActive ? 'filter-active-icon' : ''} 
-                            sidebar-hover-icon`}
-                        />
+                      <div
+                        className={`flex ${
+                          isCollapsed
+                            ? 'justify-center items-center w-full'
+                            : 'items-center gap-4'
+                        } h-full cursor-pointer`}
+                      >
+                        <div className='flex items-center justify-center w-6 h-6'>
+                          <img
+                            src={item.icon}
+                            alt={item.label}
+                            className={`w-5 h-5 
+                              ${isActive ? 'filter-active-icon' : ''} 
+                              sidebar-hover-icon`}
+                          />
+                        </div>
+                        <AnimatePresence mode='wait'>
+                          {!isCollapsed && (
+                            <motion.span
+                              key={`menu-text-${item.name}`}
+                              initial='hidden'
+                              animate='visible'
+                              exit='exit'
+                              variants={textFadeVariants}
+                              transition={{ duration: 0.2 }}
+                              className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
+                            >
+                              {item.label}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
                       </div>
-                      <AnimatePresence mode='wait'>
-                        {!isCollapsed && (
-                          <motion.span
-                            key={`menu-text-${item.name}`}
-                            initial='hidden'
-                            animate='visible'
-                            exit='exit'
-                            variants={textFadeVariants}
-                            transition={{ duration: 0.2 }}
-                            className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
-                          >
-                            {item.label}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  </SidebarMenuButton>
-                </Link>
+                    </SidebarMenuButton>
+                  </Link>
+                ) : (
+                  <div
+                    className={
+                      isCollapsed
+                        ? 'w-full flex flex-1 justify-center'
+                        : 'w-full'
+                    }
+                  >
+                    <SidebarMenuButton
+                      tooltip={item.label}
+                      className={`${
+                        isCollapsed
+                          ? 'flex w-full h-[56px] items-center justify-center'
+                          : 'flex h-[56px] w-full items-center gap-[16px] px-4'
+                      } text-white rounded-lg opacity-40 cursor-not-allowed`}
+                      disabled={true}
+                    >
+                      <div
+                        className={`flex ${
+                          isCollapsed
+                            ? 'justify-center items-center w-full'
+                            : 'items-center gap-4'
+                        } h-full cursor-not-allowed`}
+                      >
+                        <div className='flex items-center justify-center w-6 h-6'>
+                          <img
+                            src={item.icon}
+                            alt={item.label}
+                            className='w-5 h-5'
+                          />
+                        </div>
+                        <AnimatePresence mode='wait'>
+                          {!isCollapsed && (
+                            <motion.span
+                              key={`menu-text-${item.name}`}
+                              initial='hidden'
+                              animate='visible'
+                              exit='exit'
+                              variants={textFadeVariants}
+                              transition={{ duration: 0.2 }}
+                              className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
+                            >
+                              {item.label}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </SidebarMenuButton>
+                  </div>
+                )}
               </SidebarMenuItem>
             )
           })}
