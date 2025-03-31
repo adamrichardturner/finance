@@ -76,7 +76,7 @@ const startApp = async () => {
     console.log('Starting application...')
     // Set the correct port based on environment
     const nodeEnv = process.env.NODE_ENV || 'development'
-    process.env.PORT = nodeEnv === 'production' ? '6000' : '3000'
+    process.env.PORT = nodeEnv === 'production' ? '6000' : '6001'
     console.log(`Using port ${process.env.PORT} for environment ${nodeEnv}`)
 
     execSync('node server.js', { stdio: 'inherit' })

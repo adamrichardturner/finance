@@ -4,12 +4,12 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - '${PORT:-3000}:${PORT:-3000}'
+      - '${PORT:-6001}:${PORT:-6001}'
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      - PORT=${PORT:-3000}
+      - PORT=${PORT:-6001}
       - NODE_ENV=${NODE_ENV:-development}
       - DB_USER=${DB_USER:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-postgres}

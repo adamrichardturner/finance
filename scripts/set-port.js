@@ -6,7 +6,7 @@
  */
 
 const nodeEnv = process.env.NODE_ENV || 'development'
-const port = nodeEnv === 'production' ? 6000 : 3000
+const port = nodeEnv === 'production' ? 6000 : 6001
 
 // Set the PORT environment variable for the current process
 process.env.PORT = port.toString()

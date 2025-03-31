@@ -45,7 +45,7 @@ ENV HOST=0.0.0.0
 ENV DOCKER_ENV=true
 
 # Expose both development and production ports
-EXPOSE 3000 6000
+EXPOSE 6001 6000
 
 # Start the app
 CMD ["npm", "run", "start:with-db"]

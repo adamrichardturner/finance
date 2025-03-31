@@ -52,7 +52,7 @@ docker-compose exec app npm run db:migrate
 docker-compose exec app npm run db:seed
 
 echo "Docker containers started successfully!"
-echo "App should be available at: http://localhost:3000"
+echo "App should be available at: http://localhost:6001"
 echo ""
 echo "Database credentials:"
 echo "  - User: $DB_USER"

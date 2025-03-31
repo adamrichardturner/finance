@@ -67,7 +67,7 @@ npm run db:init
 npm run dev
 ```
 
-5. Open your browser at http://localhost:3000
+5. Open your browser at http://localhost:6001
 
 ## Environment Variables
 
@@ -150,7 +150,7 @@ cp .env.example .env
 
 3. Make sure your `.env` file contains the following variables:
 
-```
+```bash
 DB_USER=finance
 DB_PASSWORD=finance-password
 DB_HOST=localhost
@@ -177,7 +177,7 @@ For more detailed information about the development environment, see [DEVELOPMEN
 
 ## Using the application
 
-Once the application is running, you can access it at http://localhost:3000.
+Once the application is running, you can access it at http://localhost:6001.
 
 Use the demo account to log in:
 
