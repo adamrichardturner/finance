@@ -23,7 +23,11 @@ const buildConnectionFromEnv = () => {
       database: DB_NAME,
     }
   }
-  return DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/finance'
+  const defaultPort = DB_PORT || '5432'
+  return (
+    DATABASE_URL ||
+    `postgres://postgres:postgres@localhost:${defaultPort}/finance`
+  )
 }
 
 export default {

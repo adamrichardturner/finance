@@ -13,6 +13,9 @@ else
   echo "No .env file found. Using default environment variables."
 fi
 
+# Set default values if environment variables are not set
+DB_PORT=${DB_PORT:-5432}
+
 # Create a network if it doesn't exist
 docker network inspect my_network >/dev/null 2>&1 || docker network create my_network
 
@@ -20,6 +23,7 @@ docker network inspect my_network >/dev/null 2>&1 || docker network create my_ne
 export DB_USER=${DB_USER}
 export DB_PASSWORD=${DB_PASSWORD}
 export DB_NAME=${DB_NAME}
+export DB_PORT=${DB_PORT}
 
 # Check if SESSION_SECRET is set
 if [ -z "$SESSION_SECRET" ]; then
@@ -34,7 +38,7 @@ docker run --name postgres-finance \
   -e POSTGRES_USER=$DB_USER \
   -e POSTGRES_PASSWORD=$DB_PASSWORD \
   -e POSTGRES_DB=$DB_NAME \
-  -p 5432:5432 \
+  -p $DB_PORT:5432 \
   -d \
   --network=my_network \
   postgres:15
@@ -48,7 +52,7 @@ sleep 5
 # Print connection info
 echo "PostgreSQL connection info:"
 echo "Host: localhost"
-echo "Port: 5432"
+echo "Port: $DB_PORT"
 echo "User: $DB_USER"
 echo "Password: $DB_PASSWORD"
 echo "Database: $DB_NAME"

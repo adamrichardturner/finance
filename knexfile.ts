@@ -9,13 +9,15 @@ const __dirname = dirname(__filename)
 // Load environment variables from .env file
 config({ path: resolve(__dirname, '.env') })
 
-const { DATABASE_URL } = process.env
+const { DATABASE_URL, DB_PORT } = process.env
+const defaultPort = DB_PORT || '5432'
 
 export default {
   development: {
     client: 'pg',
     connection:
-      DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/finance',
+      DATABASE_URL ||
+      `postgres://postgres:postgres@localhost:${defaultPort}/finance`,
     migrations: {
       directory: './db/migrations',
       extension: 'ts',
