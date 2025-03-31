@@ -10,13 +10,28 @@ import './tailwind.css'
 import { QueryProvider } from './providers/query-client'
 
 export const meta: MetaFunction = () => {
+  const title = 'FinanceApp - Take control of your finances'
+  const description =
+    'Track expenses, set budgets, and achieve your financial goals with our intuitive finance management application.'
+  const imageUrl = 'https://finance.adamrichardturner.dev/og-image.png'
+
   return [
-    { title: 'FinanceApp - Take control of your finances' },
-    {
-      name: 'description',
-      content:
-        'Track expenses, set budgets, and achieve your financial goals with our intuitive finance management application.',
-    },
+    { title },
+    { name: 'description', content: description },
+
+    // Open Graph / Facebook
+    { property: 'og:type', content: 'website' },
+    { property: 'og:url', content: 'https://finance.adamrichardturner.dev/' },
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: description },
+    { property: 'og:image', content: imageUrl },
+
+    // Twitter
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:url', content: 'https://finance.adamrichardturner.dev/' },
+    { name: 'twitter:title', content: title },
+    { name: 'twitter:description', content: description },
+    { name: 'twitter:image', content: imageUrl },
   ]
 }
 
