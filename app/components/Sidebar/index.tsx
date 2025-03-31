@@ -1,4 +1,5 @@
 import { Link, useLocation } from '@remix-run/react'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   Sidebar,
   SidebarContent as SidebarContentSection,
@@ -79,31 +80,28 @@ function MobileTabBar() {
     return location.pathname === path
   }
 
-  // For mobile, we'll use 4 items (excluding Pots)
-  const mobileMenuItems = MENU_ITEMS.filter((item) => item.name !== 'pots')
-
+  // Use all menu items including Pots
   return (
-    <div className='sm:hidden fixed bottom-0 left-0 right-0 bg-black h-[68px] flex justify-around items-center z-50'>
-      {mobileMenuItems.map((item) => (
+    <div className='sm:hidden fixed bottom-0 left-0 pl-2 right-0 bg-[#201F24] h-[52px] flex justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
+      {MENU_ITEMS.map((item) => (
         <Link
           key={item.name}
           to={item.path}
-          className='flex flex-col items-center justify-center h-full w-1/4'
+          className={`flex flex-col items-center justify-center h-full flex-1 ${
+            isActive(item.path)
+              ? 'rounded-t-lg border-b-4 border-[#277C78] bg-[#F8F4F0] py-[8px] px-0 pb-[12px] gap-[4px]'
+              : 'py-3'
+          }`}
         >
-          <div className='relative flex flex-col items-center pt-3'>
-            {isActive(item.path) && (
-              <div className='absolute -top-1 w-1.5 h-1.5 rounded-full bg-[#277C78]'></div>
-            )}
-            <img
-              src={item.icon}
-              alt={item.label}
-              className={`h-5 w-5 mb-1 ${
-                isActive(item.path)
-                  ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]'
-                  : 'opacity-70'
-              }`}
-            />
-          </div>
+          <img
+            src={item.icon}
+            alt={item.label}
+            className={`h-5 w-5 ${
+              isActive(item.path)
+                ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]'
+                : 'opacity-70'
+            }`}
+          />
         </Link>
       ))}
     </div>
@@ -122,38 +120,51 @@ function TabBar() {
   }
 
   return (
-    <div className='hidden sm:flex md:hidden fixed bottom-0 left-0 right-0 bg-black h-[68px] justify-around items-center z-50'>
+    <div className='hidden sm:flex md:hidden fixed bottom-0 left-0 right-0 bg-[#201F24] h-[52px] justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
       {MENU_ITEMS.map((item) => (
         <Link
           key={item.name}
           to={item.path}
-          className='flex flex-col items-center justify-center h-full w-1/5'
+          className={`flex flex-col items-center justify-center h-full flex-1 ${
+            isActive(item.path)
+              ? 'rounded-t-lg border-b-4 border-[#277C78] bg-[#F8F4F0] py-[8px] px-0 pb-[12px] gap-[4px]'
+              : 'py-3 gap-1'
+          }`}
         >
-          <div className='relative flex flex-col items-center pt-3'>
-            {isActive(item.path) && (
-              <div className='absolute -top-1 w-1.5 h-1.5 rounded-full bg-[#277C78]'></div>
-            )}
-            <img
-              src={item.icon}
-              alt={item.label}
-              className={`h-5 w-5 mb-1 ${
-                isActive(item.path)
-                  ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]'
-                  : 'opacity-70'
-              }`}
-            />
-            <span
-              className={`text-xs ${
-                isActive(item.path) ? 'text-[#277C78]' : 'text-gray-300'
-              }`}
-            >
-              {item.label}
-            </span>
-          </div>
+          <img
+            src={item.icon}
+            alt={item.label}
+            className={`h-5 w-5 ${
+              isActive(item.path)
+                ? '[filter:invert(27%)_sepia(44%)_saturate(489%)_hue-rotate(127deg)_brightness(92%)_contrast(90%)]'
+                : 'opacity-70'
+            }`}
+          />
+          <span
+            className={`text-xs ${
+              isActive(item.path) ? 'text-[#277C78]' : 'text-gray-300'
+            }`}
+          >
+            {item.label}
+          </span>
         </Link>
       ))}
     </div>
   )
+}
+
+// Menu item text animations
+const textFadeVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+  exit: { opacity: 0 },
+}
+
+// Logo animations
+const logoFadeVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+  exit: { opacity: 0 },
 }
 
 export function SidebarContents() {
@@ -181,24 +192,46 @@ export function SidebarContents() {
         }`}
       >
         <div className='flex items-center'>
-          {isCollapsed ? (
-            <img
-              src='/assets/logos/LogoMobile.svg'
-              alt='Finance'
-              className='h-auto w-auto'
-            />
-          ) : (
-            <img
-              src='/assets/logos/LogoDesktop.svg'
-              alt='Finance'
-              className='h-6'
-            />
-          )}
+          <AnimatePresence mode='wait'>
+            {isCollapsed ? (
+              <motion.div
+                key='mobile-logo'
+                initial='hidden'
+                animate='visible'
+                exit='exit'
+                variants={logoFadeVariants}
+                transition={{ duration: 0.2 }}
+              >
+                <img
+                  src='/assets/logos/LogoMobile.svg'
+                  alt='Finance'
+                  className='h-auto w-auto'
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key='desktop-logo'
+                initial='hidden'
+                animate='visible'
+                exit='exit'
+                variants={logoFadeVariants}
+                transition={{ duration: 0.2 }}
+              >
+                <img
+                  src='/assets/logos/LogoDesktop.svg'
+                  alt='Finance'
+                  className='h-6'
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </SidebarHeader>
 
       <SidebarContentSection>
-        <SidebarMenu className='flex flex-col gap-4 px-0'>
+        <SidebarMenu
+          className={`flex flex-col gap-4 px-0 ${isCollapsed ? 'pr-0' : 'pr-4'}`}
+        >
           {MENU_ITEMS.map((item) => {
             const isActive =
               location.pathname === item.path ||
@@ -216,8 +249,8 @@ export function SidebarContents() {
                     tooltip={item.label}
                     className={`${
                       isCollapsed
-                        ? 'flex w-full h-[48px] items-center justify-center'
-                        : 'flex h-[48px] w-full items-center gap-[16px] px-4'
+                        ? 'flex w-full h-[56px] items-center justify-center'
+                        : 'flex h-[56px] w-full items-center gap-[16px] px-4'
                     } text-white rounded-lg hover:bg-[#F8F4F0] sidebar-menu-container`}
                     data-active={isActive}
                   >
@@ -237,13 +270,21 @@ export function SidebarContents() {
                             sidebar-hover-icon`}
                         />
                       </div>
-                      {!isCollapsed && (
-                        <span
-                          className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
-                        >
-                          {item.label}
-                        </span>
-                      )}
+                      <AnimatePresence mode='wait'>
+                        {!isCollapsed && (
+                          <motion.span
+                            key={`menu-text-${item.name}`}
+                            initial='hidden'
+                            animate='visible'
+                            exit='exit'
+                            variants={textFadeVariants}
+                            transition={{ duration: 0.2 }}
+                            className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
+                          >
+                            {item.label}
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
                     </div>
                   </SidebarMenuButton>
                 </Link>
@@ -284,13 +325,21 @@ export function SidebarContents() {
                 className='w-5 h-5 sidebar-hover-icon'
               />
             </div>
-            {!isCollapsed && (
-              <span
-                className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
-              >
-                Minimize Menu
-              </span>
-            )}
+            <AnimatePresence mode='wait'>
+              {!isCollapsed && (
+                <motion.span
+                  key='minimize-text'
+                  initial='hidden'
+                  animate='visible'
+                  exit='exit'
+                  variants={textFadeVariants}
+                  transition={{ duration: 0.2 }}
+                  className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
+                >
+                  Minimize Menu
+                </motion.span>
+              )}
+            </AnimatePresence>
           </div>
         </SidebarMenuButton>
       </SidebarFooter>
@@ -306,7 +355,7 @@ export function AppSidebar() {
       </SidebarProvider>
       <TabBar />
       <MobileTabBar />
-      <div className='md:hidden h-[68px]'></div>
+      <div className='md:hidden h-[52px]'></div>
     </>
   )
 }
