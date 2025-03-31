@@ -4,12 +4,12 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - '${PORT:-6000}:${PORT:-6000}'
+      - '6001:6001'
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      - PORT=${PORT:-6000}
+      - PORT=6001
       - NODE_ENV=production
       - DB_USER=${DB_USER:-finance}
       - DB_PASSWORD=${DB_PASSWORD:-finance}
@@ -28,7 +28,7 @@ services:
   postgres:
     image: postgres:15
     ports:
-      - '5432:5432'
+      - '6000:5432'
     environment:
       - POSTGRES_USER=${DB_USER:-finance}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-finance}
@@ -37,7 +37,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./scripts/init-postgres-processed.sql:/docker-entrypoint-initdb.d/init-postgres.sql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-finance}']
+      test: [ 'CMD-SHELL', 'pg_isready -U ${DB_USER:-finance}' ]
       interval: 5s
       timeout: 5s
       retries: 5
