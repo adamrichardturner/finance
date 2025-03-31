@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="">
+    <meta property='og:title' content="404">
+    <meta property='og:description' content="">
+
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+    <title>404</title>
+
+    <style>
+
+        @font-face {
+            font-family: "Roboto Regular";
+            src: url("../../css/font/Roboto/Roboto-Regular.ttf") format("truetype")
+        }
+        @font-face {
+            font-family: "Roboto Regular";
+            src: url("../../css/font/Roboto/Roboto-Bold.ttf");
+            font-weight: bold;
+        }
+        @font-face {
+            font-family: "Roboto Regular";
+            src: url("../../css/font/Roboto/Roboto-Italic.ttf");
+            font-style: italic;
+        }
+        @font-face {
+            font-family: "Roboto Regular";
+            src: url("../../css/font/Roboto/Roboto-BoldItalic.ttf");
+            font-weight: bold;
+            font-style: italic;
+        }
+
+
+        body{
+            font-family: "Roboto Regular";
+        }
+        .body-flex {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            margin: 0!important;
+        }
+        .header {
+            margin-bottom: 15px;
+        }
+        .header-block{
+            text-align: center;
+            padding: 0 15px;
+        }
+        .header-top-row{
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin: 15px 0 0;
+        }
+
+
+
+        .main-content {
+            flex: 1;
+        }
+        .main-content-block{
+            padding: 15px;
+        }
+        #runner{
+            margin-bottom: 60px;
+        }
+        .main-text{
+            margin: 0 0 30px;
+        }
+        .main-text img, .seo-text img{
+            display: block;
+            float: left;
+            margin: 15px 40px 15px 0;
+            max-width: 50%;
+            object-fit: contain;
+        }
+        .main-text table, .seo-text table{
+            margin: 15px auto;
+            border-collapse: collapse;
+        }
+        .main-text table th, .main-text table td, .seo-text table th, .seo-text table td{
+            border: 1px solid black;
+            padding: 10px;
+        }
+
+        .footer {
+
+        }
+        .footer-block {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .p-relative{
+            position: relative;
+        }
+
+        .container{
+            width: 100%;
+            margin: 0 auto;
+        }
+        /*Small devices (landscape phones, 576px and up)*/
+        @media (min-width: 576px) {
+            .container{
+                width: 575px;
+            }
+        }
+        /*Medium devices (tablets, 768px and up)*/
+        @media (min-width: 768px) {
+            .container{
+                width: 700px;
+            }
+            .footer-block{
+                justify-content: flex-start;
+            }
+        }
+        /*Large devices (desktops, 992px and up)*/
+        @media (min-width: 992px) {
+            .container{
+                width: 700px;
+            }
+
+        }
+        /*Extra large devices (large desktops, 1200px and up)*/
+        @media (min-width: 1200px) {
+            .container{
+                width: 700px;
+            }
+        }
+    </style>
+
+</head>
+<body class="body-flex">
+<div class="header">
+    <div class="container p-relative">
+        <div class="header-block">
+            <div class="header-top-row">
+            </div>
+            <h1>404 Not found.</h1>
+            <div class="h1-text">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="main-content">
+    <div class="container">
+        <div class="main-content-block">
+            <div class="main-text">
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

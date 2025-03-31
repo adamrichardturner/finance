@@ -5,6 +5,18 @@ import { Transaction } from '~/types/finance.types'
 
 // Transform Transaction to AppTransaction
 function transformToAppTransaction(transaction: Transaction): AppTransaction {
+  // Process avatar path to handle relative paths correctly
+  const processAvatarPath = (path?: string): string | undefined => {
+    if (!path) return undefined
+
+    // If path starts with "./", remove it to make it relative to the public folder
+    if (path.startsWith('./')) {
+      return path.substring(2)
+    }
+
+    return path
+  }
+
   return {
     id:
       transaction.id?.toString() || Math.random().toString(36).substring(2, 9),
@@ -16,7 +28,7 @@ function transformToAppTransaction(transaction: Transaction): AppTransaction {
     amount: transaction.amount,
     type: transaction.amount > 0 ? 'income' : 'expense',
     category: transaction.category,
-    avatar: transaction.avatar,
+    avatar: processAvatarPath(transaction.avatar),
   }
 }
 

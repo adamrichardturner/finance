@@ -77,7 +77,15 @@ export function useTransactions({
     } else if (sortBy === 'highest') {
       filtered.sort((a, b) => b.amount - a.amount)
     } else if (sortBy === 'lowest') {
-      filtered.sort((a, b) => a.amount - b.amount)
+      // For financial data, we want most negative amounts (largest expenses) first
+      filtered.sort((a, b) => {
+        // First, sort by sign (negative before positive)
+        if (a.amount < 0 && b.amount >= 0) return -1 // a is negative, b is positive
+        if (a.amount >= 0 && b.amount < 0) return 1 // a is positive, b is negative
+
+        // Then sort by absolute magnitude within same sign
+        return a.amount - b.amount
+      })
     }
 
     return filtered

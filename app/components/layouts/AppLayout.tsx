@@ -1,6 +1,4 @@
 import * as React from 'react'
-import { useLocation } from '@remix-run/react'
-import { Menu } from 'lucide-react'
 import { SidebarProvider, useSidebar } from '~/components/ui/sidebar'
 import { AppSidebar } from '../Sidebar'
 
@@ -14,7 +12,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className='flex min-h-screen w-full'>
         <AppSidebar />
         <div className='flex flex-col flex-1 w-full min-h-screen'>
-          <main className='flex-1 w-full h-full p-[40px] max-w-[1100px]'>
+          <main className='flex-1 w-full h-full p-[16px] sm:p-[40px] max-w-[1100px]'>
             {children}
           </main>
         </div>

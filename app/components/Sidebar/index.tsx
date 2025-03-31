@@ -1,5 +1,4 @@
 import { Link, useLocation } from '@remix-run/react'
-import { AnimatePresence, motion } from 'framer-motion'
 import {
   Sidebar,
   SidebarContent as SidebarContentSection,
@@ -144,7 +143,7 @@ function TabBar() {
               }`}
             />
             <span
-              className={`text-xs transition-colors ${
+              className={`text-xs ${
                 isActive(item.path) ? 'text-[#277C78]' : 'text-gray-300'
               }`}
             >
@@ -199,25 +198,27 @@ export function SidebarContents() {
       </SidebarHeader>
 
       <SidebarContentSection>
-        <SidebarMenu className='flex flex-col gap-2 pr-6'>
+        <SidebarMenu className='flex flex-col gap-4 px-0'>
           {MENU_ITEMS.map((item) => {
             const isActive =
               location.pathname === item.path ||
               (item.path === '/overview' && location.pathname === '/')
 
             return (
-              <SidebarMenuItem
-                key={item.name}
-                className='w-full flex justify-center'
-              >
-                <Link to={item.path} className='w-full'>
+              <SidebarMenuItem key={item.name} className='w-full'>
+                <Link
+                  to={item.path}
+                  className={
+                    isCollapsed ? 'w-full flex flex-1 justify-center' : 'w-full'
+                  }
+                >
                   <SidebarMenuButton
                     tooltip={item.label}
                     className={`${
                       isCollapsed
-                        ? 'flex w-[92px] items-center justify-center p-4'
-                        : 'flex h-[56px] px-[32px] py-[16px] items-center gap-[16px]'
-                    } text-white rounded-r-[12px] hover:bg-[#F8F4F0] sidebar-menu-container`}
+                        ? 'flex w-full h-[48px] items-center justify-center'
+                        : 'flex h-[48px] w-full items-center gap-[16px] px-4'
+                    } text-white rounded-lg hover:bg-[#F8F4F0] sidebar-menu-container`}
                     data-active={isActive}
                   >
                     <div
@@ -225,31 +226,24 @@ export function SidebarContents() {
                         isCollapsed
                           ? 'justify-center items-center w-full'
                           : 'items-center gap-4'
-                      } w-full h-full cursor-pointer`}
+                      } h-full cursor-pointer`}
                     >
-                      <div className='flex items-center justify-center'>
+                      <div className='flex items-center justify-center w-6 h-6'>
                         <img
                           src={item.icon}
                           alt={item.label}
-                          className={`${isCollapsed ? 'w-[24px] h-[24px]' : 'w-6'} 
+                          className={`w-5 h-5 
                             ${isActive ? 'filter-active-icon' : ''} 
-                            sidebar-hover-icon transition-all duration-200`}
+                            sidebar-hover-icon`}
                         />
                       </div>
-                      <AnimatePresence>
-                        {!isCollapsed && (
-                          <motion.span
-                            key='text'
-                            initial='hidden'
-                            animate='visible'
-                            exit='hidden'
-                            variants={textDisplayVariants}
-                            className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-bold leading-[150%]`}
-                          >
-                            {item.label}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
+                      {!isCollapsed && (
+                        <span
+                          className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
+                        >
+                          {item.label}
+                        </span>
+                      )}
                     </div>
                   </SidebarMenuButton>
                 </Link>
@@ -259,50 +253,46 @@ export function SidebarContents() {
         </SidebarMenu>
       </SidebarContentSection>
 
-      <SidebarFooter className='p-0 w-full flex items-center justify-center mb-12'>
-        <SidebarMenuItem className='w-full flex justify-center'>
-          <SidebarMenuButton
-            tooltip='Minimize Menu'
-            data-active={false}
-            className={`${
+      <SidebarFooter className='p-0 w-full flex items-center justify-center mb-6'>
+        <SidebarMenuButton
+          tooltip='Minimize Menu'
+          data-active={false}
+          className={`${
+            isCollapsed
+              ? 'flex w-full h-[48px] items-center gap-[16px] justify-center'
+              : 'flex w-full h-[48px] items-center gap-[16px] px-4'
+          } text-white rounded-lg hover:bg-[#F8F4F0] sidebar-menu-container`}
+          onClick={handleMinimize}
+        >
+          <div
+            className={`flex ${
               isCollapsed
-                ? 'flex w-[92px] items-center justify-center p-4'
-                : 'flex w-[300px] h-[56px] px-[32px] py-[16px] items-center gap-[16px]'
-            } text-white rounded-r-[12px] hover:bg-[#F8F4F0] sidebar-menu-container`}
-            onClick={handleMinimize}
+                ? 'justify-center items-center w-full'
+                : 'items-center gap-4'
+            } h-full cursor-pointer`}
           >
             <div
-              className={`flex ${
+              className={
                 isCollapsed
-                  ? 'justify-center items-center w-full'
-                  : 'items-center gap-4'
-              } w-full h-full cursor-pointer`}
+                  ? 'flex items-center justify-center'
+                  : 'flex items-center justify-center w-6 h-6'
+              }
             >
-              <div className='flex items-center justify-center'>
-                <img
-                  src='/assets/icons/MinimizeIcon.svg'
-                  alt='Minimize Menu'
-                  className={`${isCollapsed ? 'w-[24px] h-[24px]' : 'w-6'} 
-                    sidebar-hover-icon transition-all duration-200`}
-                />
-              </div>
-              <AnimatePresence>
-                {!isCollapsed && (
-                  <motion.span
-                    key='minimize-text'
-                    initial='hidden'
-                    animate='visible'
-                    exit='hidden'
-                    variants={textDisplayVariants}
-                    className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-bold leading-[150%]`}
-                  >
-                    Minimize Menu
-                  </motion.span>
-                )}
-              </AnimatePresence>
+              <img
+                src='/assets/icons/MinimizeIcon.svg'
+                alt='Minimize Menu'
+                className='w-5 h-5 sidebar-hover-icon'
+              />
             </div>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
+            {!isCollapsed && (
+              <span
+                className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
+              >
+                Minimize Menu
+              </span>
+            )}
+          </div>
+        </SidebarMenuButton>
       </SidebarFooter>
     </Sidebar>
   )
@@ -319,46 +309,4 @@ export function AppSidebar() {
       <div className='md:hidden h-[68px]'></div>
     </>
   )
-}
-
-const buttonVariants = {
-  initial: {
-    backgroundColor: 'transparent',
-    borderLeftColor: 'transparent',
-    borderLeftWidth: '0px',
-  },
-  hover: {
-    backgroundColor: '#F8F4F0',
-    borderLeftColor: 'transparent',
-    borderLeftWidth: '0px',
-  },
-  active: {
-    backgroundColor: '#F8F4F0',
-    borderLeftColor: '#277C78',
-    borderLeftWidth: '4px',
-  },
-}
-
-const iconVariants = {
-  initial: { filter: 'none' },
-  hover: {
-    filter:
-      'invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%)',
-  },
-  active: {
-    filter:
-      'invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%)',
-  },
-}
-
-const textDisplayVariants = {
-  hidden: { opacity: 0, display: 'none', transition: { duration: 0.01 } },
-  visible: {
-    opacity: 1,
-    display: 'block',
-    transition: {
-      delay: 0.15,
-      duration: 0.2,
-    },
-  },
 }
