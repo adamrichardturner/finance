@@ -17,7 +17,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect('/overview')
   }
 
-  return {}
+  // Redirect unauthenticated users to login page
+  return redirect('/login')
 }
 
 export default function Index() {
