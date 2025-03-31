@@ -35,7 +35,7 @@ const Overview: React.FC<OverviewProps> = ({
     'cursor-pointer hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-shadow duration-200'
 
   return (
-    <div className='w-full my-[60px] sm:my-[0px]'>
+    <div className='w-full mt-4 mb-12 sm:mt-[0px] sm:my-[0px]'>
       <PageTitle title='Overview' />
       <div className='flex flex-col gap-[32px]'>
         <div className='grid grid-cols-1 2xl:grid-cols-3 gap-[24px] md:hidden'>
