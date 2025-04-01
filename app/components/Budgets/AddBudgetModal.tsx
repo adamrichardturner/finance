@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
-import { Form } from '@remix-run/react'
+import { useBudgetMutations } from '~/hooks/use-budget-mutations'
 
 interface AddBudgetModalProps {
   isOpen: boolean
@@ -19,27 +19,43 @@ interface AddBudgetModalProps {
 export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
   const [category, setCategory] = useState('')
   const [amount, setAmount] = useState('')
+  const { createBudget } = useBudgetMutations()
 
-  const handleSubmit = () => {
-    onClose()
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    try {
+      await createBudget.mutateAsync({
+        category,
+        maxAmount: parseFloat(amount),
+        theme: '#277C78', // Default theme color
+      })
+      setCategory('')
+      setAmount('')
+      onClose()
+    } catch (error) {
+      console.error('Failed to create budget:', error)
+    }
+  }
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setCategory('')
+      setAmount('')
+      onClose()
+    }
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Budget</DialogTitle>
         </DialogHeader>
-        <Form method='post' onSubmit={handleSubmit} className='space-y-6'>
-          <input type='hidden' name='intent' value='create' />
+        <form onSubmit={handleSubmit} className='space-y-6'>
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Budget Category</label>
-            <Select
-              name='category'
-              value={category}
-              onValueChange={setCategory}
-              required
-            >
+            <Select value={category} onValueChange={setCategory} required>
               <SelectTrigger>
                 <SelectValue placeholder='Select a category' />
               </SelectTrigger>
@@ -57,7 +73,6 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
             <label className='text-sm font-medium'>Maximum Amount</label>
             <Input
               type='number'
-              name='maxAmount'
               placeholder='Enter amount'
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -70,10 +85,11 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
           <Button
             type='submit'
             className='w-full bg-black text-white hover:bg-black/90'
+            disabled={createBudget.isPending}
           >
-            Add Budget
+            {createBudget.isPending ? 'Adding...' : 'Add Budget'}
           </Button>
-        </Form>
+        </form>
       </DialogContent>
     </Dialog>
   )

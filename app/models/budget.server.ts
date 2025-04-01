@@ -20,6 +20,46 @@ interface DeleteBudgetParams {
   userId: string
 }
 
+export async function getBudgets(userId: string): Promise<Budget[]> {
+  // First get all budgets
+  const budgets = await db('budgets')
+    .where({ user_id: userId })
+    .orderBy('created_at', 'desc')
+    .select('*')
+
+  // Get all transactions for these budget categories
+  const transactions = await db('transactions')
+    .where({ user_id: userId })
+    .whereIn(
+      'category',
+      budgets.map((b) => b.category)
+    )
+    .orderBy('date', 'desc')
+    .select('*')
+
+  // Group transactions by category
+  const transactionsByCategory = transactions.reduce(
+    (acc, transaction) => {
+      if (!acc[transaction.category]) {
+        acc[transaction.category] = []
+      }
+      acc[transaction.category].push(transaction)
+      return acc
+    },
+    {} as Record<string, any[]>
+  )
+
+  // Map budgets with their transactions
+  return budgets.map((budget) => ({
+    id: budget.id,
+    user_id: budget.user_id,
+    category: budget.category,
+    maximum: budget.maximum,
+    theme: budget.theme,
+    transactions: transactionsByCategory[budget.category] || [],
+  }))
+}
+
 export async function createBudget({
   userId,
   category,

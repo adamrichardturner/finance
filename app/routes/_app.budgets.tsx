@@ -1,19 +1,31 @@
-import { type MetaFunction, ActionFunctionArgs, data } from '@remix-run/node'
+import {
+  type MetaFunction,
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  json,
+} from '@remix-run/node'
 import { Budgets } from '~/components/Budgets'
-import { useFinancialData } from '~/hooks/use-financial-data'
 import { requireUserId } from '~/services/auth/session.server'
 import {
   createBudget,
   updateBudget,
   deleteBudget,
+  getBudgets,
 } from '~/models/budget.server'
-import { useActionData } from '@remix-run/react'
+import { useActionData, useLoaderData } from '@remix-run/react'
+import { Budget } from '~/types/finance.types'
 
 export const meta: MetaFunction = () => {
   return [
     { title: 'Budgets | Finance App' },
     { name: 'description', content: 'Manage your budgets' },
   ]
+}
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = String(await requireUserId(request))
+  const budgets = await getBudgets(userId)
+  return json({ budgets })
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -26,7 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const maxAmount = formData.get('maxAmount')
 
     if (typeof category !== 'string' || typeof maxAmount !== 'string') {
-      return data({ error: 'Invalid form data' }, { status: 400 })
+      return json({ error: 'Invalid form data' }, { status: 400 })
     }
 
     try {
@@ -36,9 +48,9 @@ export async function action({ request }: ActionFunctionArgs) {
         maxAmount: parseFloat(maxAmount),
         theme: '#277C78', // Default theme color
       })
-      return data({ budget })
+      return json({ budget })
     } catch (error) {
-      return data({ error: 'Failed to create budget' }, { status: 500 })
+      return json({ error: 'Failed to create budget' }, { status: 500 })
     }
   }
 
@@ -52,7 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
       typeof category !== 'string' ||
       typeof maxAmount !== 'string'
     ) {
-      return data({ error: 'Invalid form data' }, { status: 400 })
+      return json({ error: 'Invalid form data' }, { status: 400 })
     }
 
     try {
@@ -62,9 +74,9 @@ export async function action({ request }: ActionFunctionArgs) {
         category,
         maxAmount: parseFloat(maxAmount),
       })
-      return data({ budget })
+      return json({ budget })
     } catch (error) {
-      return data({ error: 'Failed to update budget' }, { status: 500 })
+      return json({ error: 'Failed to update budget' }, { status: 500 })
     }
   }
 
@@ -72,27 +84,27 @@ export async function action({ request }: ActionFunctionArgs) {
     const budgetId = formData.get('budgetId')
 
     if (typeof budgetId !== 'string') {
-      return data({ error: 'Invalid budget ID' }, { status: 400 })
+      return json({ error: 'Invalid budget ID' }, { status: 400 })
     }
 
     try {
       await deleteBudget({ id: parseInt(budgetId), userId })
-      return data({ success: true })
+      return json({ success: true })
     } catch (error) {
-      return data({ error: 'Failed to delete budget' }, { status: 500 })
+      return json({ error: 'Failed to delete budget' }, { status: 500 })
     }
   }
 
-  return data({ error: 'Invalid intent' }, { status: 400 })
+  return json({ error: 'Invalid intent' }, { status: 400 })
 }
 
 export default function BudgetsRoute() {
-  const { financialData } = useFinancialData()
+  const { budgets } = useLoaderData<{ budgets: Budget[] }>()
   const actionData = useActionData<typeof action>()
 
   return (
     <div className='w-full'>
-      <Budgets actionData={actionData} />
+      <Budgets budgets={budgets} actionData={actionData} />
     </div>
   )
 }

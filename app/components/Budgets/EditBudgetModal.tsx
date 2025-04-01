@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from '../ui/select'
 import { useFinancialData } from '~/hooks/use-financial-data'
-import { Form } from '@remix-run/react'
+import { useBudgetMutations } from '~/hooks/use-budget-mutations'
 
 interface EditBudgetModalProps {
   isOpen: boolean
@@ -24,6 +24,7 @@ export function EditBudgetModal({
   onClose,
 }: EditBudgetModalProps) {
   const { financialData } = useFinancialData()
+  const { updateBudget } = useBudgetMutations()
   const [category, setCategory] = useState<string>('')
   const [amount, setAmount] = useState('')
 
@@ -39,8 +40,23 @@ export function EditBudgetModal({
     }
   }, [budgetId, financialData.budgets])
 
-  const handleSubmit = () => {
-    onClose()
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!budgetId) {
+      return
+    }
+
+    try {
+      await updateBudget.mutateAsync({
+        budgetId,
+        category,
+        maxAmount: parseFloat(amount),
+      })
+      onClose()
+    } catch (error) {
+      console.error('Failed to update budget:', error)
+    }
   }
 
   return (
@@ -49,17 +65,10 @@ export function EditBudgetModal({
         <DialogHeader>
           <DialogTitle>Edit Budget</DialogTitle>
         </DialogHeader>
-        <Form method='post' onSubmit={handleSubmit} className='space-y-6'>
-          <input type='hidden' name='intent' value='update' />
-          <input type='hidden' name='budgetId' value={budgetId} />
+        <form onSubmit={handleSubmit} className='space-y-6'>
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Budget Category</label>
-            <Select
-              name='category'
-              value={category}
-              onValueChange={setCategory}
-              required
-            >
+            <Select value={category} onValueChange={setCategory} required>
               <SelectTrigger>
                 <SelectValue placeholder='Select a category' />
               </SelectTrigger>
@@ -77,7 +86,6 @@ export function EditBudgetModal({
             <label className='text-sm font-medium'>Maximum Amount</label>
             <Input
               type='number'
-              name='maxAmount'
               placeholder='Enter amount'
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -90,10 +98,11 @@ export function EditBudgetModal({
           <Button
             type='submit'
             className='w-full bg-black text-white hover:bg-black/90'
+            disabled={updateBudget.isPending}
           >
-            Save Budget
+            {updateBudget.isPending ? 'Saving...' : 'Save Budget'}
           </Button>
-        </Form>
+        </form>
       </DialogContent>
     </Dialog>
   )

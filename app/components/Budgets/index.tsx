@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { useFinancialData } from '~/hooks/use-financial-data'
 import { Button } from '../ui/button'
 import { BudgetCard } from './BudgetCard'
 import { AddBudgetModal } from './AddBudgetModal'
 import { EditBudgetModal } from './EditBudgetModal'
 import { DeleteBudgetModal } from './DeleteBudgetModal'
 import { BudgetChart } from './BudgetChart'
-import { Form } from '@remix-run/react'
+import { Budget } from '~/types/finance.types'
 
 interface BudgetModalState {
   isOpen: boolean
@@ -14,6 +13,7 @@ interface BudgetModalState {
 }
 
 interface BudgetsProps {
+  budgets: Budget[]
   actionData?: {
     error?: string
     budget?: any
@@ -21,8 +21,7 @@ interface BudgetsProps {
   }
 }
 
-export function Budgets({ actionData }: BudgetsProps) {
-  const { financialData } = useFinancialData()
+export function Budgets({ budgets, actionData }: BudgetsProps) {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editModal, setEditModal] = useState<BudgetModalState>({
     isOpen: false,
@@ -49,23 +48,30 @@ export function Budgets({ actionData }: BudgetsProps) {
         </div>
       )}
 
-      <div className='flex gap-6'>
-        <div className='w-[400px]'>
+      <div className='flex flex-col max-[1457px]:flex-col min-[1457px]:flex-row gap-6'>
+        <div className='w-full min-[1457px]:w-[400px]'>
           <div className='bg-white rounded-lg p-6 border'>
-            <h2 className='text-lg font-medium mb-4'>Spending Summary</h2>
-            <BudgetChart budgets={financialData.budgets} />
+            <BudgetChart budgets={budgets} />
           </div>
         </div>
 
-        <div className='w-2/3 space-y-6'>
-          {financialData.budgets.map((budget) => (
-            <BudgetCard
-              key={budget.id}
-              budget={budget}
-              onEdit={(id) => setEditModal({ isOpen: true, budgetId: id })}
-              onDelete={(id) => setDeleteModal({ isOpen: true, budgetId: id })}
-            />
-          ))}
+        <div className='w-full min-[1457px]:w-2/3 space-y-6'>
+          {budgets.length === 0 ? (
+            <div className='text-center py-4 text-gray-500'>
+              No budgets created yet
+            </div>
+          ) : (
+            budgets.map((budget) => (
+              <BudgetCard
+                key={budget.id}
+                budget={budget}
+                onEdit={(id) => setEditModal({ isOpen: true, budgetId: id })}
+                onDelete={(id) =>
+                  setDeleteModal({ isOpen: true, budgetId: id })
+                }
+              />
+            ))
+          )}
         </div>
       </div>
 

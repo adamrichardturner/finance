@@ -7,7 +7,7 @@ import {
 } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { useFinancialData } from '~/hooks/use-financial-data'
-import { Form } from '@remix-run/react'
+import { useBudgetMutations } from '~/hooks/use-budget-mutations'
 
 interface DeleteBudgetModalProps {
   isOpen: boolean
@@ -21,12 +21,24 @@ export function DeleteBudgetModal({
   onClose,
 }: DeleteBudgetModalProps) {
   const { financialData } = useFinancialData()
+  const { deleteBudget } = useBudgetMutations()
   const budget = budgetId
     ? financialData.budgets.find((b) => String(b.id) === budgetId)
     : undefined
 
-  const handleSubmit = () => {
-    onClose()
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!budgetId) {
+      return
+    }
+
+    try {
+      await deleteBudget.mutateAsync({ budgetId })
+      onClose()
+    } catch (error) {
+      console.error('Failed to delete budget:', error)
+    }
   }
 
   return (
@@ -39,23 +51,18 @@ export function DeleteBudgetModal({
             undone and all the associated data will be permanently removed.
           </DialogDescription>
         </DialogHeader>
-        <Form
-          method='post'
-          onSubmit={handleSubmit}
-          className='flex justify-end gap-4'
-        >
-          <input type='hidden' name='intent' value='delete' />
-          <input type='hidden' name='budgetId' value={budgetId} />
+        <form onSubmit={handleSubmit} className='flex justify-end gap-4'>
           <Button variant='outline' onClick={onClose} type='button'>
             Cancel
           </Button>
           <Button
             type='submit'
             className='bg-red-600 text-white hover:bg-red-700'
+            disabled={deleteBudget.isPending}
           >
-            Yes, Confirm Deletion
+            {deleteBudget.isPending ? 'Deleting...' : 'Yes, Confirm Deletion'}
           </Button>
-        </Form>
+        </form>
       </DialogContent>
     </Dialog>
   )
