@@ -20,10 +20,12 @@ export interface Transaction {
 }
 
 export interface Budget {
-  id?: number
+  id: number
   category: string
-  maximum: number
+  maximum: string
   theme: string
+  transactions?: Transaction[]
+  user_id: string
   created_at?: string
   updated_at?: string
 }

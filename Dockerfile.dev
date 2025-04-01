@@ -1,0 +1,27 @@
+FROM node:18-alpine
+
+# Install dependencies required for native modules like argon2
+RUN apk add --no-cache python3 make g++ gcc
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application source code
+COPY . .
+
+# Set development environment variables
+ENV NODE_ENV=development
+ENV HOST=0.0.0.0
+ENV DOCKER_ENV=true
+
+# Expose Vite's default port
+EXPOSE 5173
+
+# The command will be overridden by docker-compose.dev.yml
+CMD ["npm", "run", "dev"] 

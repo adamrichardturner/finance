@@ -30,7 +30,20 @@ export async function getFinancialData(): Promise<FinancialData> {
       .select('*')
       .orderBy('date', 'desc')
 
-    const budgets = await db<Budget>('budgets').select('*')
+    // Get budgets with their associated transactions
+    const budgets = await db<Budget>('budgets')
+      .select('budgets.*')
+      .orderBy('budgets.category', 'asc')
+
+    // For each budget, get its transactions
+    for (const budget of budgets) {
+      const budgetTransactions = await db<Transaction>('transactions')
+        .select('*')
+        .where('budget_id', budget.id)
+        .orderBy('date', 'desc')
+
+      budget.transactions = budgetTransactions
+    }
 
     const pots = await db<Pot>('pots').select('*')
 

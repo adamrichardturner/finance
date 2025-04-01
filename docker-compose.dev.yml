@@ -1,47 +1,48 @@
 services:
   app:
-    image: node:18-alpine
-    command: sh -c "npm install && node scripts/dev-init-db.js && npm run dev -- --host 0.0.0.0 --port 6001"
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     ports:
-      - '6001:6001'
+      - '${FE_PORT:-5173}:${FE_PORT:-5173}'
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      - PORT=6001
+      - FE_PORT=${FE_PORT:-5173}
+      - PORT=5173
       - NODE_ENV=development
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_USER=${DB_USER:-finance}
+      - DB_PASSWORD=${DB_PASSWORD:-finance}
       - DB_HOST=postgres
-      - DB_PORT=${DB_PORT:-5432}
+      - DB_PORT=5432
       - DB_NAME=${DB_NAME:-finance}
-      - DATABASE_URL=postgres://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:${DB_PORT:-5432}/${DB_NAME:-finance}
+      - DATABASE_URL=postgres://${DB_USER:-finance}:${DB_PASSWORD:-finance}@postgres:5432/${DB_NAME:-finance}
       - SESSION_SECRET=${SESSION_SECRET:-dev-secret}
-      - DOCKER_ENV=true
-      - HOST=0.0.0.0
-      - DEMO_USER_ID=${DEMO_USER_ID}
-      - DEMO_PASSWORD_HASH=${DEMO_PASSWORD_HASH}
+      - DEMO_USER_ID=1
+      - DEMO_PASSWORD_HASH=$2b$10$3euPcmQFCiblsZeEu5s7p.9WxiKIUx0M9MNT8sMrUvRTCRaJPAJCa
     volumes:
       - ./:/app
       - /app/node_modules
-    working_dir: /app
+      - ./app/lib/data.json:/app/public/data.json
+    command: npm run dev
 
   postgres:
     image: postgres:15
     ports:
-      - '${DB_PORT:-5432}:5432'
+      - '6432:5432'
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER:-finance}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-finance}
+      - POSTGRES_DB=${DB_NAME:-finance}
     volumes:
-      - postgres-dev-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
       - ./scripts/init-postgres-processed.sql:/docker-entrypoint-initdb.d/init-postgres.sql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER}']
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-finance}']
       interval: 5s
       timeout: 5s
       retries: 5
 
 volumes:
-  postgres-dev-data:
+  postgres-data:

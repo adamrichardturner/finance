@@ -9,6 +9,14 @@ declare module '@remix-run/node' {
 }
 
 export default defineConfig({
+  server: {
+    host: true,
+    port: parseInt(process.env.FE_PORT || '5173'),
+    strictPort: true,
+    watch: {
+      usePolling: true,
+    },
+  },
   plugins: [
     remix({
       future: {

@@ -1,6 +1,6 @@
 import { Card, CardTitle, CardContent, CardHeader } from '~/components/ui/card'
 import Pointer from '../../../../public/assets/icons/Pointer.svg'
-import DollarJar from '../../../../public/assets/icons/DollarJar.svg'
+import PiggyBank from '../../../../public/assets/icons/PiggyBank.svg'
 import { Pot } from '~/types/finance.types'
 import { transformPotsToOverview } from '~/transformers/potTransformer'
 
@@ -55,8 +55,8 @@ export const PotTotal: React.FC<PotTotal> = ({ total }) => {
     <div className='p-4 bg-[#F8F4F0] flex items-center w-full sm:w-full rounded-lg'>
       <div>
         <img
-          src={DollarJar}
-          alt='Money Pot'
+          src={PiggyBank}
+          alt='Piggy Bank'
           className={`h-[40px] w-[40px] mb-1`}
         />
       </div>

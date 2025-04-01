@@ -218,7 +218,7 @@ export function SidebarContents() {
   }
 
   const isEnabled = (name: string): boolean => {
-    return name === 'overview' || name === 'transactions'
+    return name === 'overview' || name === 'transactions' || name === 'budgets'
   }
 
   return (
