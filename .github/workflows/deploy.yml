@@ -17,36 +17,36 @@ jobs:
 
       # Only run these steps if we're deploying to a remote server
       - name: Deploy to remote server
-        if: env.SSH_HOST != ''
+        if: contains(github.event_name, 'push')
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ env.SSH_HOST }}
-          username: ${{ env.SSH_USERNAME }}
-          key: ${{ env.SSH_PRIVATE_KEY }}
-          envs: DEPLOY_PATH
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: DEPLOY_PATH,DB_USER,DB_PASSWORD,DB_NAME
           script: |
-            cd ${{ env.DEPLOY_PATH }}
+            cd ${{ secrets.DEPLOY_PATH }}
             git pull origin main
             docker compose -f docker-compose.yml down -v || true
-            docker compose -f docker-compose.yml build --no-cache
-            docker compose -f docker-compose.yml up -d
+            DB_USER=finance DB_PASSWORD=finance DB_NAME=finance docker compose -f docker-compose.yml build --no-cache
+            DB_USER=finance DB_PASSWORD=finance DB_NAME=finance docker compose -f docker-compose.yml up -d
             sleep 10
             docker compose -f docker-compose.yml exec -T postgres pg_isready -U finance
-            docker compose -f docker-compose.yml exec -T app npm run db:migrate
-            docker compose -f docker-compose.yml exec -T app npm run db:ensure-demo
+            DB_USER=finance DB_PASSWORD=finance DB_NAME=finance docker compose -f docker-compose.yml exec -T app npm run db:migrate
+            DB_USER=finance DB_PASSWORD=finance DB_NAME=finance docker compose -f docker-compose.yml exec -T app npm run db:ensure-demo
             sleep 5
             curl -f http://localhost:6000/ || exit 1
 
       # Only run these steps if we're deploying locally
       - name: Deploy locally
-        if: env.SSH_HOST == ''
+        if: contains(github.event_name, 'push')
         run: |
           docker compose -f docker-compose.yml down -v || true
-          docker compose -f docker-compose.yml build --no-cache
-          docker compose -f docker-compose.yml up -d
+          DB_USER=finance DB_PASSWORD=finance DB_NAME=finance docker compose -f docker-compose.yml build --no-cache
+          DB_USER=finance DB_PASSWORD=finance DB_NAME=finance docker compose -f docker-compose.yml up -d
           sleep 10
           docker compose -f docker-compose.yml exec -T postgres pg_isready -U finance
-          docker compose -f docker-compose.yml exec -T app npm run db:migrate
-          docker compose -f docker-compose.yml exec -T app npm run db:ensure-demo
+          DB_USER=finance DB_PASSWORD=finance DB_NAME=finance docker compose -f docker-compose.yml exec -T app npm run db:migrate
+          DB_USER=finance DB_PASSWORD=finance DB_NAME=finance docker compose -f docker-compose.yml exec -T app npm run db:ensure-demo
           sleep 5
           curl -f http://localhost:6000/ || exit 1
