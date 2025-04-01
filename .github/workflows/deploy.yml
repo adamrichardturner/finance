@@ -8,11 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      SSH_HOST: ${{ vars.SSH_HOST }}
-      SSH_USERNAME: ${{ vars.SSH_USERNAME }}
-      SSH_PRIVATE_KEY: ${{ vars.SSH_PRIVATE_KEY }}
-      DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,17 +15,24 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Debug Environment
+        run: |
+          echo "SSH_HOST: ${{ vars.SSH_HOST }}"
+          echo "SSH_USERNAME: ${{ vars.SSH_USERNAME }}"
+          echo "DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}"
+
       # Only run these steps if we're deploying to a remote server
       - name: Deploy to remote server
         if: contains(github.event_name, 'push')
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ env.SSH_HOST }}
-          username: ${{ env.SSH_USERNAME }}
-          key: ${{ env.SSH_PRIVATE_KEY }}
-          envs: DEPLOY_PATH,DB_USER,DB_PASSWORD,DB_NAME
+          host: ${{ vars.SSH_HOST }}
+          username: ${{ vars.SSH_USERNAME }}
+          key: ${{ vars.SSH_PRIVATE_KEY }}
           script: |
-            cd ${{ env.DEPLOY_PATH }}
+            echo "Current directory: $(pwd)"
+            echo "Deploy path: ${{ vars.DEPLOY_PATH }}"
+            cd ${{ vars.DEPLOY_PATH }}
             git pull origin main
             docker compose -f docker-compose.yml down -v || true
             DB_USER=finance DB_PASSWORD=finance DB_NAME=finance docker compose -f docker-compose.yml build --no-cache
