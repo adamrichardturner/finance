@@ -22,7 +22,8 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
           envs: DEPLOY_PATH,DB_USER,DB_PASSWORD,DB_NAME
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
