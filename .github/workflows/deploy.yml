@@ -8,6 +8,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      SSH_HOST: ${{ vars.SSH_HOST }}
+      SSH_USERNAME: ${{ vars.SSH_USERNAME }}
+      SSH_PRIVATE_KEY: ${{ vars.SSH_PRIVATE_KEY }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
