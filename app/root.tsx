@@ -4,10 +4,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from '@remix-run/react'
 import type { LinksFunction, MetaFunction } from '@remix-run/node'
+import { data } from '@remix-run/node'
 import './tailwind.css'
 import { QueryProvider } from './providers/query-client'
+import { HydrationBoundary } from '@tanstack/react-query'
 
 export const meta: MetaFunction = () => {
   const title = 'FinanceApp - Take control of your finances'
@@ -33,6 +36,12 @@ export const meta: MetaFunction = () => {
     { name: 'twitter:description', content: description },
     { name: 'twitter:image', content: imageUrl },
   ]
+}
+
+export async function loader() {
+  return data({
+    dehydratedState: null,
+  })
 }
 
 export const links: LinksFunction = () => [
@@ -97,10 +106,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  console.log('Rendering App (root) component')
+  const { dehydratedState } = useLoaderData<{ dehydratedState: unknown }>()
+
   return (
     <QueryProvider>
-      <Outlet />
+      <HydrationBoundary state={dehydratedState}>
+        <Outlet />
+      </HydrationBoundary>
     </QueryProvider>
   )
 }

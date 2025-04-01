@@ -86,7 +86,7 @@ function MobileTabBar() {
 
   // Use all menu items including Pots
   return (
-    <div className='sm:hidden fixed bottom-0 left-0 pl-2 right-0 bg-[#201F24] h-[52px] flex justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
+    <div className='sm:hidden fixed bottom-0 pt-2 left-0 pl-2 right-0 bg-[#201F24] h-[52px] flex justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
       {MENU_ITEMS.map((item) => {
         const enabled = isEnabled(item.name)
 
@@ -218,7 +218,7 @@ export function SidebarContents() {
   }
 
   const isEnabled = (name: string): boolean => {
-    return name === 'overview' || name === 'transactions'
+    return name === 'overview' || name === 'transactions' || name === 'budgets'
   }
 
   return (
