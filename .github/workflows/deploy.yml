@@ -1,0 +1,52 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Only run these steps if we're deploying to a remote server
+      - name: Deploy to remote server
+        if: env.SSH_HOST != ''
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USERNAME }}
+          key: ${{ env.SSH_PRIVATE_KEY }}
+          envs: DEPLOY_PATH
+          script: |
+            cd ${{ env.DEPLOY_PATH }}
+            git pull origin main
+            docker compose -f docker-compose.yml down -v || true
+            docker compose -f docker-compose.yml build --no-cache
+            docker compose -f docker-compose.yml up -d
+            sleep 10
+            docker compose -f docker-compose.yml exec -T postgres pg_isready -U finance
+            docker compose -f docker-compose.yml exec -T app npm run db:migrate
+            docker compose -f docker-compose.yml exec -T app npm run db:ensure-demo
+            sleep 5
+            curl -f http://localhost:6000/ || exit 1
+
+      # Only run these steps if we're deploying locally
+      - name: Deploy locally
+        if: env.SSH_HOST == ''
+        run: |
+          docker compose -f docker-compose.yml down -v || true
+          docker compose -f docker-compose.yml build --no-cache
+          docker compose -f docker-compose.yml up -d
+          sleep 10
+          docker compose -f docker-compose.yml exec -T postgres pg_isready -U finance
+          docker compose -f docker-compose.yml exec -T app npm run db:migrate
+          docker compose -f docker-compose.yml exec -T app npm run db:ensure-demo
+          sleep 5
+          curl -f http://localhost:6000/ || exit 1
