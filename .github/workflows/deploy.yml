@@ -8,9 +8,6 @@ on:
 
 env:
   DOCKER_COMPOSE_FILE: docker-compose.yml
-  DB_USER: finance
-  DB_PASSWORD: finance
-  DB_NAME: finance
   APP_PORT: 6000
   HEALTH_CHECK_RETRIES: 3
   HEALTH_CHECK_INTERVAL: 10
@@ -32,6 +29,9 @@ jobs:
           echo "SSH_HOST: ${{ secrets.SSH_HOST }}"
           echo "SSH_USERNAME: ${{ secrets.SSH_USERNAME }}"
           echo "DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}"
+          echo "DB_USER: ${{ secrets.DB_USER }}"
+          echo "DB_PASSWORD: ${{ secrets.DB_PASSWORD }}"
+          echo "DB_NAME: ${{ secrets.DB_NAME }}"
 
       - name: Deploy to remote server
         if: contains(github.event_name, 'push')
@@ -54,37 +54,35 @@ jobs:
             docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} down -v || true
 
             # Build and start containers
-            DB_USER=${{ env.DB_USER }} \
-            DB_PASSWORD=${{ env.DB_PASSWORD }} \
-            DB_NAME=${{ env.DB_NAME }} \
+            export DB_USER="${{ secrets.DB_USER }}"
+            export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+            export DB_NAME="${{ secrets.DB_NAME }}"
+
+            echo "Building with database user: $DB_USER"
             docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} build --no-cache
 
-            DB_USER=${{ env.DB_USER }} \
-            DB_PASSWORD=${{ env.DB_PASSWORD }} \
-            DB_NAME=${{ env.DB_NAME }} \
+            echo "Starting containers with database user: $DB_USER"
             docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d
 
             # Wait for PostgreSQL to be ready
             for i in $(seq 1 ${{ env.HEALTH_CHECK_RETRIES }}); do
-              if docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec -T postgres pg_isready -U ${{ env.DB_USER }}; then
+              if docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec -T postgres pg_isready -U $DB_USER; then
+                echo "PostgreSQL is ready"
                 break
               fi
               if [ $i -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
                 echo "PostgreSQL failed to become ready"
                 exit 1
               fi
+              echo "Waiting for PostgreSQL... attempt $i of ${{ env.HEALTH_CHECK_RETRIES }}"
               sleep ${{ env.HEALTH_CHECK_INTERVAL }}
             done
 
             # Run migrations and setup
-            DB_USER=${{ env.DB_USER }} \
-            DB_PASSWORD=${{ env.DB_PASSWORD }} \
-            DB_NAME=${{ env.DB_NAME }} \
+            echo "Running database migrations"
             docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec -T app npm run db:migrate
 
-            DB_USER=${{ env.DB_USER }} \
-            DB_PASSWORD=${{ env.DB_PASSWORD }} \
-            DB_NAME=${{ env.DB_NAME }} \
+            echo "Setting up demo content"
             docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec -T app npm run db:ensure-demo
 
             # Health check
@@ -97,6 +95,7 @@ jobs:
                 echo "Application failed health check"
                 exit 1
               fi
+              echo "Waiting for application to become healthy... attempt $i of ${{ env.HEALTH_CHECK_RETRIES }}"
               sleep ${{ env.HEALTH_CHECK_INTERVAL }}
             done
 
@@ -106,37 +105,36 @@ jobs:
           set -e
           docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} down -v || true
 
-          DB_USER=${{ env.DB_USER }} \
-          DB_PASSWORD=${{ env.DB_PASSWORD }} \
-          DB_NAME=${{ env.DB_NAME }} \
+          # Export DB credentials as environment variables
+          export DB_USER="${{ secrets.DB_USER }}"
+          export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+          export DB_NAME="${{ secrets.DB_NAME }}"
+
+          echo "Building with database user: $DB_USER"
           docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} build --no-cache
 
-          DB_USER=${{ env.DB_USER }} \
-          DB_PASSWORD=${{ env.DB_PASSWORD }} \
-          DB_NAME=${{ env.DB_NAME }} \
+          echo "Starting containers with database user: $DB_USER"
           docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d
 
           # Wait for PostgreSQL to be ready
           for i in $(seq 1 ${{ env.HEALTH_CHECK_RETRIES }}); do
-            if docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec -T postgres pg_isready -U ${{ env.DB_USER }}; then
+            if docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec -T postgres pg_isready -U $DB_USER; then
+              echo "PostgreSQL is ready"
               break
             fi
             if [ $i -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
               echo "PostgreSQL failed to become ready"
               exit 1
             fi
+            echo "Waiting for PostgreSQL... attempt $i of ${{ env.HEALTH_CHECK_RETRIES }}"
             sleep ${{ env.HEALTH_CHECK_INTERVAL }}
           done
 
           # Run migrations and setup
-          DB_USER=${{ env.DB_USER }} \
-          DB_PASSWORD=${{ env.DB_PASSWORD }} \
-          DB_NAME=${{ env.DB_NAME }} \
+          echo "Running database migrations"
           docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec -T app npm run db:migrate
 
-          DB_USER=${{ env.DB_USER }} \
-          DB_PASSWORD=${{ env.DB_PASSWORD }} \
-          DB_NAME=${{ env.DB_NAME }} \
+          echo "Setting up demo content"
           docker compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec -T app npm run db:ensure-demo
 
           # Health check
@@ -149,5 +147,6 @@ jobs:
               echo "Application failed health check"
               exit 1
             fi
+            echo "Waiting for application to become healthy... attempt $i of ${{ env.HEALTH_CHECK_RETRIES }}"
             sleep ${{ env.HEALTH_CHECK_INTERVAL }}
           done
