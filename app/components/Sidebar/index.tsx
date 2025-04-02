@@ -246,7 +246,7 @@ export function SidebarContents() {
                   animate='visible'
                   exit='exit'
                   variants={logoFadeVariants}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.1 }}
                 >
                   <img
                     src='/assets/logos/LogoMobile.svg'
@@ -261,7 +261,7 @@ export function SidebarContents() {
                   animate='visible'
                   exit='exit'
                   variants={logoFadeVariants}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.1 }}
                 >
                   <img
                     src='/assets/logos/LogoDesktop.svg'
@@ -330,7 +330,7 @@ export function SidebarContents() {
                               animate='visible'
                               exit='exit'
                               variants={textFadeVariants}
-                              transition={{ duration: 0.2 }}
+                              transition={{ duration: 0.1 }}
                               className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
                             >
                               {item.label}
@@ -379,7 +379,7 @@ export function SidebarContents() {
                               animate='visible'
                               exit='exit'
                               variants={textFadeVariants}
-                              transition={{ duration: 0.2 }}
+                              transition={{ duration: 0.1 }}
                               className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
                             >
                               {item.label}
@@ -435,7 +435,7 @@ export function SidebarContents() {
                   animate='visible'
                   exit='exit'
                   variants={textFadeVariants}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.1 }}
                   className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
                 >
                   Minimize Menu

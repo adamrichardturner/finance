@@ -12,6 +12,7 @@ interface UpdateBudgetParams {
   budgetId: string
   category: string
   maxAmount: number
+  theme: string
 }
 
 interface DeleteBudgetParams {
@@ -88,6 +89,7 @@ export function useBudgetMutations() {
       formData.append('budgetId', data.budgetId)
       formData.append('category', data.category)
       formData.append('maxAmount', data.maxAmount.toString())
+      formData.append('theme', data.theme)
 
       const result = await fetcher.submit(formData, {
         method: 'post',

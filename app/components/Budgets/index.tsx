@@ -51,7 +51,7 @@ export function Budgets({ budgets, actionData }: BudgetsProps) {
 
       <div className='flex flex-col max-[1457px]:flex-col min-[1457px]:flex-row gap-6'>
         <div className='w-full min-[1457px]:w-[400px]'>
-          <div className='bg-white rounded-lg p-6 border'>
+          <div className='bg-white rounded-lg p-6'>
             <BudgetChart budgets={budgets} />
           </div>
         </div>

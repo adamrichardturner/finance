@@ -13,6 +13,7 @@ interface UpdateBudgetParams {
   userId: string
   category: string
   maxAmount: number
+  theme: string
 }
 
 interface DeleteBudgetParams {
@@ -102,6 +103,7 @@ export async function updateBudget({
   userId,
   category,
   maxAmount,
+  theme,
 }: UpdateBudgetParams): Promise<Budget> {
   // Get the current budget data
   const currentBudget = await db('budgets')
@@ -133,6 +135,7 @@ export async function updateBudget({
     .update({
       category,
       maximum: maxAmount,
+      theme,
     })
     .returning('*')
 

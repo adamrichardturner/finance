@@ -140,10 +140,13 @@ export function BudgetPieChart({
     <Card className='p-[32px] flex flex-col gap-4 shadow-none'>
       <CardHeader className='flex p-0 flex-row justify-between items-center w-full'>
         <CardTitle className='text-[20px]'>{title}</CardTitle>
-        <div className='text-[14px] text-[#696868] font-[500] flex flex-row items-center justify-end gap-[12px]'>
+        <div
+          className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex flex-row gap-1 items-center'
+          onClick={() => {}}
+        >
           See Details
-          <span>
-            <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2`} />
+          <span className='flex items-center'>
+            <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2 ml-2`} />
           </span>
         </div>
       </CardHeader>

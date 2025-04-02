@@ -6,6 +6,10 @@
   },
   "categories": [
     {
+      "name": "Income",
+      "defaultTheme": "#2BAC76"
+    },
+    {
       "name": "Entertainment",
       "defaultTheme": "#277C78"
     },
@@ -56,6 +60,11 @@
   ],
   "budgets": [
     {
+      "category": "Income",
+      "maximum": "4000.00",
+      "theme": "#2BAC76"
+    },
+    {
       "category": "Entertainment",
       "maximum": "50.00",
       "theme": "#277C78"
@@ -77,6 +86,14 @@
     }
   ],
   "transactions": [
+    {
+      "avatar": "/assets/avatars/express-apps.jpg",
+      "name": "ExpressApps",
+      "category": "Income",
+      "date": "2024-08-25T09:00:00Z",
+      "amount": 3456.78,
+      "recurring": true
+    },
     {
       "avatar": "/assets/avatars/james-thompson.jpg",
       "name": "James Thompson",

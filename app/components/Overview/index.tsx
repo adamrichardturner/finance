@@ -65,13 +65,19 @@ const Overview: React.FC<OverviewProps> = ({
               <Pots pots={pots} />
             </div>
 
-            <div onClick={() => handleNavigate('/transactions')}>
+            <div
+              onClick={() => handleNavigate('/transactions')}
+              className='cursor-pointer'
+            >
               <TransactionsOverview transactions={transactions} />
             </div>
           </div>
 
           <div className='w-full min-[1457px]:col-span-5 flex flex-col gap-[32px]'>
-            <div onClick={() => handleNavigate('/budgets')}>
+            <div
+              onClick={() => handleNavigate('/budgets')}
+              className='cursor-pointer'
+            >
               <BudgetChart budgets={budgets} />
             </div>
 

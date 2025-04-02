@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import React from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardHeader, CardTitle, CardContent } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
@@ -18,9 +18,7 @@ import {
   SelectContent,
   SelectItem,
 } from '~/components/ui/select'
-import { AppTransaction } from '~/utils/transform-data'
 import { formatDistanceToNow } from 'date-fns'
-import { useTransactionsQuery } from '~/hooks/use-transactions-query'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import {
   Sheet,
@@ -31,10 +29,10 @@ import {
   SheetClose,
 } from '~/components/ui/sheet'
 import { Button } from '~/components/ui/button'
-import filter from 'lodash/filter'
-import orderBy from 'lodash/orderBy'
-import { useLocation, useNavigate } from '@remix-run/react'
+import { useTransactions } from '~/hooks/use-transactions'
 import { getThemeForCategory } from '~/utils/budget-categories'
+import { AppTransaction } from '~/utils/transform-data'
+import Pointer from '../../../public/assets/icons/Pointer.svg'
 
 // Animation variants
 const itemVariants = {
@@ -50,200 +48,25 @@ const itemVariants = {
 }
 
 export function Transactions() {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const { data: transactions, isLoading, error } = useTransactionsQuery()
-  const [page, setPage] = useState(1)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState('latest')
-  const [category, setCategory] = useState('all')
-
-  // Check for URL query parameters when component mounts
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const categoryParam = params.get('category')
-
-    if (categoryParam) {
-      setCategory(categoryParam.toLowerCase())
-    }
-  }, [location.search])
-
-  // Helper function to format currency
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-    }).format(Math.abs(amount))
-  }
-
-  // Helper function for rendering transaction avatars
-  const renderTransactionAvatar = (
-    transaction: AppTransaction
-  ): React.ReactNode => {
-    const getColorFromName = (name: string): string => {
-      const colors = [
-        '#5E76BF',
-        '#F58A51',
-        '#47B4AC',
-        '#D988B9',
-        '#B0A0D6',
-        '#FFB6C1',
-        '#87CEEB',
-        '#FFA07A',
-        '#98FB98',
-        '#DDA0DD',
-      ]
-
-      const hash = name.split('').reduce((acc, char) => {
-        return acc + char.charCodeAt(0)
-      }, 0)
-
-      return colors[hash % colors.length]
-    }
-
-    const firstLetter = transaction.description.charAt(0).toUpperCase()
-    const bgColor = getColorFromName(transaction.description)
-
-    return (
-      <div className='relative h-10 w-10 rounded-full overflow-hidden flex-shrink-0'>
-        {transaction.avatar && (
-          <img
-            src={transaction.avatar}
-            alt={`${transaction.description} avatar`}
-            className='h-full w-full object-cover'
-            onError={(e) => {
-              const target = e.target as HTMLImageElement
-              target.style.display = 'none'
-              const fallbackDiv =
-                target.parentElement?.querySelector('.fallback-avatar')
-              if (fallbackDiv && fallbackDiv instanceof HTMLElement) {
-                fallbackDiv.style.display = 'flex'
-              }
-            }}
-          />
-        )}
-        <div
-          className='fallback-avatar absolute inset-0 flex items-center justify-center text-white font-medium text-lg'
-          style={{
-            backgroundColor: bgColor,
-            display: transaction.avatar ? 'none' : 'flex',
-          }}
-        >
-          {firstLetter}
-        </div>
-      </div>
-    )
-  }
-
-  // Filter and sort transactions
-  const filteredTransactions = useMemo(() => {
-    if (!transactions) {
-      console.error('No transactions data received')
-      return []
-    }
-
-    if (transactions.length === 0) {
-      return []
-    }
-
-    // Filter transactions using lodash filter
-    let filtered = transactions
-
-    // Apply search query filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      filtered = filter(filtered, (tx) => {
-        return (
-          tx.description.toLowerCase().includes(query) ||
-          tx.category.toLowerCase().includes(query)
-        )
-      })
-    }
-
-    // Apply category filter
-    if (category !== 'all') {
-      filtered = filter(
-        filtered,
-        (tx) => tx.category.toLowerCase() === category
-      )
-    }
-
-    switch (sortBy) {
-      case 'latest':
-        // For dates, we need to convert to timestamp for proper sorting
-        return orderBy(
-          filtered,
-          [(tx) => new Date(tx.date).getTime()],
-          ['desc']
-        )
-      case 'oldest':
-        return orderBy(filtered, [(tx) => new Date(tx.date).getTime()], ['asc'])
-      case 'a-z':
-        return orderBy(filtered, ['description'], ['asc'])
-      case 'z-a':
-        return orderBy(filtered, ['description'], ['desc'])
-      case 'highest':
-        // For highest, we need to handle mixed signs correctly
-        return orderBy(
-          filtered,
-          [
-            // First sort by sign to prioritize positive values
-            (tx) => (tx.amount >= 0 ? 1 : 0),
-            // Then sort by amount value
-            'amount',
-          ],
-          ['desc', 'desc']
-        )
-      case 'lowest':
-        // For lowest, we prioritize negative values and sort them by magnitude
-        return orderBy(
-          filtered,
-          [
-            // First sort by sign to prioritize negative values
-            (tx) => (tx.amount < 0 ? 0 : 1),
-            // Then sort by amount
-            'amount',
-          ],
-          ['asc', 'asc']
-        )
-      default:
-        return filtered
-    }
-  }, [transactions, searchQuery, category, sortBy])
-
-  // Get visible transactions for current page
-  const visibleTransactions = useMemo(() => {
-    return filteredTransactions.slice(0, page * 15)
-  }, [filteredTransactions, page])
-
-  // Get unique categories for filter dropdown
-  const categories = useMemo(() => {
-    if (!transactions) return []
-
-    const uniqueCategories = [...new Set(transactions.map((tx) => tx.category))]
-    return ['All Transactions', ...uniqueCategories]
-  }, [transactions])
-
-  const loadMore = useCallback(() => {
-    if (visibleTransactions.length < filteredTransactions.length) {
-      setPage((prev) => prev + 1)
-    }
-  }, [visibleTransactions.length, filteredTransactions.length])
-
-  // Add a handleCategoryClick function
-  const handleCategoryClick = (categoryName: string) => {
-    navigate(
-      `/transactions?category=${encodeURIComponent(categoryName.toLowerCase())}`
-    )
-  }
-
-  // Add a new handler function for recipient/sender clicks
-  const handleSenderClick = (senderName: string) => {
-    navigate(
-      `/transactions?search=${encodeURIComponent(senderName.toLowerCase())}`
-    )
-    setSearchQuery(senderName)
-  }
+  const {
+    isLoading,
+    error,
+    transactions,
+    searchQuery,
+    setSearchQuery,
+    sortBy,
+    setSortBy,
+    category,
+    setCategory,
+    categories,
+    visibleTransactions,
+    filteredCount,
+    loadMore,
+    formatCurrency,
+    renderTransactionAvatar,
+    handleCategoryClick,
+    handleSenderClick,
+  } = useTransactions()
 
   // Handle loading state
   if (isLoading) {
@@ -344,8 +167,9 @@ export function Transactions() {
                 Transactions
               </span>
               <span className='text-sm text-gray-500 font-normal'>
-                Showing {filteredTransactions.length} transaction
-                {filteredTransactions.length !== 1 ? 's' : ''}
+                Showing {visibleTransactions.length} transaction
+                {visibleTransactions.length !== 1 ? 's' : ''}
+                {filteredCount > 0 && ` of ${filteredCount}`}
               </span>
             </div>
           ) : (
@@ -353,14 +177,15 @@ export function Transactions() {
           )}
         </CardTitle>
         {category !== 'all' && (
-          <Button
-            variant='outline'
-            className='mt-2 sm:mt-0 text-sm'
+          <span
+            className='mt-2 sm:mt-0 text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex items-center'
             onClick={() => setCategory('all')}
           >
-            <ArrowUpDown className='mr-2 h-4 w-4' />
             View all transactions
-          </Button>
+            <span className='ml-2'>
+              <img src={Pointer} alt='Pointer Icon' className='h-2 w-2' />
+            </span>
+          </span>
         )}
       </CardHeader>
       <CardContent>
@@ -372,7 +197,7 @@ export function Transactions() {
             <Input
               type='text'
               placeholder='Search'
-              className='pl-8 border border-[#201F24] placeholder:text-xs sm:placeholder:text-sm'
+              className='pl-8 border border-gray-100 hover:shadow-lg transition-shadow duration-200 placeholder:text-xs sm:placeholder:text-sm shadow-md'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -385,7 +210,7 @@ export function Transactions() {
                 Sort by
               </label>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className='w-[120px] border border-[#201F24]'>
+                <SelectTrigger className='w-[120px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                   <SelectValue placeholder='Sort by' />
                 </SelectTrigger>
                 <SelectContent>
@@ -404,13 +229,13 @@ export function Transactions() {
                 Category
               </label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className='w-[140px] border border-[#201F24]'>
+                <SelectTrigger className='w-[140px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                   <SelectValue placeholder='Category' />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value='all'>All Transactions</SelectItem>
                   {categories.map(
-                    (cat) =>
+                    (cat: string) =>
                       cat !== 'All Transactions' && (
                         <SelectItem key={cat} value={cat.toLowerCase()}>
                           {cat}
@@ -430,7 +255,7 @@ export function Transactions() {
                 <Button
                   variant='outline'
                   size='icon'
-                  className='border border-[#201F24]'
+                  className='border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'
                 >
                   <ArrowUpDown className='h-4 w-4' />
                 </Button>
@@ -472,7 +297,7 @@ export function Transactions() {
                 <Button
                   variant='outline'
                   size='icon'
-                  className='border border-[#201F24]'
+                  className='border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'
                 >
                   <Filter className='h-4 w-4' />
                 </Button>
@@ -494,8 +319,8 @@ export function Transactions() {
                     </Button>
                   </SheetClose>
                   {categories
-                    .filter((cat) => cat !== 'All Transactions')
-                    .map((cat) => (
+                    .filter((cat: string) => cat !== 'All Transactions')
+                    .map((cat: string) => (
                       <SheetClose key={cat} asChild>
                         <Button
                           variant={
@@ -564,7 +389,7 @@ export function Transactions() {
           <InfiniteScroll
             dataLength={visibleTransactions.length}
             next={loadMore}
-            hasMore={visibleTransactions.length < filteredTransactions.length}
+            hasMore={visibleTransactions.length < filteredCount}
             loader={
               <div className='flex justify-center sticky bottom-0 py-8 bg-card shadow-md border-t'>
                 <Loader2 className='h-6 w-6 animate-spin text-primary' />
@@ -587,30 +412,99 @@ export function Transactions() {
                   <Table className='hide-scrollbar'>
                     <TableHeader className='sticky top-0 bg-card z-10'>
                       <TableRow className='border-b border-gray-200'>
-                        <TableHead className='w-[30%]'>
+                        <TableHead className='w-[30%] text-[12px]'>
                           Recipient / Sender
                         </TableHead>
-                        <TableHead className='w-[15%] text-left'>
+                        <TableHead className='w-[15%] text-left text-[12px]'>
                           Category
                         </TableHead>
-                        <TableHead className='w-[15%] text-left'>
+                        <TableHead className='w-[15%] text-left text-[12px]'>
                           Transaction Date
                         </TableHead>
-                        <TableHead className='w-[30%] text-right'>
+                        <TableHead className='w-[30%] text-right text-[12px]'>
                           Amount
                         </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {visibleTransactions.map((transaction, index) => (
-                        <tr
-                          key={transaction.id}
-                          className='transition-colors duration-200 hover:bg-gray-100 border-b border-gray-100 last:border-0 cursor-pointer'
-                        >
-                          <TableCell className='flex items-center gap-3'>
-                            {renderTransactionAvatar(transaction)}
+                      {visibleTransactions.map(
+                        (transaction: AppTransaction, index: number) => (
+                          <tr
+                            key={transaction.id}
+                            className='transition-colors duration-200 hover:bg-gray-100 border-b border-gray-100 last:border-0 cursor-pointer'
+                          >
+                            <TableCell className='flex items-center gap-3'>
+                              {renderTransactionAvatar(transaction)}
+                              <span
+                                className='cursor-pointer font-semibold hover:font-[700] transition-all'
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleSenderClick(transaction.description)
+                                }}
+                              >
+                                {transaction.description}
+                              </span>
+                            </TableCell>
+                            <TableCell className='text-left'>
+                              <div
+                                className='flex items-center gap-2 cursor-pointer hover:font-[600] transition-all'
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleCategoryClick(transaction.category)
+                                }}
+                              >
+                                <div
+                                  className='h-2 w-2 rounded-full flex-shrink-0 text-[12px]'
+                                  style={{
+                                    backgroundColor: getThemeForCategory(
+                                      transaction.category
+                                    ),
+                                  }}
+                                />
+                                <span className='text-[12px] text-color-grey-500'>
+                                  {transaction.category}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell className='text-left text-[12px] text-color-grey-500'>
+                              {formatDistanceToNow(new Date(transaction.date), {
+                                addSuffix: true,
+                              })}
+                            </TableCell>
+                            <TableCell
+                              className={`text-right font-bold ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
+                            >
+                              {transaction.amount >= 0 ? '+' : '-'}
+                              {formatCurrency(Math.abs(transaction.amount))}
+                            </TableCell>
+                          </tr>
+                        )
+                      )}
+                      {/* Add padding row to ensure smooth scrolling */}
+                      <tr className='h-8'>
+                        <td colSpan={4}></td>
+                      </tr>
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile View */}
+                <div className='sm:hidden mb-10'>
+                  {visibleTransactions.map(
+                    (transaction: AppTransaction, index: number) => (
+                      <motion.div
+                        key={transaction.id}
+                        variants={itemVariants}
+                        initial='hidden'
+                        animate='visible'
+                        custom={index}
+                        className='flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0 transition-colors duration-200 hover:bg-gray-100 rounded-lg cursor-pointer mb-1'
+                      >
+                        <div className='flex items-start gap-3'>
+                          {renderTransactionAvatar(transaction)}
+                          <div className='flex flex-col'>
                             <span
-                              className='cursor-pointer hover:font-[700] transition-all'
+                              className='font-medium text-sm cursor-pointer hover:font-[700] transition-all'
                               onClick={(e) => {
                                 e.stopPropagation()
                                 handleSenderClick(transaction.description)
@@ -618,10 +512,8 @@ export function Transactions() {
                             >
                               {transaction.description}
                             </span>
-                          </TableCell>
-                          <TableCell className='text-left'>
-                            <div
-                              className='flex items-center gap-2 cursor-pointer hover:font-[700] transition-all'
+                            <span
+                              className='text-xs text-gray-500 font-normal flex items-center gap-1 cursor-pointer hover:font-[700] transition-all'
                               onClick={(e) => {
                                 e.stopPropagation()
                                 handleCategoryClick(transaction.category)
@@ -635,87 +527,26 @@ export function Transactions() {
                                   ),
                                 }}
                               />
-                              <span>{transaction.category}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className='text-left'>
-                            {formatDistanceToNow(new Date(transaction.date), {
-                              addSuffix: true,
-                            })}
-                          </TableCell>
-                          <TableCell
-                            className={`text-right font-bold ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
+                              {transaction.category}
+                            </span>
+                          </div>
+                        </div>
+                        <div className='flex flex-col items-end'>
+                          <span
+                            className={`font-bold text-sm ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
                           >
                             {transaction.amount >= 0 ? '+' : '-'}
                             {formatCurrency(Math.abs(transaction.amount))}
-                          </TableCell>
-                        </tr>
-                      ))}
-                      {/* Add padding row to ensure smooth scrolling */}
-                      <tr className='h-8'>
-                        <td colSpan={4}></td>
-                      </tr>
-                    </TableBody>
-                  </Table>
-                </div>
-
-                {/* Mobile View */}
-                <div className='sm:hidden mb-10'>
-                  {visibleTransactions.map((transaction, index) => (
-                    <motion.div
-                      key={transaction.id}
-                      variants={itemVariants}
-                      initial='hidden'
-                      animate='visible'
-                      custom={index}
-                      className='flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0 transition-colors duration-200 hover:bg-gray-100 rounded-lg cursor-pointer mb-1'
-                    >
-                      <div className='flex items-start gap-3'>
-                        {renderTransactionAvatar(transaction)}
-                        <div className='flex flex-col'>
-                          <span
-                            className='font-medium text-sm cursor-pointer hover:font-[700] transition-all'
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleSenderClick(transaction.description)
-                            }}
-                          >
-                            {transaction.description}
                           </span>
-                          <span
-                            className='text-xs text-gray-500 font-normal flex items-center gap-1 cursor-pointer hover:font-[700] transition-all'
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleCategoryClick(transaction.category)
-                            }}
-                          >
-                            <div
-                              className='h-2 w-2 rounded-full flex-shrink-0'
-                              style={{
-                                backgroundColor: getThemeForCategory(
-                                  transaction.category
-                                ),
-                              }}
-                            />
-                            {transaction.category}
+                          <span className='text-xs text-gray-500 font-normal'>
+                            {formatDistanceToNow(new Date(transaction.date), {
+                              addSuffix: true,
+                            })}
                           </span>
                         </div>
-                      </div>
-                      <div className='flex flex-col items-end'>
-                        <span
-                          className={`font-bold text-sm ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
-                        >
-                          {transaction.amount >= 0 ? '+' : '-'}
-                          {formatCurrency(Math.abs(transaction.amount))}
-                        </span>
-                        <span className='text-xs text-gray-500 font-normal'>
-                          {formatDistanceToNow(new Date(transaction.date), {
-                            addSuffix: true,
-                          })}
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    )
+                  )}
                 </div>
               </>
             ) : (

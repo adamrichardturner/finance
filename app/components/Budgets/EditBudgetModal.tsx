@@ -133,6 +133,7 @@ export function EditBudgetModal({
         budgetId,
         category,
         maxAmount: parseFloat(amount),
+        theme: getThemeForCategory(category),
       })
       onClose()
     } catch (error) {
