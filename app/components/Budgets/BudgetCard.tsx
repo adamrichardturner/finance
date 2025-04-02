@@ -11,6 +11,7 @@ import { EllipsisIcon } from '../ui/icons/EllipsisIcon'
 import { Progress } from '../ui/progress'
 import { useNavigate } from '@remix-run/react'
 import { getThemeForCategory } from '~/utils/budget-categories'
+import Pointer from '../../../public/assets/icons/Pointer.svg'
 
 interface BudgetCardProps {
   budget: Budget
@@ -33,8 +34,14 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
     navigate(`/transactions?category=${encodeURIComponent(budget.category)}`)
   }
 
+  const navigateToTransaction = (transactionName: string) => {
+    navigate(
+      `/transactions?category=${encodeURIComponent(budget.category)}&search=${encodeURIComponent(transactionName)}`
+    )
+  }
+
   return (
-    <Card className='rounded-lg border bg-white shadow-none outline-none space-y-2 p-6'>
+    <Card className='rounded-lg bg-white shadow-none outline-none space-y-2 p-6'>
       <div className='flex items-start justify-between'>
         <div className='flex items-center gap-2'>
           <div
@@ -109,23 +116,34 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
 
         {/* Only show the Latest Spending section if there are transactions */}
         {budget.transactions && budget.transactions.length > 0 && (
-          <div className='mt-6 bg-[#F8F4F0] p-6 rounded-lg space-y-8'>
+          <div
+            className='mt-6 bg-[#F8F4F0] p-6 rounded-lg space-y-8 cursor-pointer'
+            onClick={navigateToTransactions}
+          >
             <div className='flex items-center justify-between'>
               <h4 className='text-sm text-color-grey-900 text-[16px] font-[700]'>
                 Latest Spending
               </h4>
-              <Button
-                variant='link'
-                className='text-sm text-color-grey-500 p-0 h-auto'
-                onClick={navigateToTransactions}
+              <span
+                className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex items-center flex flex-row gap-1'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigateToTransactions()
+                }}
               >
                 See All
-              </Button>
+                <span className='ml-2'>
+                  <img src={Pointer} alt='Pointer Icon' className='h-2 w-2' />
+                </span>
+              </span>
             </div>
             <div className='mt-2 space-y-3'>
               {budget.transactions.slice(0, 3).map((transaction, index) => (
                 <div key={transaction.id}>
-                  <div className='flex items-center justify-between min-h-[56px]'>
+                  <div
+                    className='flex items-center justify-between min-h-[56px] cursor-pointer hover:bg-white/60 transition-colors duration-200 p-2 rounded-md'
+                    onClick={() => navigateToTransaction(transaction.name)}
+                  >
                     <div className='flex items-center gap-3'>
                       <div className='relative h-8 w-8 rounded-full bg-gray-100 overflow-hidden'>
                         {transaction.avatar && (
