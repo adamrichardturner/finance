@@ -10,6 +10,7 @@ import { Card } from '../ui/card'
 import { EllipsisIcon } from '../ui/icons/EllipsisIcon'
 import { Progress } from '../ui/progress'
 import { useNavigate } from '@remix-run/react'
+import { getThemeForCategory } from '~/utils/budget-categories'
 
 interface BudgetCardProps {
   budget: Budget
@@ -27,28 +28,6 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
   const maximum = parseFloat(budget.maximum)
   const remainingAmount = maximum - spentAmount
   const percentage = (spentAmount / maximum) * 100
-
-  // Helper function to get a consistent color based on transaction name
-  const getColorFromName = (name: string): string => {
-    const colors = [
-      '#5E76BF',
-      '#F58A51',
-      '#47B4AC',
-      '#D988B9',
-      '#B0A0D6',
-      '#FFB6C1',
-      '#87CEEB',
-      '#FFA07A',
-      '#98FB98',
-      '#DDA0DD',
-    ]
-
-    const hash = name.split('').reduce((acc, char) => {
-      return acc + char.charCodeAt(0)
-    }, 0)
-
-    return colors[hash % colors.length]
-  }
 
   const navigateToTransactions = () => {
     navigate(`/transactions?category=${encodeURIComponent(budget.category)}`)
@@ -173,7 +152,9 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
                         <div
                           className='fallback-avatar absolute inset-0 flex items-center justify-center text-white font-medium text-sm'
                           style={{
-                            backgroundColor: getColorFromName(transaction.name),
+                            backgroundColor: getThemeForCategory(
+                              transaction.category
+                            ),
                             display: transaction.avatar ? 'none' : 'flex',
                           }}
                         >

@@ -41,8 +41,10 @@ export function getAvailableCategories(
     )
     .map((budget) => budget.category.toLowerCase().trim())
 
-  console.log('Used categories:', usedCategories)
-  console.log('Current category:', currentCategory)
+  // Get the current budget if we're editing
+  const currentBudget = currentBudgetId
+    ? existingBudgets.find((b) => String(b.id) === currentBudgetId)
+    : undefined
 
   return BUDGET_CATEGORIES.filter((cat) => {
     const normalizedCatName = cat.name.toLowerCase().trim()
@@ -52,10 +54,27 @@ export function getAvailableCategories(
       currentCategory &&
       normalizedCatName === currentCategory.toLowerCase().trim()
     ) {
+      // If this is the current category being edited, use its existing theme
+      if (
+        currentBudget &&
+        currentBudget.category.toLowerCase().trim() === normalizedCatName
+      ) {
+        return { ...cat, theme: currentBudget.theme }
+      }
       return true
     }
 
     // For both modes: exclude categories that are used by other budgets
     return !usedCategories.includes(normalizedCatName)
+  }).map((cat) => {
+    // If this is the current category being edited, use its existing theme
+    if (
+      currentBudget &&
+      cat.name.toLowerCase().trim() ===
+        currentBudget.category.toLowerCase().trim()
+    ) {
+      return { ...cat, theme: currentBudget.theme }
+    }
+    return cat
   })
 }

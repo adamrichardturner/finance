@@ -68,11 +68,13 @@ export async function action({ request }: ActionFunctionArgs) {
     const budgetId = formData.get('budgetId')
     const category = formData.get('category')
     const maxAmount = formData.get('maxAmount')
+    const theme = formData.get('theme')
 
     if (
       typeof budgetId !== 'string' ||
       typeof category !== 'string' ||
-      typeof maxAmount !== 'string'
+      typeof maxAmount !== 'string' ||
+      typeof theme !== 'string'
     ) {
       return json({ error: 'Invalid form data' }, { status: 400 })
     }
@@ -83,6 +85,7 @@ export async function action({ request }: ActionFunctionArgs) {
         userId,
         category,
         maxAmount: parseFloat(maxAmount),
+        theme,
       })
       return json({ budget })
     } catch (error) {
