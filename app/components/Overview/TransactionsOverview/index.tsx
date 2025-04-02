@@ -47,7 +47,7 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
         </div>
       </CardHeader>
       <div className='flex flex-col divide-y'>
-        {transactions.slice(0, 5).map((transaction, index) => (
+        {transactions.slice(0, 4).map((transaction, index) => (
           <div
             key={transaction.id || index}
             className='py-4 last:pb-0 transition-colors p-1.5 duration-200 hover:bg-gray-100'
@@ -58,7 +58,7 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
                   <img
                     src={transaction.avatar || ''}
                     alt={transaction.description}
-                    className='w-6 h-6 object-contain'
+                    className='w-6 h-6 object-cover rounded-full'
                   />
                 </div>
                 <div>
