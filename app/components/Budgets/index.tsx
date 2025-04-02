@@ -33,7 +33,7 @@ export function Budgets({ budgets, actionData }: BudgetsProps) {
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
-        <h1 className='text-2xl font-semibold'>Budgets</h1>
+        <h1 className='text-2xl font-bold pb-[2px]'>Budgets</h1>
         <Button
           onClick={() => setAddModalOpen(true)}
           className='bg-black text-white hover:bg-black/90'

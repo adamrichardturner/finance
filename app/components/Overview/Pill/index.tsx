@@ -4,12 +4,13 @@ interface PillProps {
   title: string
   amount: string | number
   icon?: React.ReactNode
+  isTotal?: boolean
 }
 
-const Pill: React.FC<PillProps> = ({ title, amount, icon }) => {
+const Pill: React.FC<PillProps> = ({ title, amount, icon, isTotal }) => {
   return (
     <Card
-      className={`hover:bg-[#201F24] min-h-[120px] hover:text-white bg-white shadow-none outline-none border-0 transition-colors duration-200`}
+      className={`min-h-[120px] ${isTotal ? 'bg-[#201F24] text-white' : 'bg-white'} shadow-none outline-none border-0`}
     >
       <CardHeader>
         <CardTitle>{title}</CardTitle>

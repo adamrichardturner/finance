@@ -33,7 +33,8 @@ import {
 import { Button } from '~/components/ui/button'
 import filter from 'lodash/filter'
 import orderBy from 'lodash/orderBy'
-import { useLocation } from '@remix-run/react'
+import { useLocation, useNavigate } from '@remix-run/react'
+import { getThemeForCategory } from '~/utils/budget-categories'
 
 // Animation variants
 const itemVariants = {
@@ -50,6 +51,7 @@ const itemVariants = {
 
 export function Transactions() {
   const location = useLocation()
+  const navigate = useNavigate()
   const { data: transactions, isLoading, error } = useTransactionsQuery()
   const [page, setPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState('')
@@ -227,6 +229,21 @@ export function Transactions() {
       setPage((prev) => prev + 1)
     }
   }, [visibleTransactions.length, filteredTransactions.length])
+
+  // Add a handleCategoryClick function
+  const handleCategoryClick = (categoryName: string) => {
+    navigate(
+      `/transactions?category=${encodeURIComponent(categoryName.toLowerCase())}`
+    )
+  }
+
+  // Add a new handler function for recipient/sender clicks
+  const handleSenderClick = (senderName: string) => {
+    navigate(
+      `/transactions?search=${encodeURIComponent(senderName.toLowerCase())}`
+    )
+    setSearchQuery(senderName)
+  }
 
   // Handle loading state
   if (isLoading) {
@@ -500,7 +517,7 @@ export function Transactions() {
           id='scrollable-transactions'
           className='overflow-auto hide-scrollbar'
           style={{
-            maxHeight: '65vh',
+            maxHeight: window.innerWidth < 640 ? '50vh' : '65vh',
             scrollBehavior: 'smooth',
             WebkitOverflowScrolling: 'touch',
             overflowY: 'auto',
@@ -588,10 +605,34 @@ export function Transactions() {
                         >
                           <TableCell className='flex items-center gap-3'>
                             {renderTransactionAvatar(transaction)}
-                            <span>{transaction.description}</span>
+                            <span
+                              className='cursor-pointer hover:font-[700] transition-all'
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleSenderClick(transaction.description)
+                              }}
+                            >
+                              {transaction.description}
+                            </span>
                           </TableCell>
                           <TableCell className='text-left'>
-                            {transaction.category}
+                            <div
+                              className='flex items-center gap-2 cursor-pointer hover:font-[700] transition-all'
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleCategoryClick(transaction.category)
+                              }}
+                            >
+                              <div
+                                className='h-2 w-2 rounded-full flex-shrink-0'
+                                style={{
+                                  backgroundColor: getThemeForCategory(
+                                    transaction.category
+                                  ),
+                                }}
+                              />
+                              <span>{transaction.category}</span>
+                            </div>
                           </TableCell>
                           <TableCell className='text-left'>
                             {formatDistanceToNow(new Date(transaction.date), {
@@ -615,7 +656,7 @@ export function Transactions() {
                 </div>
 
                 {/* Mobile View */}
-                <div className='sm:hidden'>
+                <div className='sm:hidden mb-10'>
                   {visibleTransactions.map((transaction, index) => (
                     <motion.div
                       key={transaction.id}
@@ -623,15 +664,35 @@ export function Transactions() {
                       initial='hidden'
                       animate='visible'
                       custom={index}
-                      className='flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0 transition-colors duration-200 hover:bg-gray-100 rounded-lg cursor-pointer'
+                      className='flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0 transition-colors duration-200 hover:bg-gray-100 rounded-lg cursor-pointer mb-1'
                     >
                       <div className='flex items-start gap-3'>
                         {renderTransactionAvatar(transaction)}
                         <div className='flex flex-col'>
-                          <span className='font-medium text-sm'>
+                          <span
+                            className='font-medium text-sm cursor-pointer hover:font-[700] transition-all'
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleSenderClick(transaction.description)
+                            }}
+                          >
                             {transaction.description}
                           </span>
-                          <span className='text-xs text-gray-500 font-normal'>
+                          <span
+                            className='text-xs text-gray-500 font-normal flex items-center gap-1 cursor-pointer hover:font-[700] transition-all'
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleCategoryClick(transaction.category)
+                            }}
+                          >
+                            <div
+                              className='h-2 w-2 rounded-full flex-shrink-0'
+                              style={{
+                                backgroundColor: getThemeForCategory(
+                                  transaction.category
+                                ),
+                              }}
+                            />
                             {transaction.category}
                           </span>
                         </div>
