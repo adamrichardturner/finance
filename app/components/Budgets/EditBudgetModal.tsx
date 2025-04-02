@@ -12,7 +12,11 @@ import {
 import { useFinancialData } from '~/hooks/use-financial-data'
 import { useBudgetMutations } from '~/hooks/use-budget-mutations'
 import { useBudgets } from '~/hooks/use-budgets'
-import { BUDGET_CATEGORIES, getThemeForCategory, getAvailableCategories } from '~/utils/budget-categories'
+import {
+  BUDGET_CATEGORIES,
+  getThemeForCategory,
+  getAvailableCategories,
+} from '~/utils/budget-categories'
 
 interface EditBudgetModalProps {
   isOpen: boolean
@@ -58,7 +62,9 @@ export function EditBudgetModal({
   // Handle category change with validation
   const handleCategoryChange = (newCategory: string) => {
     // Always allow selecting the original category
-    if (newCategory.toLowerCase().trim() === originalCategory.toLowerCase().trim()) {
+    if (
+      newCategory.toLowerCase().trim() === originalCategory.toLowerCase().trim()
+    ) {
       setCategory(newCategory)
       setError(null)
       return
@@ -67,14 +73,17 @@ export function EditBudgetModal({
     // Check if the new category is already used by another budget
     if (existingBudgets) {
       const normalizedNewCategory = newCategory.toLowerCase().trim()
-      
-      const isDuplicate = existingBudgets.some(budget => 
-        String(budget.id) !== budgetId && 
-        budget.category.toLowerCase().trim() === normalizedNewCategory
+
+      const isDuplicate = existingBudgets.some(
+        (budget) =>
+          String(budget.id) !== budgetId &&
+          budget.category.toLowerCase().trim() === normalizedNewCategory
       )
 
       if (isDuplicate) {
-        setError(`A budget for "${newCategory}" already exists. Please select a different category.`)
+        setError(
+          `A budget for "${newCategory}" already exists. Please select a different category.`
+        )
         // Don't update the category if it's a duplicate
       } else {
         setCategory(newCategory)
@@ -86,7 +95,11 @@ export function EditBudgetModal({
   }
 
   // Get available categories using the shared utility function
-  const availableCategories = getAvailableCategories(existingBudgets, budgetId, originalCategory)
+  const availableCategories = getAvailableCategories(
+    existingBudgets,
+    budgetId,
+    originalCategory
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -96,16 +109,22 @@ export function EditBudgetModal({
     }
 
     // Final check for duplicate category
-    if (category.toLowerCase().trim() !== originalCategory.toLowerCase().trim() && existingBudgets) {
+    if (
+      category.toLowerCase().trim() !== originalCategory.toLowerCase().trim() &&
+      existingBudgets
+    ) {
       const normalizedSelectedCategory = category.toLowerCase().trim()
-      
-      const isDuplicate = existingBudgets.some(budget => 
-        String(budget.id) !== budgetId && 
-        budget.category.toLowerCase().trim() === normalizedSelectedCategory
+
+      const isDuplicate = existingBudgets.some(
+        (budget) =>
+          String(budget.id) !== budgetId &&
+          budget.category.toLowerCase().trim() === normalizedSelectedCategory
       )
 
       if (isDuplicate) {
-        setError(`A budget for "${category}" already exists. Please select a different category.`)
+        setError(
+          `A budget for "${category}" already exists. Please select a different category.`
+        )
         return
       }
     }
@@ -141,47 +160,45 @@ export function EditBudgetModal({
           )}
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Budget Category</label>
-            <Select 
-              value={category} 
-              onValueChange={handleCategoryChange} 
+            <Select
+              value={category}
+              onValueChange={handleCategoryChange}
               required
             >
               <SelectTrigger>
                 <SelectValue placeholder='Select a category' />
               </SelectTrigger>
               <SelectContent>
-                {BUDGET_CATEGORIES
-                  .filter(cat => {
-                    const normalizedCatName = cat.name.toLowerCase().trim();
-                    
-                    // Always include the original category
-                    if (normalizedCatName === originalCategory.toLowerCase().trim()) {
-                      return true;
-                    }
-                    
-                    // Skip further filtering if no budgets data
-                    if (!existingBudgets) return true;
-                    
-                    // Exclude categories already used by other budgets
-                    return !existingBudgets.some(budget => 
-                      String(budget.id) !== budgetId && 
+                {BUDGET_CATEGORIES.filter((cat) => {
+                  const normalizedCatName = cat.name.toLowerCase().trim()
+
+                  // Always include the original category
+                  if (
+                    normalizedCatName === originalCategory.toLowerCase().trim()
+                  ) {
+                    return true
+                  }
+
+                  // Skip further filtering if no budgets data
+                  if (!existingBudgets) return true
+
+                  // Exclude categories already used by other budgets
+                  return !existingBudgets.some(
+                    (budget) =>
+                      String(budget.id) !== budgetId &&
                       budget.category.toLowerCase().trim() === normalizedCatName
-                    );
-                  })
-                  .map((cat) => (
-                    <SelectItem 
-                      key={cat.name} 
-                      value={cat.name}
-                    >
-                      <div className='flex items-center gap-2'>
-                        <div
-                          className='w-2 h-2 rounded-full'
-                          style={{ backgroundColor: cat.theme }}
-                        />
-                        {cat.name}
-                      </div>
-                    </SelectItem>
-                  ))}
+                  )
+                }).map((cat) => (
+                  <SelectItem key={cat.name} value={cat.name}>
+                    <div className='flex items-center gap-2'>
+                      <div
+                        className='w-2 h-2 rounded-full'
+                        style={{ backgroundColor: cat.theme }}
+                      />
+                      {cat.name}
+                    </div>
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

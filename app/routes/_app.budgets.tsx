@@ -89,7 +89,10 @@ export async function action({ request }: ActionFunctionArgs) {
       // Check for duplicate category error
       if (error instanceof Error && error.message.includes('already exists')) {
         return json({ error: error.message }, { status: 400 })
-      } else if (error instanceof Error && error.message === 'Budget not found') {
+      } else if (
+        error instanceof Error &&
+        error.message === 'Budget not found'
+      ) {
         return json({ error: 'Budget not found' }, { status: 404 })
       }
       return json({ error: 'Failed to update budget' }, { status: 500 })

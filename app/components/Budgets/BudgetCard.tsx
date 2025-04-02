@@ -184,8 +184,11 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
                   </div>
                   <span className='text-sm text-gray-700'>
                     <div className='flex space-y-1.5 flex-col'>
-                      <p className='text-xs text-gray-900 font-[700] text-right'>
-                        £{Math.abs(transaction.amount).toFixed(2)}
+                      <p
+                        className={`text-xs font-bold text-right ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
+                      >
+                        {transaction.amount >= 0 ? '+' : '-'}£
+                        {Math.abs(transaction.amount).toFixed(2)}
                       </p>
                       <p className='text-xs text-gray-500'>
                         {new Date(transaction.date).toLocaleDateString(

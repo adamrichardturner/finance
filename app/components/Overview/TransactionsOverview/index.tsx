@@ -72,7 +72,7 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
               </div>
               <div className='text-right'>
                 <p
-                  className={`font-semibold text-[16px] ${transaction.amount < 0 ? 'text-gray-900' : 'text-green-500'}`}
+                  className={`font-semibold text-[14px] ${transaction.amount < 0 ? 'text-gray-900' : 'text-green-600'}`}
                 >
                   {transaction.amount < 0 ? '-' : '+'}
                   {formatCurrency(Math.abs(transaction.amount))}

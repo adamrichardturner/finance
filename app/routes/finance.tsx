@@ -281,10 +281,10 @@ export default function FinancePage() {
                         className={`text-sm font-medium ${
                           transaction.amount > 0
                             ? 'text-green-600 dark:text-green-400'
-                            : 'text-red-600 dark:text-red-400'
+                            : 'text-gray-900 dark:text-gray-100'
                         }`}
                       >
-                        {transaction.amount > 0 ? '+' : ''}$
+                        {transaction.amount > 0 ? '+' : '-'}
                         {Math.abs(transaction.amount).toFixed(2)}
                       </div>
                     </div>

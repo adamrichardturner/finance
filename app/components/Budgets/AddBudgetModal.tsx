@@ -14,7 +14,7 @@ import { useBudgets } from '~/hooks/use-budgets'
 import {
   BUDGET_CATEGORIES,
   getThemeForCategory,
-  getAvailableCategories
+  getAvailableCategories,
 } from '~/utils/budget-categories'
 
 interface AddBudgetModalProps {
@@ -47,11 +47,13 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
 
     const normalizedNewCategory = newCategory.toLowerCase().trim()
     const isDuplicate = existingBudgets.some(
-      budget => budget.category.toLowerCase().trim() === normalizedNewCategory
+      (budget) => budget.category.toLowerCase().trim() === normalizedNewCategory
     )
 
     if (isDuplicate) {
-      setError(`A budget for "${newCategory}" already exists. Please select a different category.`)
+      setError(
+        `A budget for "${newCategory}" already exists. Please select a different category.`
+      )
       // Don't update the category if it's a duplicate
     } else {
       setCategory(newCategory)
@@ -69,11 +71,13 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
     if (existingBudgets) {
       const normalizedCategory = category.toLowerCase().trim()
       const isDuplicate = existingBudgets.some(
-        budget => budget.category.toLowerCase().trim() === normalizedCategory
+        (budget) => budget.category.toLowerCase().trim() === normalizedCategory
       )
 
       if (isDuplicate) {
-        setError(`A budget for "${category}" already exists. Please select a different category.`)
+        setError(
+          `A budget for "${category}" already exists. Please select a different category.`
+        )
         return
       }
     }
@@ -118,7 +122,7 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
               {error}
             </div>
           )}
-          
+
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Budget Category</label>
             {availableCategories.length === 0 ? (
@@ -126,36 +130,36 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
                 You've already created budgets for all available categories.
               </div>
             ) : (
-              <Select 
-                value={category} 
-                onValueChange={handleCategoryChange} 
+              <Select
+                value={category}
+                onValueChange={handleCategoryChange}
                 required
               >
                 <SelectTrigger>
                   <SelectValue placeholder='Select a category' />
                 </SelectTrigger>
                 <SelectContent>
-                  {BUDGET_CATEGORIES
-                    .filter(cat => {
-                      // Skip filtering if no existing budgets data
-                      if (!existingBudgets) return true;
-                      
-                      // Check if this category is already used by any budget
-                      return !existingBudgets.some(budget => 
-                        budget.category.toLowerCase().trim() === cat.name.toLowerCase().trim()
-                      );
-                    })
-                    .map((cat) => (
-                      <SelectItem key={cat.name} value={cat.name}>
-                        <div className='flex items-center gap-2'>
-                          <div
-                            className='w-2 h-2 rounded-full'
-                            style={{ backgroundColor: cat.theme }}
-                          />
-                          {cat.name}
-                        </div>
-                      </SelectItem>
-                    ))}
+                  {BUDGET_CATEGORIES.filter((cat) => {
+                    // Skip filtering if no existing budgets data
+                    if (!existingBudgets) return true
+
+                    // Check if this category is already used by any budget
+                    return !existingBudgets.some(
+                      (budget) =>
+                        budget.category.toLowerCase().trim() ===
+                        cat.name.toLowerCase().trim()
+                    )
+                  }).map((cat) => (
+                    <SelectItem key={cat.name} value={cat.name}>
+                      <div className='flex items-center gap-2'>
+                        <div
+                          className='w-2 h-2 rounded-full'
+                          style={{ backgroundColor: cat.theme }}
+                        />
+                        {cat.name}
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             )}
@@ -178,7 +182,7 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
             type='submit'
             className='w-full bg-black text-white hover:bg-black/90'
             disabled={
-              createBudget.isPending || 
+              createBudget.isPending ||
               availableCategories.length === 0 ||
               !category ||
               !!error

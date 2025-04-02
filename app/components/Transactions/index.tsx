@@ -599,10 +599,10 @@ export function Transactions() {
                             })}
                           </TableCell>
                           <TableCell
-                            className={`text-right ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                            className={`text-right font-bold ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
                           >
-                            {transaction.amount >= 0 ? '+' : ''}
-                            {formatCurrency(transaction.amount)}
+                            {transaction.amount >= 0 ? '+' : '-'}
+                            {formatCurrency(Math.abs(transaction.amount))}
                           </TableCell>
                         </tr>
                       ))}
@@ -638,10 +638,10 @@ export function Transactions() {
                       </div>
                       <div className='flex flex-col items-end'>
                         <span
-                          className={`font-medium text-sm ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                          className={`font-bold text-sm ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
                         >
-                          {transaction.amount >= 0 ? '+' : ''}
-                          {formatCurrency(transaction.amount)}
+                          {transaction.amount >= 0 ? '+' : '-'}
+                          {formatCurrency(Math.abs(transaction.amount))}
                         </span>
                         <span className='text-xs text-gray-500 font-normal'>
                           {formatDistanceToNow(new Date(transaction.date), {

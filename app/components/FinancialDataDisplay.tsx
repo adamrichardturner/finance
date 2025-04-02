@@ -98,11 +98,12 @@ export function FinancialDataDisplay({ data }: FinancialDataDisplayProps) {
                   <td
                     className={`whitespace-nowrap px-6 py-4 text-right text-sm ${
                       transaction.amount < 0
-                        ? 'text-red-600 dark:text-red-400'
+                        ? 'text-gray-900 dark:text-gray-100'
                         : 'text-green-600 dark:text-green-400'
                     }`}
                   >
-                    {formatCurrency(transaction.amount)}
+                    {transaction.amount >= 0 ? '+' : '-'}
+                    {formatCurrency(Math.abs(transaction.amount))}
                   </td>
                 </tr>
               ))}
