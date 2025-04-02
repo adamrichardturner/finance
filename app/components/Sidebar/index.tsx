@@ -237,39 +237,41 @@ export function SidebarContents() {
         }`}
       >
         <div className='flex items-center'>
-          <AnimatePresence mode='wait'>
-            {isCollapsed ? (
-              <motion.div
-                key='mobile-logo'
-                initial='hidden'
-                animate='visible'
-                exit='exit'
-                variants={logoFadeVariants}
-                transition={{ duration: 0.2 }}
-              >
-                <img
-                  src='/assets/logos/LogoMobile.svg'
-                  alt='Finance'
-                  className='h-auto w-auto'
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                key='desktop-logo'
-                initial='hidden'
-                animate='visible'
-                exit='exit'
-                variants={logoFadeVariants}
-                transition={{ duration: 0.2 }}
-              >
-                <img
-                  src='/assets/logos/LogoDesktop.svg'
-                  alt='Finance'
-                  className='h-6'
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <Link to='/overview'>
+            <AnimatePresence mode='wait'>
+              {isCollapsed ? (
+                <motion.div
+                  key='mobile-logo'
+                  initial='hidden'
+                  animate='visible'
+                  exit='exit'
+                  variants={logoFadeVariants}
+                  transition={{ duration: 0.2 }}
+                >
+                  <img
+                    src='/assets/logos/LogoMobile.svg'
+                    alt='Finance'
+                    className='h-auto w-auto cursor-pointer'
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key='desktop-logo'
+                  initial='hidden'
+                  animate='visible'
+                  exit='exit'
+                  variants={logoFadeVariants}
+                  transition={{ duration: 0.2 }}
+                >
+                  <img
+                    src='/assets/logos/LogoDesktop.svg'
+                    alt='Finance'
+                    className='h-6 cursor-pointer'
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Link>
         </div>
       </SidebarHeader>
 

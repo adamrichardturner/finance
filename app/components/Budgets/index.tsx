@@ -76,6 +76,7 @@ export function Budgets({ budgets, actionData }: BudgetsProps) {
       </div>
 
       <AddBudgetModal
+        budgets={budgets}
         isOpen={addModalOpen}
         onClose={() => setAddModalOpen(false)}
       />
@@ -84,6 +85,7 @@ export function Budgets({ budgets, actionData }: BudgetsProps) {
         isOpen={editModal.isOpen}
         budgetId={editModal.budgetId}
         onClose={() => setEditModal({ isOpen: false })}
+        budgets={budgets}
       />
 
       <DeleteBudgetModal
