@@ -40,20 +40,64 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   // Get additional financial data
   const financialData = await getFinancialDataByUserId(userId)
-  const transactions = financialData.transactions
-  const pots = financialData.pots
+  console.log('Financial data:', JSON.stringify(financialData, null, 2))
+
+  const transactions = financialData.transactions || []
+  const pots = financialData.pots || []
 
   // Transform transactions to AppTransaction format
   const appTransactions = transactions.map(transformToAppTransaction)
 
-  // Calculate totals
-  const balance = pots.reduce((total: number, pot: Pot) => total + pot.total, 0)
-  const income = transactions
-    .filter((t: Transaction) => t.amount > 0)
-    .reduce((total: number, t: Transaction) => total + t.amount, 0)
-  const expenses = transactions
-    .filter((t: Transaction) => t.amount < 0)
-    .reduce((total: number, t: Transaction) => total + Math.abs(t.amount), 0)
+  // Calculate totals with safeguards
+  let balance = 0
+  try {
+    balance =
+      Array.isArray(pots) && pots.length > 0
+        ? pots.reduce((total: number, pot: Pot) => {
+            if (pot?.total === undefined || pot?.total === null) {
+              console.warn(`Found pot with undefined total:`, pot)
+              return total
+            }
+            return total + (Number(pot.total) || 0)
+          }, 0)
+        : 0
+  } catch (err) {
+    console.error('Error calculating balance:', err)
+  }
+
+  let income = 0
+  try {
+    income =
+      Array.isArray(transactions) && transactions.length > 0
+        ? transactions
+            .filter((t: Transaction) => t?.amount > 0)
+            .reduce(
+              (total: number, t: Transaction) =>
+                total + (Number(t.amount) || 0),
+              0
+            )
+        : 0
+  } catch (err) {
+    console.error('Error calculating income:', err)
+  }
+
+  let expenses = 0
+  try {
+    expenses =
+      Array.isArray(transactions) && transactions.length > 0
+        ? transactions
+            .filter((t: Transaction) => t?.amount < 0)
+            .reduce(
+              (total: number, t: Transaction) =>
+                total + Math.abs(Number(t.amount) || 0),
+              0
+            )
+        : 0
+  } catch (err) {
+    console.error('Error calculating expenses:', err)
+  }
+
+  console.log('Calculated values:', { balance, income, expenses })
 
   return {
     balance,

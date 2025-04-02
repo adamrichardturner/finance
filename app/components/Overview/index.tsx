@@ -38,7 +38,7 @@ const Overview: React.FC<OverviewProps> = ({
     <div className='w-full mt-4 mb-12 sm:mt-[0px] sm:my-[0px]'>
       <PageTitle title='Overview' />
       <div className='flex flex-col gap-[32px]'>
-        <div className='grid grid-cols-1 2xl:grid-cols-3 gap-[24px] md:hidden'>
+        <div className='grid grid-cols-1 sm:grid-cols-3 gap-[24px]'>
           <div className={hoverClass}>
             <Pill
               title='Total Balance'
@@ -95,7 +95,11 @@ const Overview: React.FC<OverviewProps> = ({
 
 export default Overview
 
-function formatCurrency(amount: number) {
+function formatCurrency(amount: number | undefined | null) {
+  if (amount === undefined || amount === null || isNaN(amount)) {
+    return '£0.00'
+  }
+
   return new Intl.NumberFormat('en-GB', {
     style: 'currency',
     currency: 'GBP',
