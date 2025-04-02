@@ -78,7 +78,7 @@ const Overview: React.FC<OverviewProps> = ({
           <div className='w-full min-[1457px]:col-span-5 flex flex-col gap-[32px]'>
             <div
               className={hoverClass}
-              onClick={() => handleNavigate('/app/budgets')}
+              onClick={() => handleNavigate('/budgets')}
             >
               <BudgetChart budgets={budgets} />
             </div>
