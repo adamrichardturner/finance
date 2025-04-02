@@ -50,7 +50,7 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
         {transactions.slice(0, 5).map((transaction, index) => (
           <div
             key={transaction.id || index}
-            className='py-4 first:pt-0 last:pb-0'
+            className='py-4 last:pb-0 transition-colors p-1.5 duration-200 hover:bg-gray-100'
           >
             <div className='flex items-center justify-between'>
               <div className='flex items-center'>
