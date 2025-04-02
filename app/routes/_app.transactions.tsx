@@ -11,7 +11,7 @@ export const meta: MetaFunction = () => {
 
 export default function TransactionsPage() {
   return (
-    <div className='w-full mt-4 mb-12 sm:mt-[0px] sm:my-[0px]'>
+    <div className='w-full mb-12 sm:my-[0px]'>
       <style>
         {`
           /* Hide scrollbar appearance only */

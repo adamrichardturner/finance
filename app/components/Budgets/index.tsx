@@ -6,6 +6,7 @@ import { EditBudgetModal } from './EditBudgetModal'
 import { DeleteBudgetModal } from './DeleteBudgetModal'
 import { BudgetChart } from './BudgetChart'
 import { Budget } from '~/types/finance.types'
+import PageTitle from '../PageTitle'
 
 interface BudgetModalState {
   isOpen: boolean
@@ -33,7 +34,7 @@ export function Budgets({ budgets, actionData }: BudgetsProps) {
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
-        <h1 className='text-2xl font-bold pb-[2px]'>Budgets</h1>
+        <PageTitle title='Budgets' />
         <Button
           onClick={() => setAddModalOpen(true)}
           className='bg-black text-white hover:bg-black/90'

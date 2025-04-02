@@ -122,7 +122,7 @@ export default function BudgetsRoute() {
   const actionData = useActionData<typeof action>()
 
   return (
-    <div className='w-full'>
+    <div className='w-full mb-12 sm:my-[0px]'>
       <Budgets budgets={budgets} actionData={actionData} />
     </div>
   )
