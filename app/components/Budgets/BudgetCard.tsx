@@ -26,6 +26,28 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
   const remainingAmount = maximum - spentAmount
   const percentage = (spentAmount / maximum) * 100
 
+  // Helper function to get a consistent color based on transaction name
+  const getColorFromName = (name: string): string => {
+    const colors = [
+      '#5E76BF',
+      '#F58A51',
+      '#47B4AC',
+      '#D988B9',
+      '#B0A0D6',
+      '#FFB6C1',
+      '#87CEEB',
+      '#FFA07A',
+      '#98FB98',
+      '#DDA0DD',
+    ]
+
+    const hash = name.split('').reduce((acc, char) => {
+      return acc + char.charCodeAt(0)
+    }, 0)
+
+    return colors[hash % colors.length]
+  }
+
   return (
     <Card className='rounded-lg border bg-white shadow-none outline-none space-y-2 p-6'>
       <div className='flex items-start justify-between'>
@@ -117,12 +139,32 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
               <div key={transaction.id}>
                 <div className='flex items-center justify-between min-h-[56px]'>
                   <div className='flex items-center gap-3'>
-                    <div className='h-8 w-8 rounded-full bg-gray-100'>
-                      <img
-                        src={transaction.avatar}
-                        alt=''
-                        className='h-full w-full rounded-full object-cover'
-                      />
+                    <div className='relative h-8 w-8 rounded-full bg-gray-100 overflow-hidden'>
+                      {transaction.avatar && (
+                        <img
+                          src={transaction.avatar}
+                          alt=''
+                          className='h-full w-full rounded-full object-cover'
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.style.display = 'none'
+                            const fallbackDiv =
+                              target.parentElement?.querySelector('.fallback-avatar')
+                            if (fallbackDiv && fallbackDiv instanceof HTMLElement) {
+                              fallbackDiv.style.display = 'flex'
+                            }
+                          }}
+                        />
+                      )}
+                      <div
+                        className='fallback-avatar absolute inset-0 flex items-center justify-center text-white font-medium text-sm'
+                        style={{
+                          backgroundColor: getColorFromName(transaction.name),
+                          display: transaction.avatar ? 'none' : 'flex',
+                        }}
+                      >
+                        {transaction.name.charAt(0).toUpperCase()}
+                      </div>
                     </div>
                     <div>
                       <p className='text-sm font-medium'>{transaction.name}</p>
