@@ -8,7 +8,7 @@ interface BudgetChartProps {
 
 const BudgetChart: React.FC<BudgetChartProps> = ({
   budgets,
-  title = 'Budget Allocation',
+  title = 'Budgets',
 }) => {
   if (!budgets || budgets.length === 0) {
     return null

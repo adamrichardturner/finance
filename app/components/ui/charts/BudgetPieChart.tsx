@@ -15,7 +15,7 @@ interface BudgetPieChartProps {
 
 export function BudgetPieChart({
   budgets,
-  title = 'Budget Allocation',
+  title = 'Budgets',
   showAllCategories = false,
   chartSize = 'sm',
   showHeader = true,
@@ -53,23 +53,6 @@ export function BudgetPieChart({
   }, 0)
 
   const formattedSpentAmount = formatCurrency(totalSpent)
-
-  // Helper function to create lighter shades
-  const getLighterShade = (color: string, percent: number = 30): string => {
-    if (!color.startsWith('#')) return color
-
-    const hex = color.slice(1)
-    const r = parseInt(hex.slice(0, 2), 16)
-    const g = parseInt(hex.slice(2, 4), 16)
-    const b = parseInt(hex.slice(4, 6), 16)
-
-    const lighter = (value: number) =>
-      Math.min(255, value + Math.round((255 - value) * (percent / 100)))
-
-    return `#${lighter(r).toString(16).padStart(2, '0')}${lighter(g)
-      .toString(16)
-      .padStart(2, '0')}${lighter(b).toString(16).padStart(2, '0')}`
-  }
 
   // Chart dimensions based on size prop
   const dimensions = {
