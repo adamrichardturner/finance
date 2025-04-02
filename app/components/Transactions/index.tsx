@@ -584,7 +584,7 @@ export function Transactions() {
                       {visibleTransactions.map((transaction, index) => (
                         <tr
                           key={transaction.id}
-                          className='transition-colors hover:bg-muted/50 border-b border-gray-100 last:border-0'
+                          className='transition-colors duration-200 hover:bg-gray-100 border-b border-gray-100 last:border-0 cursor-pointer'
                         >
                           <TableCell className='flex items-center gap-3'>
                             {renderTransactionAvatar(transaction)}
@@ -623,7 +623,7 @@ export function Transactions() {
                       initial='hidden'
                       animate='visible'
                       custom={index}
-                      className='flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0'
+                      className='flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0 transition-colors duration-200 hover:bg-gray-100 rounded-lg cursor-pointer'
                     >
                       <div className='flex items-start gap-3'>
                         {renderTransactionAvatar(transaction)}

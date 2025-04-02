@@ -3,16 +3,16 @@ export interface BudgetCategory {
   theme: string
 }
 
-// Reduced list of 8 essential budget categories with their mapped colors
+// Vibrant color palette that works well with white and gray backgrounds
 export const BUDGET_CATEGORIES: BudgetCategory[] = [
-  { name: 'Housing', theme: '#5E76BF' },
-  { name: 'Transportation', theme: '#7C2742' },
-  { name: 'Groceries', theme: '#B8E986' },
-  { name: 'Utilities', theme: '#82C9D7' },
-  { name: 'Healthcare', theme: '#4A90E2' },
-  { name: 'Entertainment', theme: '#277C78' },
-  { name: 'Dining Out', theme: '#F2CDAC' },
-  { name: 'Personal Care', theme: '#626070' },
+  { name: 'Housing', theme: '#4361EE' }, // Vibrant blue
+  { name: 'Transportation', theme: '#F72585' }, // Bright pink
+  { name: 'Groceries', theme: '#4CC9F0' }, // Cyan
+  { name: 'Utilities', theme: '#7209B7' }, // Deep purple
+  { name: 'Healthcare', theme: '#06D6A0' }, // Mint green
+  { name: 'Entertainment', theme: '#FF9F1C' }, // Orange
+  { name: 'Dining Out', theme: '#FB5607' }, // Tangerine
+  { name: 'Personal Care', theme: '#3A86FF' }, // Royal blue
 ]
 
 // Function to get theme color by category name
@@ -20,7 +20,7 @@ export function getThemeForCategory(categoryName: string): string {
   const category = BUDGET_CATEGORIES.find(
     (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
   )
-  return category?.theme || '#277C78' // Default color if not found
+  return category?.theme || '#4361EE' // Default color if not found
 }
 
 // Get available categories that aren't used in existing budgets

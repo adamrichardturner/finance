@@ -9,10 +9,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
+import { useFinancialData } from '~/hooks/use-financial-data'
 import { useBudgetMutations } from '~/hooks/use-budget-mutations'
+import { useBudgets } from '~/hooks/use-budgets'
 import {
   BUDGET_CATEGORIES,
   getThemeForCategory,
+  getAvailableCategories,
 } from '~/utils/budget-categories'
 import { Budget } from '~/types/finance.types'
 
@@ -35,32 +38,12 @@ export function EditBudgetModal({
   const [originalCategory, setOriginalCategory] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
 
-  // Load budget data when modal opens
-  useEffect(() => {
-    if (!budgetId) {
-      return
-    }
-
-    const budget = budgets.find((b) => String(b.id) === budgetId)
-    if (budget) {
-      setCategory(String(budget.category))
-      setOriginalCategory(String(budget.category))
-      setAmount(budget.maximum.toString())
-      setError(null)
-    }
-  }, [budgetId, budgets])
-
   // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
       setError(null)
     }
   }, [isOpen])
-
-  // Create a list of existing budget categories excluding the current one
-  const existingBudgetCategories = budgets
-    .filter((budget) => String(budget.id) !== budgetId)
-    .map((budget) => budget.category.toLowerCase().trim())
 
   // Handle category change with validation
   const handleCategoryChange = (newCategory: string) => {
@@ -73,33 +56,36 @@ export function EditBudgetModal({
       return
     }
 
-    const normalizedNewCategory = newCategory.toLowerCase().trim()
-    const isDuplicate = existingBudgetCategories.includes(normalizedNewCategory)
+    // Check if the new category is already used by another budget
+    if (budgets) {
+      const normalizedNewCategory = newCategory.toLowerCase().trim()
 
-    if (isDuplicate) {
-      setError(
-        `A budget for "${newCategory}" already exists. Please select a different category.`
+      const isDuplicate = budgets.some(
+        (budget) =>
+          String(budget.id) !== budgetId &&
+          budget.category.toLowerCase().trim() === normalizedNewCategory
       )
-      // Don't update the category if it's a duplicate
+
+      if (isDuplicate) {
+        setError(
+          `A budget for "${newCategory}" already exists. Please select a different category.`
+        )
+        // Don't update the category if it's a duplicate
+      } else {
+        setCategory(newCategory)
+        setError(null)
+      }
     } else {
       setCategory(newCategory)
-      setError(null)
     }
   }
 
-  // Filter available categories to exclude ones that already have budgets
-  // but include the original category of the budget being edited
-  const availableCategories = BUDGET_CATEGORIES.filter((cat) => {
-    const normalizedCatName = cat.name.toLowerCase().trim()
-
-    // Always include the original category
-    if (normalizedCatName === originalCategory.toLowerCase().trim()) {
-      return true
-    }
-
-    // Exclude categories that are used by other budgets
-    return !existingBudgetCategories.includes(normalizedCatName)
-  })
+  // Get available categories using the shared utility function
+  const availableCategories = getAvailableCategories(
+    budgets,
+    budgetId,
+    originalCategory
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -110,11 +96,15 @@ export function EditBudgetModal({
 
     // Final check for duplicate category
     if (
-      category.toLowerCase().trim() !== originalCategory.toLowerCase().trim()
+      category.toLowerCase().trim() !== originalCategory.toLowerCase().trim() &&
+      budgets
     ) {
       const normalizedSelectedCategory = category.toLowerCase().trim()
-      const isDuplicate = existingBudgetCategories.includes(
-        normalizedSelectedCategory
+
+      const isDuplicate = budgets.some(
+        (budget) =>
+          String(budget.id) !== budgetId &&
+          budget.category.toLowerCase().trim() === normalizedSelectedCategory
       )
 
       if (isDuplicate) {
