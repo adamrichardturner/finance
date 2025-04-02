@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
@@ -10,6 +10,11 @@ import {
   SelectValue,
 } from '../ui/select'
 import { useBudgetMutations } from '~/hooks/use-budget-mutations'
+import { useBudgets } from '~/hooks/use-budgets'
+import {
+  BUDGET_CATEGORIES,
+  getThemeForCategory,
+} from '~/utils/budget-categories'
 
 interface AddBudgetModalProps {
   isOpen: boolean
@@ -20,6 +25,14 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
   const [category, setCategory] = useState('')
   const [amount, setAmount] = useState('')
   const { createBudget } = useBudgetMutations()
+  const { data: existingBudgets } = useBudgets()
+
+  const usedCategories = existingBudgets?.map((budget) => budget.category) || []
+
+  // Get available categories that haven't been used yet
+  const availableCategories = BUDGET_CATEGORIES.filter(
+    (cat) => !usedCategories.includes(cat.name)
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,7 +41,7 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
       await createBudget.mutateAsync({
         category,
         maxAmount: parseFloat(amount),
-        theme: '#277C78', // Default theme color
+        theme: getThemeForCategory(category),
       })
       setCategory('')
       setAmount('')
@@ -55,18 +68,30 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
         <form onSubmit={handleSubmit} className='space-y-6'>
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Budget Category</label>
-            <Select value={category} onValueChange={setCategory} required>
-              <SelectTrigger>
-                <SelectValue placeholder='Select a category' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='Entertainment'>Entertainment</SelectItem>
-                <SelectItem value='Bills'>Bills</SelectItem>
-                <SelectItem value='Dining Out'>Dining Out</SelectItem>
-                <SelectItem value='Transportation'>Transportation</SelectItem>
-                <SelectItem value='Personal Care'>Personal Care</SelectItem>
-              </SelectContent>
-            </Select>
+            {availableCategories.length === 0 ? (
+              <div className='p-3 bg-gray-100 rounded text-gray-600 text-sm'>
+                You've already created budgets for all available categories.
+              </div>
+            ) : (
+              <Select value={category} onValueChange={setCategory} required>
+                <SelectTrigger>
+                  <SelectValue placeholder='Select a category' />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableCategories.map((cat) => (
+                    <SelectItem key={cat.name} value={cat.name}>
+                      <div className='flex items-center gap-2'>
+                        <div
+                          className='w-2 h-2 rounded-full'
+                          style={{ backgroundColor: cat.theme }}
+                        />
+                        {cat.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className='space-y-2'>
@@ -85,7 +110,9 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
           <Button
             type='submit'
             className='w-full bg-black text-white hover:bg-black/90'
-            disabled={createBudget.isPending}
+            disabled={
+              createBudget.isPending || availableCategories.length === 0
+            }
           >
             {createBudget.isPending ? 'Adding...' : 'Add Budget'}
           </Button>

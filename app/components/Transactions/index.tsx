@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardHeader, CardTitle, CardContent } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
@@ -33,6 +33,7 @@ import {
 import { Button } from '~/components/ui/button'
 import filter from 'lodash/filter'
 import orderBy from 'lodash/orderBy'
+import { useLocation } from '@remix-run/react'
 
 // Animation variants
 const itemVariants = {
@@ -48,11 +49,22 @@ const itemVariants = {
 }
 
 export function Transactions() {
+  const location = useLocation()
   const { data: transactions, isLoading, error } = useTransactionsQuery()
   const [page, setPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState('latest')
   const [category, setCategory] = useState('all')
+
+  // Check for URL query parameters when component mounts
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const categoryParam = params.get('category')
+
+    if (categoryParam) {
+      setCategory(categoryParam.toLowerCase())
+    }
+  }, [location.search])
 
   // Helper function to format currency
   const formatCurrency = (amount: number): string => {
@@ -306,8 +318,33 @@ export function Transactions() {
 
   return (
     <Card className='w-full shadow-none'>
-      <CardHeader>
-        <CardTitle>Transactions</CardTitle>
+      <CardHeader className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
+        <CardTitle>
+          {category !== 'all' ? (
+            <div className='flex flex-col'>
+              <span className='text-2xl'>
+                {category.charAt(0).toUpperCase() + category.slice(1)}{' '}
+                Transactions
+              </span>
+              <span className='text-sm text-gray-500 font-normal'>
+                Showing {filteredTransactions.length} transaction
+                {filteredTransactions.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+          ) : (
+            'Transactions'
+          )}
+        </CardTitle>
+        {category !== 'all' && (
+          <Button
+            variant='outline'
+            className='mt-2 sm:mt-0 text-sm'
+            onClick={() => setCategory('all')}
+          >
+            <ArrowUpDown className='mr-2 h-4 w-4' />
+            View all transactions
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         {/* Filters section */}

@@ -14,6 +14,7 @@ import {
 } from '~/models/budget.server'
 import { useActionData, useLoaderData } from '@remix-run/react'
 import { Budget } from '~/types/finance.types'
+import { getThemeForCategory } from '~/utils/budget-categories'
 
 export const meta: MetaFunction = () => {
   return [
@@ -36,17 +37,22 @@ export async function action({ request }: ActionFunctionArgs) {
   if (intent === 'create') {
     const category = formData.get('category')
     const maxAmount = formData.get('maxAmount')
+    const theme = formData.get('theme')
 
     if (typeof category !== 'string' || typeof maxAmount !== 'string') {
       return json({ error: 'Invalid form data' }, { status: 400 })
     }
+
+    // If theme wasn't provided, get it from the category
+    const themeColor =
+      typeof theme === 'string' && theme ? theme : getThemeForCategory(category)
 
     try {
       const budget = await createBudget({
         userId,
         category,
         maxAmount: parseFloat(maxAmount),
-        theme: '#277C78', // Default theme color
+        theme: themeColor,
       })
       return json({ budget })
     } catch (error) {

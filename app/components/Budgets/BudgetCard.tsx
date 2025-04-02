@@ -9,6 +9,7 @@ import { Budget } from '~/types/finance.types'
 import { Card } from '../ui/card'
 import { EllipsisIcon } from '../ui/icons/EllipsisIcon'
 import { Progress } from '../ui/progress'
+import { useNavigate } from '@remix-run/react'
 
 interface BudgetCardProps {
   budget: Budget
@@ -17,6 +18,7 @@ interface BudgetCardProps {
 }
 
 export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
+  const navigate = useNavigate()
   const spentAmount =
     budget.transactions?.reduce(
       (total, transaction) => total + Math.abs(transaction.amount),
@@ -46,6 +48,10 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
     }, 0)
 
     return colors[hash % colors.length]
+  }
+
+  const navigateToTransactions = () => {
+    navigate(`/transactions?category=${encodeURIComponent(budget.category)}`)
   }
 
   return (
@@ -130,6 +136,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
             <Button
               variant='link'
               className='text-sm text-color-grey-500 p-0 h-auto'
+              onClick={navigateToTransactions}
             >
               See All
             </Button>
@@ -149,8 +156,13 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
                             const target = e.target as HTMLImageElement
                             target.style.display = 'none'
                             const fallbackDiv =
-                              target.parentElement?.querySelector('.fallback-avatar')
-                            if (fallbackDiv && fallbackDiv instanceof HTMLElement) {
+                              target.parentElement?.querySelector(
+                                '.fallback-avatar'
+                              )
+                            if (
+                              fallbackDiv &&
+                              fallbackDiv instanceof HTMLElement
+                            ) {
                               fallbackDiv.style.display = 'flex'
                             }
                           }}
