@@ -437,9 +437,11 @@ export function Transactions() {
               </SheetTrigger>
               <SheetContent side='bottom'>
                 <SheetHeader>
-                  <SheetTitle className='mb-4'>Sort Transactions</SheetTitle>
+                  <SheetTitle className='mb-2 text-base'>
+                    Sort Transactions
+                  </SheetTitle>
                 </SheetHeader>
-                <div className='grid gap-4'>
+                <div className='grid grid-cols-2 gap-2 max-h-[calc(60vh-60px)] overflow-y-auto'>
                   {[
                     { value: 'latest', label: 'Latest' },
                     { value: 'oldest', label: 'Oldest' },
@@ -453,7 +455,7 @@ export function Transactions() {
                         variant={
                           sortBy === option.value ? 'default' : 'outline'
                         }
-                        className='w-full justify-start h-[42px]'
+                        className='w-full justify-start text-sm h-[38px]'
                         onClick={() => setSortBy(option.value)}
                       >
                         {option.label}
@@ -477,13 +479,15 @@ export function Transactions() {
               </SheetTrigger>
               <SheetContent side='bottom'>
                 <SheetHeader>
-                  <SheetTitle className='mb-4'>Filter by Category</SheetTitle>
+                  <SheetTitle className='mb-2 text-base'>
+                    Filter by Category
+                  </SheetTitle>
                 </SheetHeader>
-                <div className='grid gap-4'>
+                <div className='grid grid-cols-2 gap-2 max-h-[calc(60vh-60px)] overflow-y-auto'>
                   <SheetClose asChild>
                     <Button
                       variant={category === 'all' ? 'default' : 'outline'}
-                      className='w-full justify-start h-[42px]'
+                      className='w-full justify-start text-sm h-[38px]'
                       onClick={() => setCategory('all')}
                     >
                       All Transactions
@@ -499,7 +503,7 @@ export function Transactions() {
                               ? 'default'
                               : 'outline'
                           }
-                          className='w-full justify-start h-[42px]'
+                          className='w-full justify-start text-sm h-[38px]'
                           onClick={() => setCategory(cat.toLowerCase())}
                         >
                           {cat}
