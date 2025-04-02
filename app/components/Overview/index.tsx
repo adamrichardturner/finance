@@ -75,7 +75,7 @@ const Overview: React.FC<OverviewProps> = ({
               <BudgetChart budgets={budgets} />
             </div>
 
-            <div>
+            <div className='flex-1'>
               <RecurringBills bills={transactions} />
             </div>
           </div>

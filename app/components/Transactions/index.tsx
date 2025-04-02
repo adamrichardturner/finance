@@ -43,8 +43,8 @@ const itemVariants = {
     opacity: 1,
     y: 0,
     transition: {
-      delay: i * 0.05,
-      duration: 0.3,
+      delay: 0,
+      duration: 0.15,
     },
   }),
 }

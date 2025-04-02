@@ -38,6 +38,19 @@ export function EditBudgetModal({
   const [originalCategory, setOriginalCategory] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
 
+  // Load budget data when budgetId changes or modal opens
+  useEffect(() => {
+    if (isOpen && budgetId && budgets) {
+      const currentBudget = budgets.find((b) => String(b.id) === budgetId)
+
+      if (currentBudget) {
+        setCategory(currentBudget.category)
+        setOriginalCategory(currentBudget.category)
+        setAmount(currentBudget.maximum)
+      }
+    }
+  }, [isOpen, budgetId, budgets])
+
   // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
