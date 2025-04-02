@@ -1,5 +1,5 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import Pointer from '../../../../public/assets/icons/Pointer.svg'
+import Pointer from '/assets/icons/Pointer.svg?url'
 import { ChartTooltipContent } from '~/components/ui/charts'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { Budget } from '~/types/finance.types'
@@ -95,35 +95,6 @@ export function BudgetPieChart({
       <div className={`relative flex-shrink-0 ${dimensions.containerSize}`}>
         <ResponsiveContainer width='100%' height='100%'>
           <PieChart>
-            {/* Define gradients for each slice */}
-            <defs>
-              {chartData.map((entry, index) => (
-                <linearGradient
-                  key={`gradient-${index}`}
-                  id={`gradient-${index}`}
-                  gradientUnits='userSpaceOnUse'
-                  x1='0'
-                  y1='0'
-                  x2='1'
-                  y2='0'
-                  gradientTransform={`rotate(${90 + (360 / chartData.length) * index})`}
-                >
-                  <stop offset='0%' stopColor={entry.fill} stopOpacity={1} />
-                  <stop offset='66%' stopColor={entry.fill} stopOpacity={1} />
-                  <stop
-                    offset='66.1%'
-                    stopColor={entry.fill}
-                    stopOpacity={0.25}
-                  />
-                  <stop
-                    offset='100%'
-                    stopColor={entry.fill}
-                    stopOpacity={0.25}
-                  />
-                </linearGradient>
-              ))}
-            </defs>
-
             <Pie
               data={chartData}
               dataKey='value'
@@ -138,10 +109,7 @@ export function BudgetPieChart({
               endAngle={-270}
             >
               {chartData.map((entry, index) => (
-                <Cell
-                  key={`cell-outer-${index}`}
-                  fill={`url(#gradient-${index})`}
-                />
+                <Cell key={`cell-outer-${index}`} fill={entry.fill} />
               ))}
             </Pie>
 
