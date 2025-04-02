@@ -8,6 +8,7 @@ export interface AppTransaction {
   type: string
   category: string
   avatar?: string
+  recurring?: boolean
 }
 
 /**
@@ -25,5 +26,6 @@ export function transformDbTransaction(
     type: transaction.amount > 0 ? 'income' : 'expense',
     category: transaction.category,
     avatar: transaction.avatar,
+    recurring: transaction.recurring,
   }
 }

@@ -29,6 +29,7 @@ function transformToAppTransaction(transaction: Transaction): AppTransaction {
     avatar:
       transaction.avatar ||
       `/assets/icons/${transaction.amount > 0 ? 'salary' : 'expense'}.svg`,
+    recurring: transaction.recurring || false,
   }
 }
 
