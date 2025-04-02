@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
-# Install dependencies required for native modules like argon2
-RUN apk add --no-cache python3 make g++ gcc
+# Install build dependencies
+RUN apk add --no-cache python3 make g++ gcc postgresql-client
 
 # Set working directory inside the container
 WORKDIR /app

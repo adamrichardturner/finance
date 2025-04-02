@@ -26,7 +26,7 @@ RUN npm run build:fe
 FROM node:18-alpine AS runner
 
 # Install runtime dependencies required for native modules
-RUN apk add --no-cache python3 make g++ gcc
+RUN apk add --no-cache python3 make g++ gcc postgresql-client
 
 WORKDIR /app
 
