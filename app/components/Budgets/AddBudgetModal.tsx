@@ -14,6 +14,7 @@ import { useBudgets } from '~/hooks/use-budgets'
 import {
   BUDGET_CATEGORIES,
   getThemeForCategory,
+  getAvailableCategories
 } from '~/utils/budget-categories'
 
 interface AddBudgetModalProps {
@@ -24,18 +25,58 @@ interface AddBudgetModalProps {
 export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
   const [category, setCategory] = useState('')
   const [amount, setAmount] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const { createBudget } = useBudgetMutations()
-  const { data: existingBudgets } = useBudgets()
+  const { data: existingBudgets, isLoading } = useBudgets()
 
-  const usedCategories = existingBudgets?.map((budget) => budget.category) || []
+  // Reset form when opening/closing modal
+  useEffect(() => {
+    if (!isOpen) {
+      setCategory('')
+      setAmount('')
+      setError(null)
+    }
+  }, [isOpen])
 
-  // Get available categories that haven't been used yet
-  const availableCategories = BUDGET_CATEGORIES.filter(
-    (cat) => !usedCategories.includes(cat.name)
-  )
+  // Check if the selected category already exists in any budget
+  const handleCategoryChange = (newCategory: string) => {
+    if (!existingBudgets) {
+      setCategory(newCategory)
+      return
+    }
+
+    const normalizedNewCategory = newCategory.toLowerCase().trim()
+    const isDuplicate = existingBudgets.some(
+      budget => budget.category.toLowerCase().trim() === normalizedNewCategory
+    )
+
+    if (isDuplicate) {
+      setError(`A budget for "${newCategory}" already exists. Please select a different category.`)
+      // Don't update the category if it's a duplicate
+    } else {
+      setCategory(newCategory)
+      setError(null)
+    }
+  }
+
+  // Get available categories using the shared utility function
+  const availableCategories = getAvailableCategories(existingBudgets)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Double-check for duplicate category before submission
+    if (existingBudgets) {
+      const normalizedCategory = category.toLowerCase().trim()
+      const isDuplicate = existingBudgets.some(
+        budget => budget.category.toLowerCase().trim() === normalizedCategory
+      )
+
+      if (isDuplicate) {
+        setError(`A budget for "${category}" already exists. Please select a different category.`)
+        return
+      }
+    }
 
     try {
       await createBudget.mutateAsync({
@@ -47,6 +88,11 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
       setAmount('')
       onClose()
     } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message)
+      } else {
+        setError('Failed to create budget')
+      }
       console.error('Failed to create budget:', error)
     }
   }
@@ -55,6 +101,7 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
     if (!open) {
       setCategory('')
       setAmount('')
+      setError(null)
       onClose()
     }
   }
@@ -66,6 +113,12 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
           <DialogTitle>Add New Budget</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className='space-y-6'>
+          {error && (
+            <div className='bg-red-50 text-red-600 p-3 rounded-md text-sm'>
+              {error}
+            </div>
+          )}
+          
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Budget Category</label>
             {availableCategories.length === 0 ? (
@@ -73,22 +126,36 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
                 You've already created budgets for all available categories.
               </div>
             ) : (
-              <Select value={category} onValueChange={setCategory} required>
+              <Select 
+                value={category} 
+                onValueChange={handleCategoryChange} 
+                required
+              >
                 <SelectTrigger>
                   <SelectValue placeholder='Select a category' />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableCategories.map((cat) => (
-                    <SelectItem key={cat.name} value={cat.name}>
-                      <div className='flex items-center gap-2'>
-                        <div
-                          className='w-2 h-2 rounded-full'
-                          style={{ backgroundColor: cat.theme }}
-                        />
-                        {cat.name}
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {BUDGET_CATEGORIES
+                    .filter(cat => {
+                      // Skip filtering if no existing budgets data
+                      if (!existingBudgets) return true;
+                      
+                      // Check if this category is already used by any budget
+                      return !existingBudgets.some(budget => 
+                        budget.category.toLowerCase().trim() === cat.name.toLowerCase().trim()
+                      );
+                    })
+                    .map((cat) => (
+                      <SelectItem key={cat.name} value={cat.name}>
+                        <div className='flex items-center gap-2'>
+                          <div
+                            className='w-2 h-2 rounded-full'
+                            style={{ backgroundColor: cat.theme }}
+                          />
+                          {cat.name}
+                        </div>
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             )}
@@ -111,7 +178,10 @@ export function AddBudgetModal({ isOpen, onClose }: AddBudgetModalProps) {
             type='submit'
             className='w-full bg-black text-white hover:bg-black/90'
             disabled={
-              createBudget.isPending || availableCategories.length === 0
+              createBudget.isPending || 
+              availableCategories.length === 0 ||
+              !category ||
+              !!error
             }
           >
             {createBudget.isPending ? 'Adding...' : 'Add Budget'}

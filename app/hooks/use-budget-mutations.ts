@@ -1,80 +1,112 @@
 import { useFetcher } from '@remix-run/react'
 import { Budget } from '~/types/finance.types'
+import { useBudgets } from './use-budgets'
 
 interface CreateBudgetParams {
-  category: string
-  maxAmount: number
-  theme: string
+    category: string
+    maxAmount: number
+    theme: string
 }
 
 interface UpdateBudgetParams {
-  budgetId: string
-  category: string
-  maxAmount: number
+    budgetId: string
+    category: string
+    maxAmount: number
 }
 
 interface DeleteBudgetParams {
-  budgetId: string
+    budgetId: string
 }
 
 export function useBudgetMutations() {
-  const fetcher = useFetcher()
+    const fetcher = useFetcher()
+    const { data: existingBudgets } = useBudgets()
 
-  const createBudget = {
-    mutateAsync: async (data: CreateBudgetParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'create')
-      formData.append('category', data.category)
-      formData.append('maxAmount', data.maxAmount.toString())
-      formData.append('theme', data.theme)
+    const createBudget = {
+        mutateAsync: async (data: CreateBudgetParams) => {
+            // Client-side validation for duplicate categories
+            if (existingBudgets) {
+                const normalizedNewCategory = data.category.toLowerCase().trim()
+                const isDuplicate = existingBudgets.some(budget =>
+                    budget.category.toLowerCase().trim() === normalizedNewCategory
+                )
 
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/budgets',
-      })
+                if (isDuplicate) {
+                    throw new Error(`A budget for category "${data.category}" already exists`)
+                }
+            }
 
-      return result as unknown as { budget: Budget }
-    },
-    isPending: fetcher.state === 'submitting',
-  }
+            const formData = new FormData()
+            formData.append('intent', 'create')
+            formData.append('category', data.category)
+            formData.append('maxAmount', data.maxAmount.toString())
+            formData.append('theme', data.theme)
 
-  const updateBudget = {
-    mutateAsync: async (data: UpdateBudgetParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'update')
-      formData.append('budgetId', data.budgetId)
-      formData.append('category', data.category)
-      formData.append('maxAmount', data.maxAmount.toString())
+            const result = await fetcher.submit(formData, {
+                method: 'post',
+                action: '/budgets',
+            })
 
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/budgets',
-      })
+            return result as unknown as { budget: Budget }
+        },
+        isPending: fetcher.state === 'submitting',
+    }
 
-      return result as unknown as { budget: Budget }
-    },
-    isPending: fetcher.state === 'submitting',
-  }
+    const updateBudget = {
+        mutateAsync: async (data: UpdateBudgetParams) => {
+            // Client-side validation for duplicate categories
+            if (existingBudgets) {
+                const normalizedNewCategory = data.category.toLowerCase().trim()
+                const currentBudget = existingBudgets.find(b => String(b.id) === data.budgetId)
 
-  const deleteBudget = {
-    mutateAsync: async (data: DeleteBudgetParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'delete')
-      formData.append('budgetId', data.budgetId)
+                // Only check for duplicates if changing to a different category
+                if (currentBudget && normalizedNewCategory !== currentBudget.category.toLowerCase().trim()) {
+                    const isDuplicate = existingBudgets.some(budget =>
+                        budget.category.toLowerCase().trim() === normalizedNewCategory &&
+                        String(budget.id) !== data.budgetId
+                    )
 
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/budgets',
-      })
+                    if (isDuplicate) {
+                        throw new Error(`A budget for category "${data.category}" already exists`)
+                    }
+                }
+            }
 
-      return result as unknown as { success: true }
-    },
-    isPending: fetcher.state === 'submitting',
-  }
+            const formData = new FormData()
+            formData.append('intent', 'update')
+            formData.append('budgetId', data.budgetId)
+            formData.append('category', data.category)
+            formData.append('maxAmount', data.maxAmount.toString())
 
-  return {
-    createBudget,
-    updateBudget,
-    deleteBudget,
-  }
+            const result = await fetcher.submit(formData, {
+                method: 'post',
+                action: '/budgets',
+            })
+
+            return result as unknown as { budget: Budget }
+        },
+        isPending: fetcher.state === 'submitting',
+    }
+
+    const deleteBudget = {
+        mutateAsync: async (data: DeleteBudgetParams) => {
+            const formData = new FormData()
+            formData.append('intent', 'delete')
+            formData.append('budgetId', data.budgetId)
+
+            const result = await fetcher.submit(formData, {
+                method: 'post',
+                action: '/budgets',
+            })
+
+            return result as unknown as { success: true }
+        },
+        isPending: fetcher.state === 'submitting',
+    }
+
+    return {
+        createBudget,
+        updateBudget,
+        deleteBudget,
+    }
 }
