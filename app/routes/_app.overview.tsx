@@ -164,13 +164,31 @@ export const loader = async () => {
   // Transform transactions to AppTransaction format
   const appTransactions = SAMPLE_TRANSACTIONS.map(transformToAppTransaction)
 
+  // Group transactions by category for budgets
+  const transactionsByCategory = SAMPLE_TRANSACTIONS.reduce(
+    (acc, transaction) => {
+      if (!acc[transaction.category]) {
+        acc[transaction.category] = []
+      }
+      acc[transaction.category].push(transaction)
+      return acc
+    },
+    {} as Record<string, Transaction[]>
+  )
+
+  // Add transactions to each budget
+  const budgetsWithTransactions = SAMPLE_BUDGETS.map((budget) => ({
+    ...budget,
+    transactions: transactionsByCategory[budget.category] || [],
+  }))
+
   // In a real app, you would fetch this data from your database
   return {
     balance: 12500,
     income: 4500,
     expenses: 2300,
     pots: SAMPLE_POTS,
-    budgets: SAMPLE_BUDGETS,
+    budgets: budgetsWithTransactions,
     transactions: appTransactions,
   }
 }

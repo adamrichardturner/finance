@@ -21,14 +21,14 @@ export const transformBudgetsToChart = (
     }
   }
 
-  const total = budgets.reduce(
-    (sum, budget) => sum + parseFloat(budget.maximum),
-    0
-  )
+  const total = budgets.reduce((sum, budget) => {
+    const maxValue = parseFloat(budget.maximum) || 0
+    return sum + maxValue
+  }, 0)
 
   const chartData = budgets.map((budget) => ({
     name: budget.category,
-    value: parseFloat(budget.maximum),
+    value: parseFloat(budget.maximum) || 0,
     fill: budget.theme,
   }))
 
