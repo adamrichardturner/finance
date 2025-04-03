@@ -1,21 +1,69 @@
-# Banking App
+# Finance - Personal Banking & Budget Tracker
 
-A modern banking application built with Remix, PostgreSQL, and Knex.
+A modern personal finance management application that helps you track transactions, manage budgets, and save money with customizable savings pots.
+
+![Finance App](./preview.png)
+
+## Tech Stack
+
+- **Frontend**:
+
+  - [Remix](https://remix.run/) - A full-stack web framework
+  - [React](https://reactjs.org/) - UI library
+  - [TypeScript](https://www.typescriptlang.org/) - For type-safe code
+  - [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+  - [Shadcn UI](https://ui.shadcn.com/) - UI component library
+
+- **Backend**:
+
+  - [Node.js](https://nodejs.org/) - JavaScript runtime
+  - [PostgreSQL](https://www.postgresql.org/) - Relational database
+  - [Knex.js](https://knexjs.org/) - SQL query builder and migrations
+
+- **Infrastructure**:
+  - [Docker](https://www.docker.com/) - Containerization
+  - [Docker Compose](https://docs.docker.com/compose/) - Multi-container orchestration
 
 ## Features
 
-- Display banking transactions, balances, budgets, and pots
-- Database-driven backend with PostgreSQL
-- Docker support for easy development
-- Secure authentication with session management
+- **Transaction Management**
 
-## Prerequisites
+  - View and categorize all financial transactions
+  - Filter and search functionality
+  - Recurring transactions support
+
+- **Budget Management**
+
+  - Create custom budget categories with maximum spend limits
+  - Visual representation of budget usage with progress bars
+  - Custom themes for different budget categories
+
+- **Savings Pots**
+
+  - Create targeted savings pots with personalized goals
+  - Transfer money between main account and pots
+  - Track progress towards savings targets
+
+- **Financial Overview**
+
+  - Dashboard with spending insights
+  - Visual charts and graphs of financial data
+  - Monthly spending breakdown by category
+
+- **User Experience**
+  - Modern, responsive UI design
+  - Real-time data updates
+  - Secure authentication system
+
+## Getting Started
+
+### Prerequisites
 
 - Node.js (v20+)
 - Docker and Docker Compose
 - npm or yarn
 
-## Setup
+### Setup
 
 1. Clone the repository:
 
@@ -30,14 +78,13 @@ cd finance
 npm install
 ```
 
-3. Create environment variables:
+3. Set up environment variables:
 
 ```bash
 # Copy the example environment file
 cp .env.example .env
 
 # Edit the .env file with your secure credentials
-# Be sure to set DB_PASSWORD and SESSION_SECRET
 nano .env
 ```
 
@@ -49,141 +96,51 @@ nano .env
 
 This script will:
 
-- Process environment variables
-- Start PostgreSQL and the app using Docker Compose
+- Start PostgreSQL in a Docker container
 - Run database migrations and seed data
-- Initialize the application
-
-Alternatively, you can start components separately:
-
-```bash
-# Start PostgreSQL only
-npm run docker:up
-
-# Initialize the database
-npm run db:init
-
-# Start the development server
-npm run dev
-```
+- Start the Remix development server
 
 5. Open your browser at http://localhost:6001
 
-## Environment Variables
+### Development
 
-The application uses environment variables for configuration:
+Start the development server:
 
-| Variable       | Description                   | Default     |
-| -------------- | ----------------------------- | ----------- |
-| DB_USER        | Database username             | finance     |
-| DB_PASSWORD    | Database password             | (required)  |
-| DB_HOST        | Database host                 | localhost   |
-| DB_PORT        | Database port                 | 5432        |
-| DB_NAME        | Database name                 | finance     |
-| SESSION_SECRET | Secret for session encryption | (required)  |
-| NODE_ENV       | Application environment       | development |
+```bash
+npm run dev
+```
 
-## Database Management
+Run with the database:
+
+```bash
+npm run dev:docker
+```
+
+### Database Management
 
 - Run migrations: `npm run db:migrate`
 - Run seeds: `npm run db:seed`
 - Rollback migrations: `npm run db:rollback`
 
-## Docker Commands
-
-- Start all services: `./scripts/docker-start.sh`
-- Start services only: `npm run docker:up`
-- Stop services: `npm run docker:down`
-- Rebuild containers: `npm run docker:build`
-- View logs: `npm run docker:logs`
-- Connect to database: `npm run docker:psql`
-- Access app shell: `npm run docker:shell`
-
-## Changing Database Password
-
-To change the database password:
-
-1. Update the DB_PASSWORD in your .env file
-2. Run `./scripts/docker-start.sh` to rebuild containers with the new password
-
-## Production Deployment
-
-Build the application:
-
-```bash
-npm run build
-```
-
-Start the production server:
-
-```bash
-npm run start
-```
-
 ## Project Structure
 
-- `/app` - Remix application
+- `/app` - Remix application and components
+
+  - `/components` - React components
+  - `/hooks` - Custom React hooks
+  - `/routes` - Remix routes
+  - `/services` - Business logic
+  - `/styles` - Global styles
+  - `/types` - TypeScript type definitions
+  - `/utils` - Helper functions
+
 - `/db` - Database migrations and seeds
 - `/public` - Static assets
-- `/app/services` - Business logic
-- `/app/routes` - Remix routes
 
-## Styling
+## Contributing
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v20 or later)
-- Docker and Docker Compose
-
-### Setting up the development environment
-
-1. Clone the repository
-2. Create a `.env` file based on the example:
-
-```bash
-cp .env.example .env
-```
-
-3. Make sure your `.env` file contains the following variables:
-
-```bash
-DB_USER=finance
-DB_PASSWORD=finance-password
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=finance
-SESSION_SECRET=your_session_secret
-DEMO_USER_ID=1
-DEMO_PASSWORD_HASH=$2b$10$jhE2KcwlTVoe/uRWe/G/Z.9HT3Xbp13Tu6qBOPc0mLCCZO6w3YcIe
-```
-
-4. Start the development environment:
-
-```bash
-npm run dev:with-db
-```
-
-This will:
-
-- Start PostgreSQL in a Docker container
-- Run migrations and add demo data
-- Start the Remix development server
-
-For more detailed information about the development environment, see [DEVELOPMENT.md](DEVELOPMENT.md).
-
-## Using the application
-
-Once the application is running, you can access it at http://localhost:6001.
-
-Use the demo account to log in:
-
-- Email: demo@example.com
-- Password: demo-password
-
-## License
-
-[MIT](LICENSE)
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -am 'Add my feature'`
+4. Push to the branch: `git push origin feature/my-feature`
+5. Submit a pull request
