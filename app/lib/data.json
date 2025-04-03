@@ -92,7 +92,8 @@
       "category": "Income",
       "date": "2024-08-25T09:00:00Z",
       "amount": 3456.78,
-      "recurring": true
+      "recurring": true,
+      "dueDay": 25
     },
     {
       "avatar": "/assets/avatars/james-thompson.jpg",
@@ -108,7 +109,8 @@
       "category": "Entertainment",
       "date": "2024-08-11T18:45:38Z",
       "amount": -10.0,
-      "recurring": true
+      "recurring": true,
+      "dueDay": 11
     },
     {
       "avatar": "/assets/avatars/spark-electric-solutions.jpg",
@@ -116,7 +118,8 @@
       "category": "Bills",
       "date": "2024-08-02T09:25:11Z",
       "amount": -100.0,
-      "recurring": true
+      "recurring": true,
+      "dueDay": 2
     },
     {
       "avatar": "/assets/avatars/aqua-flow-utilities.jpg",
@@ -124,7 +127,8 @@
       "category": "Bills",
       "date": "2024-07-30T13:20:14Z",
       "amount": -50.0,
-      "recurring": true
+      "recurring": true,
+      "dueDay": 30
     },
     {
       "avatar": "/assets/avatars/savory-bites-bistro.jpg",
@@ -148,7 +152,8 @@
       "category": "Personal Care",
       "date": "2024-08-03T14:00:37Z",
       "amount": -30.0,
-      "recurring": true
+      "recurring": true,
+      "dueDay": 3
     },
     {
       "avatar": "/assets/avatars/william-harris.jpg",
@@ -284,7 +289,8 @@
       "category": "Education",
       "date": "2024-07-05T11:15:22Z",
       "amount": -50.0,
-      "recurring": true
+      "recurring": true,
+      "dueDay": 5
     },
     {
       "avatar": "/assets/avatars/spark-electric-solutions.jpg",
@@ -292,7 +298,8 @@
       "category": "Bills",
       "date": "2024-07-02T09:25:51Z",
       "amount": -100.0,
-      "recurring": true
+      "recurring": true,
+      "dueDay": 2
     },
     {
       "avatar": "/assets/avatars/swift-ride-share.jpg",
@@ -301,6 +308,66 @@
       "date": "2024-07-02T19:50:05Z",
       "amount": -16.5,
       "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/nimbus-data-storage.jpg",
+      "name": "Nimbus Data Storage",
+      "category": "Bills",
+      "date": "2024-08-21T12:00:00Z",
+      "amount": -9.99,
+      "recurring": true,
+      "dueDay": 21
+    },
+    {
+      "avatar": "/assets/avatars/bytewise.jpg",
+      "name": "ByteWise",
+      "category": "Bills",
+      "date": "2024-08-23T14:30:00Z",
+      "amount": -49.99,
+      "recurring": true,
+      "dueDay": 23
+    },
+    {
+      "avatar": "/assets/avatars/ecofuel-energy.jpg",
+      "name": "EcoFuel Energy",
+      "category": "Bills",
+      "date": "2024-08-29T10:15:00Z",
+      "amount": -35.0,
+      "recurring": true,
+      "dueDay": 29
+    },
+    {
+      "avatar": "/assets/avatars/premium-internet.jpg",
+      "name": "Premium Internet Services",
+      "category": "Bills",
+      "date": "2024-08-12T09:00:00Z",
+      "amount": -65.99,
+      "recurring": true,
+      "dueDay": 12,
+      "isPaid": false,
+      "isOverdue": true
+    },
+    {
+      "avatar": "/assets/avatars/city-gym.jpg",
+      "name": "City Gym & Fitness",
+      "category": "Personal Care",
+      "date": "2024-08-15T12:30:00Z",
+      "amount": -42.5,
+      "recurring": true,
+      "dueDay": 15,
+      "isPaid": false,
+      "isOverdue": true
+    },
+    {
+      "avatar": "/assets/avatars/harmony-music.jpg",
+      "name": "Harmony Music Streaming",
+      "category": "Entertainment",
+      "date": "2024-08-17T15:45:00Z",
+      "amount": -14.99,
+      "recurring": true,
+      "dueDay": 17,
+      "isPaid": false,
+      "isOverdue": true
     }
   ],
   "pots": [

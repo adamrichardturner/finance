@@ -92,7 +92,7 @@ function MobileTabBar() {
 
   // Use all menu items including Pots
   return (
-    <div className='sm:hidden fixed bottom-0 pt-2 left-0 pl-2 right-0 bg-[#201F24] h-[52px] flex justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
+    <div className='sm:hidden fixed bottom-0 pt-2 left-0 pl-2 right-0 bg-[#201F24] h-[74px] flex justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
       {MENU_ITEMS.map((item) => {
         const enabled = isEnabled(item.name)
 
@@ -156,7 +156,7 @@ function TabBar() {
   }
 
   return (
-    <div className='hidden sm:flex md:hidden fixed bottom-0 left-0 right-0 bg-[#201F24] h-[52px] justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
+    <div className='hidden sm:flex md:hidden fixed bottom-0 left-0 right-0 bg-[#201F24] h-[72px] justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
       {MENU_ITEMS.map((item) => {
         const enabled = isEnabled(item.name)
 
@@ -475,7 +475,7 @@ export function AppSidebar() {
       </SidebarProvider>
       <TabBar />
       <MobileTabBar />
-      <div className='md:hidden h-[52px]'></div>
+      <div className='md:hidden h-[90px]'></div>
     </>
   )
 }

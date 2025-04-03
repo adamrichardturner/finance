@@ -16,6 +16,7 @@ export interface Transaction {
   date: string
   amount: number
   recurring: boolean
+  dueDay?: number
   user_id?: string
 }
 

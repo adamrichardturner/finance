@@ -13,14 +13,23 @@ interface BillsSummaryProps {
 }
 
 const BillsSummary: React.FC<BillsSummaryProps> = ({ summary }) => {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount)
+  }
+
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col p-4 max-[640px]:pt-3'>
       {/* Paid Bills */}
-      <div className='py-5'>
+      <div className='py-5 max-[640px]:py-3'>
         <div className='flex justify-between items-center'>
           <span className='text-base text-gray-700'>Paid Bills</span>
-          <span className='text-base font-medium'>
-            {summary.paidCount} (${summary.paidBills.toFixed(2)})
+          <span className='text-base font-[700]'>
+            {summary.paidCount} ({formatCurrency(summary.paidBills)})
           </span>
         </div>
       </div>
@@ -28,11 +37,11 @@ const BillsSummary: React.FC<BillsSummaryProps> = ({ summary }) => {
       <div className='border-t border-gray-200'></div>
 
       {/* Total Upcoming */}
-      <div className='py-5'>
+      <div className='py-5 max-[640px]:py-3'>
         <div className='flex justify-between items-center'>
           <span className='text-base text-gray-700'>Total Upcoming</span>
-          <span className='text-base font-medium'>
-            {summary.upcomingCount} (${summary.totalUpcoming.toFixed(2)})
+          <span className='text-base font-[700]'>
+            {summary.upcomingCount} ({formatCurrency(summary.totalUpcoming)})
           </span>
         </div>
       </div>
@@ -40,11 +49,11 @@ const BillsSummary: React.FC<BillsSummaryProps> = ({ summary }) => {
       <div className='border-t border-gray-200'></div>
 
       {/* Due Soon */}
-      <div className='py-5'>
+      <div className='py-5 max-[640px]:py-3'>
         <div className='flex justify-between items-center'>
-          <span className='text-base text-[#D6401C]'>Due Soon</span>
-          <span className='text-base font-medium text-[#D6401C]'>
-            {summary.dueSoonCount} (${summary.dueSoon.toFixed(2)})
+          <span className='text-base text-[#C94736]'>Due Soon</span>
+          <span className='text-base font-medium text-[#C94736]'>
+            {summary.dueSoonCount} ({formatCurrency(summary.dueSoon)})
           </span>
         </div>
       </div>

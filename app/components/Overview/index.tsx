@@ -87,7 +87,10 @@ const Overview: React.FC<OverviewProps> = ({
               <BudgetChart budgets={budgets} />
             </div>
 
-            <div className='flex-1'>
+            <div
+              onClick={() => handleNavigate('/recurring-bills')}
+              className='flex-1 cursor-pointer'
+            >
               <RecurringBills bills={transactions} />
             </div>
           </div>

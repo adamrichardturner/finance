@@ -1,9 +1,11 @@
 import { type MetaFunction, type LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { requireUserId } from '../services/auth/session.server'
-import { getFinancialDataByUserId } from '../repositories/finance.repository'
+import {
+  getFinancialDataByUserId,
+  Transaction,
+} from '../repositories/finance.repository'
 import { AppTransaction } from '../utils/transform-data'
-import { Transaction } from '../types/finance.types'
 import RecurringBills from '../components/RecurringBills'
 
 export const meta: MetaFunction = () => {
@@ -31,19 +33,26 @@ function transformToAppTransaction(transaction: Transaction): AppTransaction {
     return path
   }
 
+  // Get date string safely
+  const getDateString = (dateValue: string): string => {
+    try {
+      return new Date(dateValue).toISOString().split('T')[0]
+    } catch (e) {
+      return new Date().toISOString().split('T')[0]
+    }
+  }
+
   return {
     id:
       transaction.id?.toString() || Math.random().toString(36).substring(2, 9),
-    date:
-      transaction.date instanceof Date
-        ? transaction.date.toISOString().split('T')[0]
-        : new Date(transaction.date).toISOString().split('T')[0],
+    date: getDateString(transaction.date),
     description: transaction.name,
     amount: transaction.amount,
     type: transaction.amount > 0 ? 'income' : 'expense',
     category: transaction.category,
     avatar: processAvatarPath(transaction.avatar),
     recurring: transaction.recurring || false,
+    dueDay: transaction.dueDay || new Date(transaction.date).getDate(),
   }
 }
 
@@ -101,7 +110,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   )
 
   return {
-    transactions: recurringTransactions,
+    transactions: recurringTransactions.filter((tx) => tx.amount < 0),
     summary: {
       totalBills,
       paidBills,
