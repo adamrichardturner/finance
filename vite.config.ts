@@ -10,9 +10,8 @@ declare module '@remix-run/node' {
   }
 }
 
-// React Compiler configuration
 const ReactCompilerConfig = {
-  target: '18', // Target React 18
+  target: '18',
 }
 
 export default defineConfig({
@@ -24,14 +23,6 @@ export default defineConfig({
       usePolling: true,
     },
   },
-  build: {
-    minify: true,
-    rollupOptions: {
-      output: {
-        // No manual chunks
-      },
-    },
-  },
   plugins: [
     remix({
       future: {
@@ -41,34 +32,25 @@ export default defineConfig({
         v3_singleFetch: true,
         v3_lazyRouteDiscovery: true,
       },
-      ignoredRouteFiles: ['**/.*'],
-      serverModuleFormat: 'esm',
     }),
     babel({
       filter: /\.[jt]sx?$/,
       babelConfig: {
-        presets: ['@babel/preset-typescript'], // if you use TypeScript
+        presets: ['@babel/preset-typescript'],
         plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
       },
     }),
     tsconfigPaths(),
   ],
   optimizeDeps: {
-    include: ['react', 'react-dom', '@tanstack/react-query'],
-    force: true,
-    esbuildOptions: {
-      resolveExtensions: ['.js', '.jsx', '.ts', '.tsx'],
-    },
+    include: ['react', 'react-dom'],
   },
   esbuild: {
     jsx: 'automatic',
-    target: 'es2020',
-    legalComments: 'none',
   },
   resolve: {
     alias: {
       '~': path.resolve(__dirname, './app'),
     },
-    dedupe: ['react', 'react-dom'],
   },
 })

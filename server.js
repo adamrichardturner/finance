@@ -4,18 +4,6 @@ import { createRequestHandler } from '@remix-run/express'
 import * as path from 'path'
 import { fileURLToPath } from 'url'
 
-// Set required environment variables if not defined
-if (!process.env.DEMO_USER_ID) {
-  process.env.DEMO_USER_ID = '1'
-  console.log('Setting default DEMO_USER_ID=1')
-}
-
-if (!process.env.DEMO_PASSWORD_HASH) {
-  process.env.DEMO_PASSWORD_HASH =
-    '$2b$10$jhE2KcwlTVoe/uRWe/G/Z.9HT3Xbp13Tu6qBOPc0mLCCZO6w3YcIe'
-  console.log('Setting default DEMO_PASSWORD_HASH')
-}
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const BUILD_DIR = path.join(__dirname, 'build')
 
