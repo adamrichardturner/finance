@@ -17,7 +17,7 @@ const Pill: React.FC<PillProps> = ({
 }) => {
   return (
     <Card
-      className={`min-h-[120px] ${isTotal ? 'bg-[#201F24] text-white' : 'bg-white'} shadow-none outline-none border-0`}
+      className={`max-h-[120px] ${isTotal ? 'bg-[#201F24] text-white' : 'bg-white'} shadow-none outline-none border-0`}
     >
       <CardHeader>
         <CardTitle>{title}</CardTitle>
@@ -26,9 +26,6 @@ const Pill: React.FC<PillProps> = ({
         <div className='flex items-center justify-between'>
           <div>
             <div className='text-2xl font-bold'>{amount}</div>
-            {subtitle && (
-              <div className='text-sm mt-1 opacity-80'>{subtitle}</div>
-            )}
           </div>
           {icon && <div>{icon}</div>}
         </div>

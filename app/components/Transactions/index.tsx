@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardHeader, CardTitle, CardContent } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
-import { Search, Loader2, ArrowUpDown, Filter } from 'lucide-react'
+import { Search, Loader2, ArrowUpDown, Filter, X } from 'lucide-react'
 import {
   Table,
   TableHeader,
@@ -194,14 +194,22 @@ export function Transactions() {
         <div className='mb-6 flex flex-row items-center justify-between'>
           {/* Search input - always visible */}
           <div className='relative sm:w-[121px] md:w-[200px] lg:w-[320px] pr-4 flex items-center h-full'>
-            <Search className='relative left-6 top-0 h-4 w-4 text-gray-500' />
+            <Search className='absolute left-[12px] h-4 w-4 text-gray-500' />
             <Input
               type='text'
               placeholder='Search'
-              className='pl-8 border border-gray-100 placeholder:text-[12px] text-[12px] hover:shadow-lg transition-shadow duration-200 placeholder:text-xs sm:placeholder:text-sm shadow-md'
+              className='pl-8 pr-8 border border-gray-100 placeholder:text-[12px] hover:shadow-lg transition-shadow duration-200 placeholder:text-xs sm:placeholder:text-sm shadow-md'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+            {searchQuery && (
+              <div
+                className='absolute right-8 top-1/2 -translate-y-1/2 cursor-pointer'
+                onClick={() => setSearchQuery('')}
+              >
+                <X className='h-4 w-4 text-gray-500 hover:text-gray-800 transition-colors' />
+              </div>
+            )}
           </div>
 
           {/* Desktop & Tablet filter controls - hidden on mobile */}

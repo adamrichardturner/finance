@@ -3,7 +3,7 @@ import { Card, CardContent } from '~/components/ui/card'
 import { AppTransaction } from '~/utils/transform-data'
 import PageTitle from '~/components/PageTitle'
 import { Input } from '~/components/ui/input'
-import { Search, Receipt } from 'lucide-react'
+import { Search, Receipt, X } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -139,15 +139,26 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
             <CardContent className='p-6 max-[640px]:px-0 max-[640px]:py-4'>
               <div className='flex flex-row justify-between items-center mb-6 gap-4'>
                 {/* Search */}
-                <div className='relative flex-1'>
-                  <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-gray-500' />
+                <div className='relative flex items-center flex-1 max-w-[320px]'>
+                  <Search className='absolute left-[12px] h-4 w-4 text-gray-500 max-w-[320px]' />
                   <Input
                     type='text'
                     placeholder='Search bills'
-                    className='pl-8 border border-gray-100 shadow-md'
+                    className='pl-8 pr-8 border border-gray-100 shadow-md'
                     value={searchTerm}
                     onChange={handleSearchChange}
                   />
+                  {searchTerm && (
+                    <div
+                      className='absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer'
+                      onClick={() => {
+                        setSearchTerm('')
+                        setDebouncedSearchTerm('')
+                      }}
+                    >
+                      <X className='h-4 w-4 text-gray-500 hover:text-gray-800 transition-colors' />
+                    </div>
+                  )}
                 </div>
 
                 {/* Desktop Sort */}

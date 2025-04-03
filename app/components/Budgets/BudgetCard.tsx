@@ -137,85 +137,75 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
                 </span>
               </span>
             </div>
-            <div className='mt-2 space-y-3'>
+            <div className='mt-2'>
               {budget.transactions.slice(0, 3).map((transaction, index) => (
-                <div key={transaction.id}>
-                  <div
-                    className='flex items-center justify-between min-h-[42px] cursor-pointer hover:bg-white/60 transition-colors duration-200 py-2 px-2 rounded-md'
-                    onClick={() => navigateToTransaction(transaction.name)}
-                  >
-                    <div className='flex items-center gap-3'>
-                      <div className='relative h-12 w-12 rounded-full bg-gray-100 overflow-hidden'>
-                        {transaction.avatar && (
-                          <img
-                            src={transaction.avatar}
-                            alt=''
-                            className='h-full w-full rounded-full object-cover'
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement
-                              target.style.display = 'none'
-                              const fallbackDiv =
-                                target.parentElement?.querySelector(
-                                  '.fallback-avatar'
-                                )
-                              if (
-                                fallbackDiv &&
-                                fallbackDiv instanceof HTMLElement
-                              ) {
-                                fallbackDiv.style.display = 'flex'
-                              }
-                            }}
-                          />
-                        )}
-                        <div
-                          className='fallback-avatar absolute inset-0 flex items-center justify-center text-white font-medium text-sm'
-                          style={{
-                            backgroundColor: getThemeForCategory(
-                              transaction.category
-                            ),
-                            display: transaction.avatar ? 'none' : 'flex',
+                <div
+                  key={transaction.id}
+                  className='flex items-center justify-between cursor-pointer hover:bg-white/60 transition-colors duration-200 py-3 px-2'
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    navigateToTransaction(transaction.name)
+                  }}
+                >
+                  <div className='flex items-center gap-3'>
+                    <div className='relative h-12 w-12 rounded-full bg-gray-100 overflow-hidden'>
+                      {transaction.avatar && (
+                        <img
+                          src={transaction.avatar}
+                          alt=''
+                          className='h-full w-full rounded-full object-cover'
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.style.display = 'none'
+                            const fallbackDiv =
+                              target.parentElement?.querySelector(
+                                '.fallback-avatar'
+                              )
+                            if (
+                              fallbackDiv &&
+                              fallbackDiv instanceof HTMLElement
+                            ) {
+                              fallbackDiv.style.display = 'flex'
+                            }
                           }}
-                        >
-                          {transaction.name.charAt(0).toUpperCase()}
-                        </div>
-                      </div>
-                      <div>
-                        <p className='text-sm font-medium'>
-                          {transaction.name}
-                        </p>
+                        />
+                      )}
+                      <div
+                        className='fallback-avatar absolute inset-0 flex items-center justify-center text-white font-medium text-sm'
+                        style={{
+                          backgroundColor: getThemeForCategory(
+                            transaction.category
+                          ),
+                          display: transaction.avatar ? 'none' : 'flex',
+                        }}
+                      >
+                        {transaction.name.charAt(0).toUpperCase()}
                       </div>
                     </div>
-                    <span className='text-sm text-gray-700'>
-                      <div className='flex space-y-1.5 flex-col'>
-                        <p
-                          className={`text-xs font-bold text-right ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
-                        >
-                          {transaction.amount >= 0 ? '+' : '-'}£
-                          {Math.abs(transaction.amount).toFixed(2)}
-                        </p>
-                        <p className='text-xs text-gray-500'>
-                          {new Date(transaction.date).toLocaleDateString(
-                            'en-GB',
-                            {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            }
-                          )}
-                        </p>
-                      </div>
-                    </span>
+                    <div>
+                      <p className='text-sm font-medium'>{transaction.name}</p>
+                    </div>
                   </div>
-                  {budget.transactions &&
-                    index < budget.transactions.slice(0, 3).length - 1 && (
-                      <div
-                        className='h-[1px] w-full mt-3'
-                        style={{
-                          opacity: 0.15,
-                          background: 'var(--color-grey-500, #696868)',
-                        }}
-                      />
-                    )}
+                  <span className='text-sm text-gray-700'>
+                    <div className='flex space-y-1.5 flex-col'>
+                      <p
+                        className={`text-xs font-bold text-right ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
+                      >
+                        {transaction.amount >= 0 ? '+' : '-'}£
+                        {Math.abs(transaction.amount).toFixed(2)}
+                      </p>
+                      <p className='text-xs text-gray-500'>
+                        {new Date(transaction.date).toLocaleDateString(
+                          'en-GB',
+                          {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          }
+                        )}
+                      </p>
+                    </div>
+                  </span>
                 </div>
               ))}
             </div>

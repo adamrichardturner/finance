@@ -116,12 +116,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
     }
   }
 
-  // Get due day from transaction
-  const getDueDay = (bill: AppTransaction): number => {
-    if (bill.dueDay) return bill.dueDay
-    return new Date(bill.date).getDate()
-  }
-
   return (
     <Card className='p-[32px] flex flex-col gap-4 shadow-none flex-grow flex-1 h-full'>
       <CardHeader className='flex p-0 flex-row justify-between items-center w-full'>
@@ -143,12 +137,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
             <span className='font-[400] text-[16px] text-gray-900'>
               Paid Bills
             </span>
-            {summaryData.paidBills.count > 0 && (
-              <span className='text-sm text-gray-500'>
-                {summaryData.paidBills.count}{' '}
-                {summaryData.paidBills.count === 1 ? 'bill' : 'bills'}
-              </span>
-            )}
           </div>
           <span className='font-bold text-[16px] text-gray-900'>
             {formatCurrency(summaryData.paidBills.amount)}
@@ -161,12 +149,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
             <span className='font-[400] text-[16px] text-gray-900'>
               Total Upcoming
             </span>
-            {summaryData.totalUpcoming.count > 0 && (
-              <span className='text-sm text-gray-500'>
-                {summaryData.totalUpcoming.count}{' '}
-                {summaryData.totalUpcoming.count === 1 ? 'bill' : 'bills'}
-              </span>
-            )}
           </div>
           <span className='font-bold text-[16px] text-gray-900'>
             {formatCurrency(summaryData.totalUpcoming.amount)}
@@ -179,13 +161,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
             <span className='font-[400] text-[16px] text-gray-900'>
               Due Soon
             </span>
-            {summaryData.dueSoon.count > 0 && (
-              <span className='text-sm text-gray-500'>
-                {summaryData.dueSoon.count}{' '}
-                {summaryData.dueSoon.count === 1 ? 'bill' : 'bills'} in next 5
-                days
-              </span>
-            )}
           </div>
           <span className='font-bold text-[16px] text-gray-900'>
             {formatCurrency(summaryData.dueSoon.amount)}
