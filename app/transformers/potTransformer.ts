@@ -6,7 +6,11 @@ export function transformPotsToOverview(pots: Pot[]) {
   }
 
   const totalAllPots = pots.reduce((sum, pot) => sum + Number(pot.total), 0)
-  const formattedTotal = `£${totalAllPots.toFixed(0)}`
+  const formattedTotal = new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+    minimumFractionDigits: 2,
+  }).format(totalAllPots)
 
   return {
     formattedTotal,

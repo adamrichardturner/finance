@@ -73,6 +73,14 @@ const PotGridSmallScreen: React.FC<PotsProps> = ({ pots }) => {
     return null
   }
 
+  const formatCurrency = (amount: number): string => {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      minimumFractionDigits: 2,
+    }).format(amount)
+  }
+
   return (
     <div className='grid grid-cols-2 gap-4'>
       {pots.slice(0, 4).map((pot) => (
@@ -87,7 +95,7 @@ const PotGridSmallScreen: React.FC<PotsProps> = ({ pots }) => {
               {pot.name}
             </span>
             <span className='block text-gray-700 font-[700] text-[14px]'>
-              £{pot.total}
+              {formatCurrency(Number(pot.total))}
             </span>
           </div>
         </div>
@@ -99,6 +107,14 @@ const PotGridSmallScreen: React.FC<PotsProps> = ({ pots }) => {
 const PotGridSummary: React.FC<PotsProps> = ({ pots }) => {
   if (!pots || pots.length <= 0) {
     return null
+  }
+
+  const formatCurrency = (amount: number): string => {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      minimumFractionDigits: 2,
+    }).format(amount)
   }
 
   return (
@@ -115,7 +131,7 @@ const PotGridSummary: React.FC<PotsProps> = ({ pots }) => {
               {pot.name}
             </span>
             <span className='block text-gray-700 font-[700] text-[14px]'>
-              £{pot.total}
+              {formatCurrency(Number(pot.total))}
             </span>
           </div>
         </div>

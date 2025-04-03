@@ -200,7 +200,7 @@ export function PotCard({
             </div>
             <div className='flex justify-between items-center text-xs text-gray-500'>
               <span className='font-semibold'>
-                {progressPercentage.toFixed(1)}%
+                {Math.ceil(progressPercentage)}%
               </span>
               <span>Target of {formatCurrency(pot.target)}</span>
             </div>
@@ -271,7 +271,7 @@ export function PotCard({
               </div>
               <div className='flex justify-between items-center text-xs text-gray-500 mt-1'>
                 <span className='font-semibold'>
-                  {addPercentage.toFixed(1)}%
+                  {Math.ceil(addPercentage)}%
                 </span>
                 <span>Target of {formatCurrency(pot.target)}</span>
               </div>
@@ -351,7 +351,7 @@ export function PotCard({
               </div>
               <div className='flex justify-between items-center text-xs text-gray-500 mt-1'>
                 <span className='font-semibold'>
-                  {withdrawPercentage.toFixed(1)}%
+                  {Math.ceil(withdrawPercentage)}%
                 </span>
                 <span>Target of {formatCurrency(pot.target)}</span>
               </div>

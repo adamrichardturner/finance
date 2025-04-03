@@ -22,7 +22,8 @@ import {
   SheetClose,
 } from '~/components/ui/sheet'
 import { Button } from '~/components/ui/button'
-import BillsDark from '/assets/icons/BillsDark.svg?url'
+import BillsDark from '../../../public/assets/icons/BillsDark.svg?url'
+import BillsLight from '../../../public/assets/icons/BillsLight.svg?url'
 import debounce from 'lodash/debounce'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -107,7 +108,7 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
             <CardContent className='p-0 flex flex-col justify-between h-full'>
               <div className='mb-4'>
                 <div className='w-12 h-12 bg-transparent mb-6'>
-                  <Receipt className='w-10 h-10 text-white' />
+                  <img src={BillsLight} alt='Bills' className='w-10 h-10' />
                 </div>
                 <div>
                   <p className='text-base text-white mb-2'>Total Bills</p>
