@@ -101,7 +101,7 @@ const MENU_ITEMS: MenuItem[] = [
     name: 'recurring-bills',
     path: '/recurring-bills',
     icon: '/assets/icons/RecurringBillsIcon.svg',
-    label: 'Recurring bills',
+    label: 'Recurring Bills',
   },
 ]
 

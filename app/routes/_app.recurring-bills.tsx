@@ -9,7 +9,7 @@ import { Transaction } from '../types/finance.types'
 export const meta: MetaFunction = () => {
   return [
     { title: 'Recurring Bills | Finance App' },
-    { name: 'description', content: 'Manage your recurring bills' },
+    { name: 'description', content: 'Manage your Recurring Bills' },
   ]
 }
 
