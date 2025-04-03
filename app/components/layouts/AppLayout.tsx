@@ -12,7 +12,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className='flex min-h-screen w-full'>
         <AppSidebar />
         <div className='flex flex-col flex-1 w-full min-h-screen'>
-          <main className='flex-1 w-full h-full p-[16px] sm:p-[40px] max-w-[1200px]'>
+          <main className='flex-1 w-full h-full p-[16px] sm:p-[40px] pb-[106px] md:pb-[40px] max-w-[1200px]'>
             {children}
           </main>
         </div>

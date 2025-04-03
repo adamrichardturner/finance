@@ -26,7 +26,13 @@ export const meta: MetaFunction = () => {
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = String(await requireUserId(request))
   const budgets = await getBudgets(userId)
-  return json({ budgets })
+
+  // Filter out any 'Income' budgets
+  const filteredBudgets = budgets.filter(
+    (budget) => budget.category.toLowerCase() !== 'income'
+  )
+
+  return json({ budgets: filteredBudgets })
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -41,6 +47,14 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (typeof category !== 'string' || typeof maxAmount !== 'string') {
       return json({ error: 'Invalid form data' }, { status: 400 })
+    }
+
+    // Prevent 'Income' from being used as a budget category
+    if (category.toLowerCase() === 'income') {
+      return json(
+        { error: 'Income cannot be used as a budget category' },
+        { status: 400 }
+      )
     }
 
     // If theme wasn't provided, get it from the category
@@ -77,6 +91,14 @@ export async function action({ request }: ActionFunctionArgs) {
       typeof theme !== 'string'
     ) {
       return json({ error: 'Invalid form data' }, { status: 400 })
+    }
+
+    // Prevent 'Income' from being used as a budget category
+    if (category.toLowerCase() === 'income') {
+      return json(
+        { error: 'Income cannot be used as a budget category' },
+        { status: 400 }
+      )
     }
 
     try {

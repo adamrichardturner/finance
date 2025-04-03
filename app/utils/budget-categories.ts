@@ -43,9 +43,14 @@ export function getAvailableCategories(
   currentBudgetId?: string,
   currentCategory?: string
 ) {
-  // If no budgets exist yet, return all categories
+  // If no budgets exist yet, return all categories except excluded ones
   if (!existingBudgets || existingBudgets.length === 0) {
-    return BUDGET_CATEGORIES
+    return BUDGET_CATEGORIES.filter(
+      (cat) =>
+        !EXCLUDED_BUDGET_CATEGORIES.map((c) => c.toLowerCase()).includes(
+          cat.name.toLowerCase()
+        )
+    )
   }
 
   // Extract all used category names (normalized to lowercase for comparison)

@@ -16,6 +16,9 @@ export interface Transaction {
   date: string
   amount: number
   recurring: boolean
+  dueDay?: number
+  isPaid?: boolean
+  isOverdue?: boolean
   user_id?: string
 }
 
@@ -43,8 +46,6 @@ export async function getFinancialDataByUserId(userId: string) {
   try {
     // Get balance data
     const balance = await db('balance').where({ user_id: userId }).first()
-
-    console.log('BALANCE>: ', balance)
 
     // Get transactions with pagination
     const transactions = await db('transactions')

@@ -5,7 +5,7 @@
 
 export async function up(knex) {
   // No-op migration - we're keeping integer IDs
-  console.log('Skipping UUID conversion - using integer IDs')
+  ;('Skipping UUID conversion - using integer IDs')
 }
 
 export async function down(knex) {

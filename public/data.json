@@ -1,0 +1,510 @@
+{
+  "balance": {
+    "current": 4836.0,
+    "income": 3814.25,
+    "expenses": 1700.5
+  },
+  "bills": [
+    {
+      "id": 1,
+      "avatar": "/assets/avatars/nimbus-data-storage.jpg",
+      "name": "Nimbus Data Storage",
+      "category": "Bills",
+      "date": "2024-08-21T12:00:00Z",
+      "amount": -9.99,
+      "dueDay": 21,
+      "isPaid": false,
+      "isOverdue": true
+    },
+    {
+      "id": 2,
+      "avatar": "/assets/avatars/bytewise.jpg",
+      "name": "ByteWise",
+      "category": "Bills",
+      "date": "2024-08-23T14:30:00Z",
+      "amount": -49.99,
+      "dueDay": 23,
+      "isPaid": false,
+      "isOverdue": true
+    },
+    {
+      "id": 3,
+      "avatar": "/assets/avatars/ecofuel-energy.jpg",
+      "name": "EcoFuel Energy",
+      "category": "Bills",
+      "date": "2024-08-29T10:15:00Z",
+      "amount": -35.0,
+      "dueDay": 29,
+      "isPaid": false,
+      "isOverdue": false
+    },
+    {
+      "id": 4,
+      "avatar": "/assets/avatars/premium-internet.jpg",
+      "name": "Premium Internet Services",
+      "category": "Bills",
+      "date": "2024-08-12T09:00:00Z",
+      "amount": -65.99,
+      "dueDay": 12,
+      "isPaid": false,
+      "isOverdue": true
+    },
+    {
+      "id": 5,
+      "avatar": "/assets/avatars/city-gym.jpg",
+      "name": "City Gym & Fitness",
+      "category": "Personal Care",
+      "date": "2024-08-15T12:30:00Z",
+      "amount": -42.5,
+      "dueDay": 15,
+      "isPaid": false,
+      "isOverdue": true
+    },
+    {
+      "id": 6,
+      "avatar": "/assets/avatars/harmony-music.jpg",
+      "name": "Harmony Music Streaming",
+      "category": "Entertainment",
+      "date": "2024-08-17T15:45:00Z",
+      "amount": -14.99,
+      "dueDay": 17,
+      "isPaid": false,
+      "isOverdue": true
+    },
+    {
+      "id": 7,
+      "avatar": "/assets/avatars/pixel-playground.jpg",
+      "name": "Pixel Playground",
+      "category": "Entertainment",
+      "date": "2024-08-11T18:45:38Z",
+      "amount": -10.0,
+      "dueDay": 11,
+      "isPaid": true,
+      "isOverdue": false
+    },
+    {
+      "id": 8,
+      "avatar": "/assets/avatars/spark-electric-solutions.jpg",
+      "name": "Spark Electric Solutions",
+      "category": "Bills",
+      "date": "2024-08-02T09:25:11Z",
+      "amount": -100.0,
+      "dueDay": 2,
+      "isPaid": true,
+      "isOverdue": false
+    },
+    {
+      "id": 9,
+      "avatar": "/assets/avatars/aqua-flow-utilities.jpg",
+      "name": "Aqua Flow Utilities",
+      "category": "Bills",
+      "date": "2024-07-30T13:20:14Z",
+      "amount": -50.0,
+      "dueDay": 30,
+      "isPaid": true,
+      "isOverdue": false
+    },
+    {
+      "id": 10,
+      "avatar": "/assets/avatars/serenity-spa-and-wellness.jpg",
+      "name": "Serenity Spa & Wellness",
+      "category": "Personal Care",
+      "date": "2024-08-03T14:00:37Z",
+      "amount": -30.0,
+      "dueDay": 3,
+      "isPaid": true,
+      "isOverdue": false
+    },
+    {
+      "id": 11,
+      "avatar": "/assets/avatars/elevate-education.jpg",
+      "name": "Elevate Education",
+      "category": "Education",
+      "date": "2024-07-05T11:15:22Z",
+      "amount": -50.0,
+      "dueDay": 5,
+      "isPaid": true,
+      "isOverdue": false
+    },
+    {
+      "id": 12,
+      "avatar": "/assets/avatars/swift-ride-share.jpg",
+      "name": "Swift Ride Share",
+      "category": "Transportation",
+      "date": "2024-08-07T10:00:00Z",
+      "amount": -25.99,
+      "dueDay": 7,
+      "isPaid": true,
+      "isOverdue": false
+    },
+    {
+      "id": 13,
+      "avatar": "/assets/avatars/technova-innovations.jpg",
+      "name": "TechNova Innovations",
+      "category": "Technology",
+      "date": "2024-08-10T14:30:00Z",
+      "amount": -79.99,
+      "dueDay": 10,
+      "isPaid": true,
+      "isOverdue": false
+    },
+    {
+      "id": 14,
+      "avatar": "/assets/avatars/green-plate-eatery.jpg",
+      "name": "Green Plate Eatery Subscription",
+      "category": "Dining Out",
+      "date": "2024-08-05T12:00:00Z",
+      "amount": -45.50,
+      "dueDay": 5,
+      "isPaid": true,
+      "isOverdue": false
+    },
+    {
+      "id": 15,
+      "avatar": "/assets/avatars/buzz-marketing-group.jpg",
+      "name": "Buzz Marketing Group",
+      "category": "Business",
+      "date": "2024-08-09T09:15:00Z",
+      "amount": -120.00,
+      "dueDay": 9,
+      "isPaid": true,
+      "isOverdue": false
+    },
+    {
+      "id": 16,
+      "avatar": "/assets/icons/wifi.svg",
+      "name": "CityConnect Broadband",
+      "category": "Internet",
+      "date": "2024-08-14T08:30:00Z",
+      "amount": -55.00,
+      "dueDay": 14,
+      "isPaid": true,
+      "isOverdue": false
+    },
+    {
+      "id": 17,
+      "avatar": "/assets/icons/bank.svg",
+      "name": "Mortgage Payment",
+      "category": "Housing",
+      "date": "2024-08-01T00:00:00Z",
+      "amount": -875.00,
+      "dueDay": 1,
+      "isPaid": true,
+      "isOverdue": false
+    }
+  ],
+  "categories": [
+    {
+      "name": "Income",
+      "defaultTheme": "#2BAC76"
+    },
+    {
+      "name": "Entertainment",
+      "defaultTheme": "#277C78"
+    },
+    {
+      "name": "Bills",
+      "defaultTheme": "#82C9D7"
+    },
+    {
+      "name": "Dining Out",
+      "defaultTheme": "#F2CDAC"
+    },
+    {
+      "name": "Personal Care",
+      "defaultTheme": "#626070"
+    },
+    {
+      "name": "Shopping",
+      "defaultTheme": "#9B6B43"
+    },
+    {
+      "name": "Transportation",
+      "defaultTheme": "#7C2742"
+    },
+    {
+      "name": "Healthcare",
+      "defaultTheme": "#4A90E2"
+    },
+    {
+      "name": "Education",
+      "defaultTheme": "#50E3C2"
+    },
+    {
+      "name": "Groceries",
+      "defaultTheme": "#B8E986"
+    },
+    {
+      "name": "Investments",
+      "defaultTheme": "#9013FE"
+    },
+    {
+      "name": "Gifts",
+      "defaultTheme": "#F5A623"
+    },
+    {
+      "name": "Charity",
+      "defaultTheme": "#417505"
+    }
+  ],
+  "budgets": [
+    {
+      "category": "Income",
+      "maximum": "4000.00",
+      "theme": "#2BAC76"
+    },
+    {
+      "category": "Entertainment",
+      "maximum": "50.00",
+      "theme": "#277C78"
+    },
+    {
+      "category": "Bills",
+      "maximum": "750.00",
+      "theme": "#82C9D7"
+    },
+    {
+      "category": "Dining Out",
+      "maximum": "75.00",
+      "theme": "#F2CDAC"
+    },
+    {
+      "category": "Personal Care",
+      "maximum": "100.00",
+      "theme": "#626070"
+    }
+  ],
+  "transactions": [
+    {
+      "avatar": "/assets/avatars/direct-couriers.jpg",
+      "name": "Direct Couriers",
+      "category": "Income",
+      "date": "2024-08-25T09:00:00Z",
+      "amount": 3456.78,
+      "recurring": true,
+      "dueDay": 25
+    },
+    {
+      "avatar": "/assets/avatars/james-thompson.jpg",
+      "name": "James Thompson",
+      "category": "Entertainment",
+      "date": "2024-08-11T15:45:38Z",
+      "amount": -5.0,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/pixel-playground.jpg",
+      "name": "Pixel Playground",
+      "category": "Entertainment",
+      "date": "2024-08-11T18:45:38Z",
+      "amount": -10.0,
+      "recurring": true,
+      "dueDay": 11
+    },
+    {
+      "avatar": "/assets/avatars/spark-electric-solutions.jpg",
+      "name": "Spark Electric Solutions",
+      "category": "Bills",
+      "date": "2024-08-02T09:25:11Z",
+      "amount": -100.0,
+      "recurring": true,
+      "dueDay": 2
+    },
+    {
+      "avatar": "/assets/avatars/aqua-flow-utilities.jpg",
+      "name": "Aqua Flow Utilities",
+      "category": "Bills",
+      "date": "2024-07-30T13:20:14Z",
+      "amount": -50.0,
+      "recurring": true,
+      "dueDay": 30
+    },
+    {
+      "avatar": "/assets/avatars/savory-bites-bistro.jpg",
+      "name": "Savory Bites Bistro",
+      "category": "Dining Out",
+      "date": "2024-08-19T20:23:11Z",
+      "amount": -25.5,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/flavor-fiesta.jpg",
+      "name": "Flavor Fiesta",
+      "category": "Dining Out",
+      "date": "2024-07-27T20:15:06Z",
+      "amount": -20.0,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/serenity-spa-and-wellness.jpg",
+      "name": "Serenity Spa & Wellness",
+      "category": "Personal Care",
+      "date": "2024-08-03T14:00:37Z",
+      "amount": -30.0,
+      "recurring": true,
+      "dueDay": 3
+    },
+    {
+      "avatar": "/assets/avatars/william-harris.jpg",
+      "name": "William Harris",
+      "category": "Personal Care",
+      "date": "2024-08-05T14:30:56Z",
+      "amount": -10.0,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/emma-richardson.jpg",
+      "name": "Emma Richardson",
+      "category": "General",
+      "date": "2024-08-19T14:23:11Z",
+      "amount": 75.5,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/daniel-carter.jpg",
+      "name": "Daniel Carter",
+      "category": "General",
+      "date": "2024-08-18T09:45:32Z",
+      "amount": -42.3,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/sun-park.jpg",
+      "name": "Sun Park",
+      "category": "General",
+      "date": "2024-08-17T16:12:05Z",
+      "amount": 120.0,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/urban-services-hub.jpg",
+      "name": "Urban Services Hub",
+      "category": "General",
+      "date": "2024-08-17T21:08:09Z",
+      "amount": -65.0,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/liam-hughes.jpg",
+      "name": "Liam Hughes",
+      "category": "Groceries",
+      "date": "2024-08-15T18:20:33Z",
+      "amount": 65.75,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/lily-ramirez.jpg",
+      "name": "Lily Ramirez",
+      "category": "General",
+      "date": "2024-08-14T13:05:27Z",
+      "amount": 50.0,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/ethan-clark.jpg",
+      "name": "Ethan Clark",
+      "category": "Dining Out",
+      "date": "2024-08-13T20:15:59Z",
+      "amount": -32.5,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/rina-sato.jpg",
+      "name": "Rina Sato",
+      "category": "Entertainment",
+      "date": "2024-07-13T09:15:32Z",
+      "amount": -10.0,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/james-thompson.jpg",
+      "name": "James Thompson",
+      "category": "Bills",
+      "date": "2024-07-12T13:40:46Z",
+      "amount": -95.5,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/ella-phillips.jpg",
+      "name": "Ella Phillips",
+      "category": "Dining Out",
+      "date": "2024-07-11T18:05:59Z",
+      "amount": -33.75,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/yuna-kim.jpg",
+      "name": "Yuna Kim",
+      "category": "Dining Out",
+      "date": "2024-07-10T12:30:13Z",
+      "amount": -27.5,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/sofia-peterson.jpg",
+      "name": "Sofia Peterson",
+      "category": "Transportation",
+      "date": "2024-07-09T08:55:27Z",
+      "amount": -12.5,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/mason-martinez.jpg",
+      "name": "Mason Martinez",
+      "category": "Lifestyle",
+      "date": "2024-07-08T15:20:41Z",
+      "amount": -35.25,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/sebastian-cook.jpg",
+      "name": "Sebastian Cook",
+      "category": "Transportation",
+      "date": "2024-07-07T11:45:55Z",
+      "amount": -20.0,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/william-harris.jpg",
+      "name": "William Harris",
+      "category": "General",
+      "date": "2024-07-06T17:10:09Z",
+      "amount": 20.0,
+      "recurring": false
+    },
+    {
+      "avatar": "/assets/avatars/swift-ride-share.jpg",
+      "name": "Swift Ride Share",
+      "category": "Transportation",
+      "date": "2024-07-02T19:50:05Z",
+      "amount": -16.5,
+      "recurring": false
+    }
+  ],
+  "pots": [
+    {
+      "name": "Holiday",
+      "target": 1200,
+      "total": 800,
+      "theme": "#277C78"
+    },
+    {
+      "name": "Emergency",
+      "target": 5000,
+      "total": 2500,
+      "theme": "#F2CDAC"
+    },
+    {
+      "name": "New Car",
+      "target": 3500,
+      "total": 1200,
+      "theme": "#82C9D7"
+    },
+    {
+      "name": "House Deposit",
+      "target": 10000,
+      "total": 4500,
+      "theme": "#626070"
+    }
+  ]
+}

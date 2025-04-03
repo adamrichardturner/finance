@@ -15,6 +15,9 @@ export interface Transaction {
   date: string | Date
   amount: number
   recurring: boolean
+  dueDay?: number
+  isPaid?: boolean
+  isOverdue?: boolean
   created_at?: string
   updated_at?: string
 }
@@ -40,9 +43,22 @@ export interface Pot {
   updated_at?: string
 }
 
+export interface Bill {
+  id: number
+  avatar: string
+  name: string
+  category: string
+  date: string | Date
+  amount: number
+  dueDay: number
+  isPaid: boolean
+  isOverdue: boolean
+}
+
 export interface FinancialData {
   balance: Balance
   transactions: Transaction[]
   budgets: Budget[]
   pots: Pot[]
+  bills: Bill[]
 }

@@ -53,7 +53,6 @@ export function DeletePotModal({
       } else {
         setError('Failed to delete pot')
       }
-      console.error('Failed to delete pot:', error)
     }
   }
 

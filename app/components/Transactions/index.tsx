@@ -1,5 +1,4 @@
-import React from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardHeader, CardTitle, CardContent } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Search, Loader2, ArrowUpDown, Filter } from 'lucide-react'
@@ -18,7 +17,6 @@ import {
   SelectContent,
   SelectItem,
 } from '~/components/ui/select'
-import { formatDistanceToNow } from 'date-fns'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import {
   Sheet,
@@ -33,7 +31,6 @@ import { useTransactions } from '~/hooks/use-transactions'
 import { getThemeForCategory } from '~/utils/budget-categories'
 import { AppTransaction } from '~/utils/transform-data'
 import Pointer from '../../../public/assets/icons/Pointer.svg'
-import { renderAvatar } from '~/utils/avatar-utils'
 
 // Animation variants
 const itemVariants = {
@@ -55,6 +52,7 @@ export function Transactions() {
     transactions,
     searchQuery,
     setSearchQuery,
+    debouncedSearchQuery,
     sortBy,
     setSortBy,
     category,
@@ -64,6 +62,8 @@ export function Transactions() {
     filteredCount,
     loadMore,
     formatCurrency,
+    formatTransactionDate,
+    isOverAMonthOld,
     renderTransactionAvatar,
     handleCategoryClick,
     handleSenderClick,
@@ -211,10 +211,10 @@ export function Transactions() {
                 Sort by
               </label>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className='w-[120px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
+                <SelectTrigger className='w-[160px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                   <SelectValue placeholder='Sort by' />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='min-w-[160px]'>
                   <SelectItem value='latest'>Latest</SelectItem>
                   <SelectItem value='oldest'>Oldest</SelectItem>
                   <SelectItem value='a-z'>A to Z</SelectItem>
@@ -230,10 +230,10 @@ export function Transactions() {
                 Category
               </label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className='w-[140px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
+                <SelectTrigger className='w-[180px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                   <SelectValue placeholder='Category' />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='min-w-[180px] max-h-[300px] overflow-y-auto'>
                   <SelectItem value='all'>All Transactions</SelectItem>
                   {categories.map(
                     (cat: string) =>
@@ -387,175 +387,182 @@ export function Transactions() {
             `}
           </style>
 
-          <InfiniteScroll
-            dataLength={visibleTransactions.length}
-            next={loadMore}
-            hasMore={visibleTransactions.length < filteredCount}
-            loader={
-              <div className='flex justify-center sticky bottom-0 py-8 bg-card shadow-md border-t'>
-                <Loader2 className='h-6 w-6 animate-spin text-primary' />
-              </div>
-            }
-            scrollableTarget='scrollable-transactions'
-            scrollThreshold={0.25}
-            style={{ overflow: 'hidden', overflowY: 'auto' }}
-            className='hide-scrollbar'
-            endMessage={
-              <div className='flex justify-center py-2 text-xs text-muted-foreground'>
-                End of transactions
-              </div>
-            }
-          >
-            {visibleTransactions.length > 0 ? (
-              <>
-                {/* Desktop & Tablet View */}
-                <div className='hidden sm:block hide-scrollbar'>
-                  <Table className='hide-scrollbar'>
-                    <TableHeader className='sticky top-0 bg-card z-10'>
-                      <TableRow className='border-b border-gray-200'>
-                        <TableHead className='w-[30%] text-[12px]'>
-                          Recipient / Sender
-                        </TableHead>
-                        <TableHead className='w-[15%] text-left text-[12px]'>
-                          Category
-                        </TableHead>
-                        <TableHead className='w-[15%] text-left text-[12px]'>
-                          Transaction Date
-                        </TableHead>
-                        <TableHead className='w-[30%] text-right text-[12px]'>
-                          Amount
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
+          <AnimatePresence mode='wait'>
+            <motion.div
+              key={debouncedSearchQuery + category + sortBy}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              <InfiniteScroll
+                dataLength={visibleTransactions.length}
+                next={loadMore}
+                hasMore={visibleTransactions.length < filteredCount}
+                loader={
+                  <div className='flex justify-center sticky bottom-0 py-8 bg-card shadow-md border-t'>
+                    <Loader2 className='h-6 w-6 animate-spin text-primary' />
+                  </div>
+                }
+                scrollableTarget='scrollable-transactions'
+                scrollThreshold={0.25}
+                style={{ overflow: 'hidden', overflowY: 'auto' }}
+                className='hide-scrollbar'
+                endMessage={
+                  <div className='flex justify-center py-2 text-xs text-muted-foreground'>
+                    End of transactions
+                  </div>
+                }
+              >
+                {visibleTransactions.length > 0 ? (
+                  <>
+                    {/* Desktop & Tablet View */}
+                    <div className='hidden sm:block hide-scrollbar'>
+                      <Table className='hide-scrollbar'>
+                        <TableHeader className='sticky top-0 bg-card z-10'>
+                          <TableRow className='border-b border-gray-200'>
+                            <TableHead className='w-[40%] text-[12px]'>
+                              Recipient / Sender
+                            </TableHead>
+                            <TableHead className='w-[15%] text-left text-[12px]'>
+                              Category
+                            </TableHead>
+                            <TableHead className='w-[15%] text-left text-[12px]'>
+                              Transaction Date
+                            </TableHead>
+                            <TableHead className='w-[30%] text-right text-[12px]'>
+                              Amount
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {visibleTransactions.map(
+                            (transaction: AppTransaction, index: number) => (
+                              <tr
+                                key={transaction.id}
+                                className='transition-colors duration-200 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-[#f9f9f9]'
+                              >
+                                <TableCell className='flex items-center gap-3 min-h-[56px]'>
+                                  {renderTransactionAvatar(transaction)}
+                                  <span
+                                    className='cursor-pointer font-semibold hover:font-[700] transition-all'
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleSenderClick(transaction.description)
+                                    }}
+                                  >
+                                    {transaction.description}
+                                  </span>
+                                </TableCell>
+                                <TableCell className='text-left'>
+                                  <div
+                                    className='flex items-center justify-start gap-2 cursor-pointer hover:font-[600] transition-all'
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleCategoryClick(transaction.category)
+                                    }}
+                                  >
+                                    <div
+                                      className='h-2 w-2 rounded-full flex-shrink-0 text-[12px]'
+                                      style={{
+                                        backgroundColor: getThemeForCategory(
+                                          transaction.category
+                                        ),
+                                      }}
+                                    />
+                                    <span className='text-[12px] text-color-grey-500'>
+                                      {transaction.category}
+                                    </span>
+                                  </div>
+                                </TableCell>
+                                <TableCell className='font-[400] text-[12px] text-left'>
+                                  {formatTransactionDate(transaction.date)}
+                                </TableCell>
+                                <TableCell
+                                  className={`text-right font-bold ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
+                                >
+                                  {transaction.amount >= 0 ? '+' : '-'}
+                                  {formatCurrency(Math.abs(transaction.amount))}
+                                </TableCell>
+                              </tr>
+                            )
+                          )}
+                          {/* Add padding row to ensure smooth scrolling */}
+                          <tr className='h-8'>
+                            <td colSpan={4}></td>
+                          </tr>
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    {/* Mobile View */}
+                    <div className='sm:hidden mb-10'>
                       {visibleTransactions.map(
                         (transaction: AppTransaction, index: number) => (
-                          <tr
+                          <motion.div
                             key={transaction.id}
-                            className='transition-colors duration-200 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-[#f9f9f9]'
+                            variants={itemVariants}
+                            initial='hidden'
+                            animate='visible'
+                            custom={index}
+                            className='flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0 transition-colors duration-200 hover:bg-[#f9f9f9] rounded-lg cursor-pointer mb-1'
                           >
-                            <TableCell className='flex items-center gap-3 min-h-[56px]'>
+                            <div className='flex items-start gap-3 flex-1'>
                               {renderTransactionAvatar(transaction)}
-                              <span
-                                className='cursor-pointer font-semibold hover:font-[700] transition-all'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleSenderClick(transaction.description)
-                                }}
-                              >
-                                {transaction.description}
-                              </span>
-                            </TableCell>
-                            <TableCell className='text-left '>
-                              <div
-                                className='flex items-center gap-2 cursor-pointer hover:font-[600] transition-all'
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleCategoryClick(transaction.category)
-                                }}
-                              >
-                                <div
-                                  className='h-2 w-2 rounded-full flex-shrink-0 text-[12px]'
-                                  style={{
-                                    backgroundColor: getThemeForCategory(
-                                      transaction.category
-                                    ),
+                              <div className='flex flex-col'>
+                                <span
+                                  className='font-medium text-sm cursor-pointer hover:font-[700] transition-all'
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleSenderClick(transaction.description)
                                   }}
-                                />
-                                <span className='text-[12px] text-color-grey-500'>
+                                >
+                                  {transaction.description}
+                                </span>
+                                <span
+                                  className='text-xs text-gray-500 font-normal flex items-center gap-1 cursor-pointer hover:font-[700] transition-all mt-1'
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleCategoryClick(transaction.category)
+                                  }}
+                                >
+                                  <div
+                                    className='h-2 w-2 rounded-full flex-shrink-0'
+                                    style={{
+                                      backgroundColor: getThemeForCategory(
+                                        transaction.category
+                                      ),
+                                    }}
+                                  />
                                   {transaction.category}
                                 </span>
                               </div>
-                            </TableCell>
-                            <TableCell className='text-left text-[12px] text-color-grey-500'>
-                              {formatDistanceToNow(new Date(transaction.date), {
-                                addSuffix: true,
-                              })}
-                            </TableCell>
-                            <TableCell
-                              className={`text-right font-bold ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
-                            >
-                              {transaction.amount >= 0 ? '+' : '-'}
-                              {formatCurrency(Math.abs(transaction.amount))}
-                            </TableCell>
-                          </tr>
+                            </div>
+                            <div className='flex flex-col items-end'>
+                              <span
+                                className={`font-bold text-sm ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
+                              >
+                                {transaction.amount >= 0 ? '+' : '-'}
+                                {formatCurrency(Math.abs(transaction.amount))}
+                              </span>
+                              <span className='text-xs text-gray-500 font-normal text-center'>
+                                {formatTransactionDate(transaction.date)}
+                              </span>
+                            </div>
+                          </motion.div>
                         )
                       )}
-                      {/* Add padding row to ensure smooth scrolling */}
-                      <tr className='h-8'>
-                        <td colSpan={4}></td>
-                      </tr>
-                    </TableBody>
-                  </Table>
-                </div>
-
-                {/* Mobile View */}
-                <div className='sm:hidden mb-10'>
-                  {visibleTransactions.map(
-                    (transaction: AppTransaction, index: number) => (
-                      <motion.div
-                        key={transaction.id}
-                        variants={itemVariants}
-                        initial='hidden'
-                        animate='visible'
-                        custom={index}
-                        className='flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0 transition-colors duration-200 hover:bg-[#f9f9f9] rounded-lg cursor-pointer mb-1'
-                      >
-                        <div className='flex items-start gap-3'>
-                          {renderTransactionAvatar(transaction)}
-                          <div className='flex flex-col'>
-                            <span
-                              className='font-medium text-sm cursor-pointer hover:font-[700] transition-all'
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleSenderClick(transaction.description)
-                              }}
-                            >
-                              {transaction.description}
-                            </span>
-                            <span
-                              className='text-xs text-gray-500 font-normal flex items-center gap-1 cursor-pointer hover:font-[700] transition-all'
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleCategoryClick(transaction.category)
-                              }}
-                            >
-                              <div
-                                className='h-2 w-2 rounded-full flex-shrink-0'
-                                style={{
-                                  backgroundColor: getThemeForCategory(
-                                    transaction.category
-                                  ),
-                                }}
-                              />
-                              {transaction.category}
-                            </span>
-                          </div>
-                        </div>
-                        <div className='flex flex-col items-end'>
-                          <span
-                            className={`font-bold text-sm ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
-                          >
-                            {transaction.amount >= 0 ? '+' : '-'}
-                            {formatCurrency(Math.abs(transaction.amount))}
-                          </span>
-                          <span className='text-xs text-gray-500 font-normal'>
-                            {formatDistanceToNow(new Date(transaction.date), {
-                              addSuffix: true,
-                            })}
-                          </span>
-                        </div>
-                      </motion.div>
-                    )
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className='flex justify-center items-center py-8'>
-                <p className='text-muted-foreground'>No transactions found</p>
-              </div>
-            )}
-          </InfiniteScroll>
+                    </div>
+                  </>
+                ) : (
+                  <div className='flex justify-center items-center py-8'>
+                    <p className='text-muted-foreground'>
+                      No transactions found
+                    </p>
+                  </div>
+                )}
+              </InfiniteScroll>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </CardContent>
     </Card>

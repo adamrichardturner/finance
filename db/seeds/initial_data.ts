@@ -52,8 +52,6 @@ export async function seed(knex: Knex): Promise<void> {
       )
     }
 
-    console.log(`Creating demo user with ID: ${DEMO_USER_ID}`)
-
     await knex('users').insert({
       id: DEMO_USER_ID,
       email: 'demo@example.com',

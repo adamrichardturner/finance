@@ -18,8 +18,28 @@ const CUSTOM_STYLES = `
     filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%);
   }
   
-  .sidebar-menu-container:hover .sidebar-hover-icon {
-    filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%);
+  .sidebar-menu-container:not([data-active=true]):hover .sidebar-hover-icon {
+    filter: brightness(0) invert(1);
+  }
+
+  .sidebar-menu-container:not([data-active=true]):hover .sidebar-menu-text {
+    color: #FFFFFF;
+  }
+
+  .sidebar-hover-icon {
+    filter: invert(88%) sepia(0%) saturate(29%) hue-rotate(214deg) brightness(111%) contrast(87%);
+  }
+
+  .sidebar-menu-text {
+    color: #e0e0e0;
+  }
+
+  [data-active=true] .sidebar-menu-text {
+    color: #212121 !important;
+  }
+  
+  [data-active=true] .sidebar-hover-icon {
+    filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%) !important;
   }
 `
 // Add styles to document head
@@ -62,8 +82,8 @@ const MENU_ITEMS: MenuItem[] = [
     label: 'Pots',
   },
   {
-    name: 'bills',
-    path: '/bills',
+    name: 'recurring-bills',
+    path: '/recurring-bills',
     icon: '/assets/icons/RecurringBillsIcon.svg',
     label: 'Recurring bills',
   },
@@ -85,13 +105,14 @@ function MobileTabBar() {
       name === 'overview' ||
       name === 'transactions' ||
       name === 'budgets' ||
-      name === 'pots'
+      name === 'pots' ||
+      name === 'recurring-bills'
     )
   }
 
   // Use all menu items including Pots
   return (
-    <div className='sm:hidden fixed bottom-0 pt-2 left-0 pl-2 right-0 bg-[#201F24] h-[52px] flex justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
+    <div className='sm:hidden fixed bottom-0 pt-2 left-0 pl-2 right-0 bg-[#201F24] h-[74px] flex justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
       {MENU_ITEMS.map((item) => {
         const enabled = isEnabled(item.name)
 
@@ -149,12 +170,13 @@ function TabBar() {
       name === 'overview' ||
       name === 'transactions' ||
       name === 'budgets' ||
-      name === 'pots'
+      name === 'pots' ||
+      name === 'recurring-bills'
     )
   }
 
   return (
-    <div className='hidden sm:flex md:hidden fixed bottom-0 left-0 right-0 bg-[#201F24] h-[52px] justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
+    <div className='hidden sm:flex md:hidden fixed bottom-0 left-0 right-0 bg-[#201F24] h-[72px] justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
       {MENU_ITEMS.map((item) => {
         const enabled = isEnabled(item.name)
 
@@ -232,7 +254,8 @@ export function SidebarContents() {
       name === 'overview' ||
       name === 'transactions' ||
       name === 'budgets' ||
-      name === 'pots'
+      name === 'pots' ||
+      name === 'recurring-bills'
     )
   }
 
@@ -318,7 +341,7 @@ export function SidebarContents() {
                         isCollapsed
                           ? 'flex w-full h-[56px] items-center justify-center'
                           : 'flex h-[56px] w-full items-center gap-[16px] px-4'
-                      } text-white rounded-lg hover:bg-[#F8F4F0] sidebar-menu-container`}
+                      } text-white rounded-lg ${isActive ? 'bg-[#F8F4F0]' : ''} sidebar-menu-container`}
                       data-active={isActive}
                     >
                       <div
@@ -419,7 +442,7 @@ export function SidebarContents() {
             isCollapsed
               ? 'flex w-full h-[48px] items-center gap-[16px] justify-center'
               : 'flex w-full h-[48px] items-center gap-[16px] px-4'
-          } text-white rounded-lg hover:bg-[#F8F4F0] sidebar-menu-container`}
+          } text-white rounded-lg sidebar-menu-container`}
           onClick={handleMinimize}
         >
           <div
@@ -472,7 +495,7 @@ export function AppSidebar() {
       </SidebarProvider>
       <TabBar />
       <MobileTabBar />
-      <div className='md:hidden h-[52px]'></div>
+      <div className='md:hidden h-[90px]'></div>
     </>
   )
 }

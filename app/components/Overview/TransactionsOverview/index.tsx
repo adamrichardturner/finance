@@ -1,9 +1,10 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
 import Pointer from '../../../../public/assets/icons/Pointer.svg'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow, format, isAfter, subMonths } from 'date-fns'
 import { AppTransaction } from '~/utils/transform-data'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { renderAvatar } from '~/utils/avatar-utils'
+import { useNavigate } from '@remix-run/react'
 
 interface TransactionsOverviewProps {
   transactions: AppTransaction[]
@@ -14,9 +15,24 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
   transactions,
   title = 'Recent Transactions',
 }) => {
+  const navigate = useNavigate()
+
   if (!transactions || transactions.length === 0) {
     return null
   }
+
+  // Filter out pot transfers to focus on actual spending/income transactions
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((tx) => {
+      // Skip transactions related to pots (transfers between pots and main account)
+      const isPotTransaction =
+        tx.description.toLowerCase().includes('pot') ||
+        tx.category.toLowerCase().includes('pot') ||
+        tx.description.toLowerCase().includes('savings')
+
+      return !isPotTransaction
+    })
+  }, [transactions])
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -27,15 +43,34 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
     }).format(amount)
   }
 
+  // Check if date is over a month old
+  const isOverAMonthOld = (date: Date): boolean => {
+    const oneMonthAgo = subMonths(new Date(), 1)
+    return !isAfter(date, oneMonthAgo)
+  }
+
   const formatDate = (dateString: string | Date) => {
     try {
       const date =
         typeof dateString === 'string' ? new Date(dateString) : dateString
+
+      // Format dates over a month old in GB format (dd/mm/yyyy)
+      if (isOverAMonthOld(date)) {
+        return format(date, 'dd/MM/yyyy')
+      }
+
+      // For recent dates, show relative time
       return formatDistanceToNow(date, { addSuffix: true })
     } catch (error) {
       return 'Invalid date'
     }
   }
+
+  // Take only first 4 transactions to display
+  const displayTransactions = filteredTransactions.slice(0, 4)
+
+  // Calculate the actual remaining count (not including pot transfers)
+  const remainingCount = filteredTransactions.length - 4
 
   return (
     <Card className='p-[32px] flex flex-col gap-4 shadow-none'>
@@ -43,7 +78,7 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
         <CardTitle className='text-[20px]'>{title}</CardTitle>
         <div
           className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors items-center flex flex-row gap-1'
-          onClick={() => {}}
+          onClick={() => navigate('/transactions')}
         >
           View All
           <span>
@@ -52,10 +87,15 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
         </div>
       </CardHeader>
       <div className='flex flex-col divide-y'>
-        {transactions.slice(0, 4).map((transaction, index) => (
+        {displayTransactions.map((transaction, index) => (
           <div
             key={transaction.id || index}
             className='py-4 last:pb-0 transition-colors duration-200 hover:bg-[#f9f9f9] p-1.5 rounded-md cursor-pointer'
+            onClick={() =>
+              navigate(
+                `/transactions?search=${encodeURIComponent(transaction.description)}`
+              )
+            }
           >
             <div className='flex items-center justify-between'>
               <div className='flex items-center'>
@@ -83,10 +123,10 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
             </div>
           </div>
         ))}
-        {transactions.length > 4 && (
+        {remainingCount > 0 && (
           <div className='pt-4 text-center'>
             <span className='text-[14px] text-[#696868] font-[500]'>
-              +{transactions.length - 4} more transactions
+              +{remainingCount} more transactions
             </span>
           </div>
         )}

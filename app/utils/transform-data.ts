@@ -9,6 +9,9 @@ export interface AppTransaction {
   category: string
   avatar?: string
   recurring?: boolean
+  dueDay?: number
+  isPaid?: boolean
+  isOverdue?: boolean
 }
 
 /**
@@ -27,5 +30,8 @@ export function transformDbTransaction(
     category: transaction.category,
     avatar: transaction.avatar,
     recurring: transaction.recurring,
+    dueDay: transaction.dueDay || new Date(transaction.date).getDate(),
+    isPaid: transaction.isPaid,
+    isOverdue: transaction.isOverdue,
   }
 }

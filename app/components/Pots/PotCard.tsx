@@ -56,26 +56,23 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
   }
 
   // Handle adding money to pot
-  const handleAddMoney = async () => {
-    if (!amount || Number(amount) <= 0) {
+  const handleAddMoney = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+
+    const numAmount = parseFloat(amount)
+    if (isNaN(numAmount) || numAmount <= 0) {
       setError('Please enter a valid amount')
       return
     }
 
     try {
-      // Make sure we're sending a valid number
-      const numAmount = Number(amount)
-      console.log('Adding money amount:', numAmount, typeof numAmount)
-
       await addMoney.mutateAsync({
         potId: String(pot.id),
         amount: numAmount,
       })
-
-      // Close the dialog
-      setAddMoneyOpen(false)
       setAmount('')
-      setError(null)
+      setAddMoneyOpen(false)
     } catch (error) {
       console.error('Error adding money:', error)
       setError(error instanceof Error ? error.message : 'Failed to add money')
@@ -83,13 +80,15 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
   }
 
   // Handle withdrawing money from pot
-  const handleWithdraw = async () => {
-    if (!amount || Number(amount) <= 0) {
+  const handleWithdraw = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+
+    const numAmount = parseFloat(amount)
+    if (isNaN(numAmount) || numAmount <= 0) {
       setError('Please enter a valid amount')
       return
     }
-
-    const numAmount = Number(amount)
 
     if (numAmount > Number(pot.total)) {
       setError('Cannot withdraw more than the current balance')
@@ -97,17 +96,12 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
     }
 
     try {
-      console.log('Withdrawing money amount:', numAmount, typeof numAmount)
-
       await withdraw.mutateAsync({
         potId: String(pot.id),
         amount: numAmount,
       })
-
-      // Close the dialog
-      setWithdrawOpen(false)
       setAmount('')
-      setError(null)
+      setWithdrawOpen(false)
     } catch (error) {
       console.error('Error withdrawing money:', error)
       setError(
@@ -195,7 +189,10 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
                 className='w-full bg-[rgba(248,244,240,1)] text-gray-900 hover:text-white hover:ring-1 min-h-[56px] hover:bg-[#201F24] hover:text-white hover:shadow-sm transition-all duration-200'
                 variant='ghost'
                 size='sm'
-                onClick={() => setAddMoneyOpen(true)}
+                onClick={(e) => {
+                  e.preventDefault()
+                  setAddMoneyOpen(true)
+                }}
               >
                 <Plus className='h-4 w-4 mr-2' />
                 Add Money
@@ -204,7 +201,10 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
                 className='w-full bg-[rgba(248,244,240,0.95)] text-gray-900 hover:text-white hover:ring-1 min-h-[56px] hover:bg-[#201F24] hover:text-white hover:shadow-sm transition-all duration-200'
                 variant='ghost'
                 size='sm'
-                onClick={() => setWithdrawOpen(true)}
+                onClick={(e) => {
+                  e.preventDefault()
+                  setWithdrawOpen(true)
+                }}
                 disabled={pot.total <= 0}
               >
                 <ArrowDown className='h-4 w-4 mr-2' />

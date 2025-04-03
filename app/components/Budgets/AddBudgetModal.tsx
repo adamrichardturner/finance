@@ -102,7 +102,6 @@ export function AddBudgetModal({
       } else {
         setError('Failed to create budget')
       }
-      console.error('Failed to create budget:', error)
     }
   }
 

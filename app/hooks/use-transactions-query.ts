@@ -18,61 +18,73 @@ function transformToAppTransaction(transaction: Transaction): AppTransaction {
     type: transaction.amount > 0 ? 'income' : 'expense',
     category: transaction.category,
     avatar: processAvatarPath(transaction.avatar),
+    recurring: transaction.recurring,
+    dueDay: transaction.dueDay,
+    isPaid: transaction.isPaid,
+    isOverdue: transaction.isOverdue,
   }
 }
 
-// Direct fetch function - used as a fallback
-async function fetchTransactionsDirectly(): Promise<AppTransaction[]> {
-  console.log('Fetching transactions directly')
+// Get data from JSON file as fallback
+const fetchTransactionsFromJson = async () => {
+  try {
+    const response = await fetch('/data.json')
+    if (!response.ok) {
+      throw new Error(`Failed to fetch JSON data: ${response.statusText}`)
+    }
+    const data = await response.json()
+    return data.transactions || []
+  } catch (err) {
+    console.error('Error fetching from JSON:', err)
+    return []
+  }
+}
+
+// Get data directly from API endpoint
+const fetchTransactionsDirectly = async () => {
   try {
     const response = await fetch('/api/financial-data')
     if (!response.ok) {
-      throw new Error(`Failed to fetch financial data: ${response.statusText}`)
+      throw new Error(`Failed to fetch transactions: ${response.statusText}`)
     }
-
     const data = await response.json()
-    if (data.transactions && data.transactions.length > 0) {
-      console.log(`Fetched ${data.transactions.length} transactions directly`)
-      return data.transactions.map(transformToAppTransaction)
-    }
+    return data.transactions || []
   } catch (err) {
     console.error('Error fetching transactions directly:', err)
+    // Return empty array instead of throwing
+    return []
   }
-
-  return []
 }
 
 export function useTransactionsQuery() {
   const { financialData, loading, error } = useFinancialData()
-
-  // Log info about the financial data for debugging
-  console.log('useTransactionsQuery - Financial data info:', {
-    transactionCount: financialData?.transactions?.length || 0,
-    isLoading: loading,
-    hasError: !!error,
-  })
 
   return useQuery({
     queryKey: ['transactions'],
     queryFn: async () => {
       // Use transactions from financial data if available
       if (financialData?.transactions?.length > 0) {
-        console.log(
-          `Using ${financialData.transactions.length} transactions from financial data hook`
-        )
         return financialData.transactions.map(transformToAppTransaction)
       }
 
-      // Otherwise, fetch directly as a fallback
-      return fetchTransactionsDirectly()
+      // Try fetching from API
+      const apiData = await fetchTransactionsDirectly()
+      if (apiData && apiData.length > 0) {
+        return apiData.map(transformToAppTransaction)
+      }
+
+      // Fallback to JSON file
+      const jsonData = await fetchTransactionsFromJson()
+      return jsonData.map(transformToAppTransaction)
     },
     // Always run this query, don't wait for loading state
     enabled: true,
-    // Never use cached data for this query, always run the queryFn
-    refetchOnMount: true,
     // Cache for 5 minutes
     staleTime: 5 * 60 * 1000,
     // Don't refetch on window focus
     refetchOnWindowFocus: false,
+    // Add retry options
+    retry: 2,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
   })
 }

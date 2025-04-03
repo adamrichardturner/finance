@@ -80,7 +80,6 @@ export function processAvatarPath(path?: string): string | undefined {
   )
 
   if (shouldForceFallback) {
-    console.log(`Using fallback for known missing icon: ${path}`)
     return undefined
   }
 
@@ -95,6 +94,29 @@ export function processAvatarPath(path?: string): string | undefined {
   }
 
   return path
+}
+
+/**
+ * Check for specific paths that we know have issues
+ */
+export function isKnownMissingIcon(path?: string): boolean {
+  if (!path) return false
+
+  // These are paths we know don't exist but appear in the data
+  const missingIcons = [
+    './icons/logo1.png',
+    './icons/logo2.png',
+    './icons/logo3.png',
+    './icons/logo4.png',
+    './icons/logo5.png',
+  ]
+
+  // Check if the path is in our list of known missing icons
+  if (missingIcons.includes(path)) {
+    return true
+  }
+
+  return false
 }
 
 /**
@@ -117,13 +139,6 @@ export function renderAvatar(
   // Process the avatar URL to ensure it's valid
   const processedAvatarUrl = processAvatarPath(avatarUrl)
 
-  // Debug the avatar processing
-  if (avatarUrl && !processedAvatarUrl) {
-    console.log(
-      `Avatar being replaced with initials: ${avatarUrl} → ${initials}`
-    )
-  }
-
   return React.createElement('div', {
     className: 'relative rounded-full overflow-hidden flex-shrink-0',
     style: { width: `${size}px`, height: `${size}px` },
@@ -137,7 +152,6 @@ export function renderAvatar(
           className: 'h-full w-full object-cover',
           loading: 'lazy', // Add lazy loading
           onError: (e: React.SyntheticEvent<HTMLImageElement>) => {
-            console.log(`Image error for ${name} avatar:`, processedAvatarUrl)
             const target = e.target as HTMLImageElement
             target.style.display = 'none'
             const fallbackDiv =

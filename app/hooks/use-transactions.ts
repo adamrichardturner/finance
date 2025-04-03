@@ -4,7 +4,8 @@ import { useTransactionsQuery } from '~/hooks/use-transactions-query'
 import { AppTransaction } from '~/utils/transform-data'
 import filter from 'lodash/filter'
 import orderBy from 'lodash/orderBy'
-import * as React from 'react'
+import debounce from 'lodash/debounce'
+import { format, formatDistanceToNow, subMonths } from 'date-fns'
 import { renderAvatar } from '~/utils/avatar-utils'
 
 export interface UseTransactionsReturn {
@@ -13,6 +14,7 @@ export interface UseTransactionsReturn {
   transactions: AppTransaction[] | undefined
   searchQuery: string
   setSearchQuery: (query: string) => void
+  debouncedSearchQuery: string
   sortBy: string
   setSortBy: (sort: string) => void
   category: string
@@ -22,6 +24,8 @@ export interface UseTransactionsReturn {
   filteredCount: number
   loadMore: () => void
   formatCurrency: (amount: number) => string
+  formatTransactionDate: (dateString: string) => string
+  isOverAMonthOld: (dateString: string) => boolean
   renderTransactionAvatar: (transaction: AppTransaction) => JSX.Element
   handleCategoryClick: (categoryName: string) => void
   handleSenderClick: (senderName: string) => void
@@ -33,16 +37,36 @@ export function useTransactions(): UseTransactionsReturn {
   const { data: transactions, isLoading, error } = useTransactionsQuery()
   const [page, setPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState('latest')
   const [category, setCategory] = useState('all')
+
+  // Create a debounced search handler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      setDebouncedSearchQuery(value)
+    }, 200),
+    []
+  )
+
+  // Update search query with debounce
+  useEffect(() => {
+    debouncedSearch(searchQuery)
+  }, [searchQuery, debouncedSearch])
 
   // Check for URL query parameters when component mounts
   useEffect(() => {
     const params = new URLSearchParams(location.search)
     const categoryParam = params.get('category')
+    const searchParam = params.get('search')
 
     if (categoryParam) {
       setCategory(categoryParam.toLowerCase())
+    }
+
+    if (searchParam) {
+      setSearchQuery(searchParam)
     }
   }, [location.search])
 
@@ -52,6 +76,26 @@ export function useTransactions(): UseTransactionsReturn {
       style: 'currency',
       currency: 'GBP',
     }).format(Math.abs(amount))
+  }
+
+  // Helper function to check if a transaction date is over a month old
+  const isOverAMonthOld = (dateString: string): boolean => {
+    const date = new Date(dateString)
+    const oneMonthAgo = subMonths(new Date(), 1)
+    return date < oneMonthAgo
+  }
+
+  // Helper function to format transaction dates
+  const formatTransactionDate = (dateString: string): string => {
+    const date = new Date(dateString)
+
+    // Format dates over a month old in GB format (dd/mm/yyyy)
+    if (isOverAMonthOld(dateString)) {
+      return format(date, 'dd/MM/yyyy')
+    }
+
+    // For recent dates, show relative time (e.g., "2 days ago")
+    return formatDistanceToNow(date, { addSuffix: true })
   }
 
   // Helper function for rendering transaction avatars using the shared utility
@@ -64,7 +108,6 @@ export function useTransactions(): UseTransactionsReturn {
   // Filter and sort transactions
   const filteredTransactions = useMemo(() => {
     if (!transactions) {
-      console.error('No transactions data received')
       return []
     }
 
@@ -75,9 +118,9 @@ export function useTransactions(): UseTransactionsReturn {
     // Filter transactions using lodash filter
     let filtered = transactions
 
-    // Apply search query filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+    // Apply search query filter with debounced value
+    if (debouncedSearchQuery) {
+      const query = debouncedSearchQuery.toLowerCase()
       filtered = filter(filtered, (tx) => {
         return (
           tx.description.toLowerCase().includes(query) ||
@@ -139,7 +182,7 @@ export function useTransactions(): UseTransactionsReturn {
       default:
         return filtered
     }
-  }, [transactions, searchQuery, category, sortBy])
+  }, [transactions, debouncedSearchQuery, category, sortBy])
 
   // Get the filtered count for proper hasMore evaluation
   const filteredCount = filteredTransactions.length
@@ -150,12 +193,25 @@ export function useTransactions(): UseTransactionsReturn {
   }, [filteredTransactions, page])
 
   // Get unique categories for filter dropdown
-  const categories = useMemo(() => {
+  const categories = useMemo<string[]>(() => {
     if (!transactions) return []
 
-    const uniqueCategories = [
-      ...new Set(transactions.map((tx: AppTransaction) => tx.category)),
-    ]
+    // First, map transactions to capitalized category names
+    const allCategories = transactions.map(
+      (tx: AppTransaction) =>
+        tx.category.charAt(0).toUpperCase() + tx.category.slice(1).toLowerCase()
+    )
+
+    // Then create a unique set by filtering
+    const uniqueCategories: string[] = allCategories.filter(
+      (category: string, index: number, self: string[]) =>
+        self.indexOf(category) === index
+    )
+
+    // Sort categories alphabetically
+    uniqueCategories.sort((a, b) => a.localeCompare(b))
+
+    // Add 'All Transactions' at the beginning
     return ['All Transactions', ...uniqueCategories]
   }, [transactions])
 
@@ -186,6 +242,7 @@ export function useTransactions(): UseTransactionsReturn {
     transactions,
     searchQuery,
     setSearchQuery,
+    debouncedSearchQuery,
     sortBy,
     setSortBy,
     category,
@@ -195,6 +252,8 @@ export function useTransactions(): UseTransactionsReturn {
     filteredCount,
     loadMore,
     formatCurrency,
+    formatTransactionDate,
+    isOverAMonthOld,
     renderTransactionAvatar,
     handleCategoryClick,
     handleSenderClick,

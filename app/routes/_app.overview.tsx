@@ -1,11 +1,12 @@
 import { type MetaFunction, type LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import Overview from '~/components/Overview'
-import { Budget, Pot, Transaction } from '~/types/finance.types'
+import { Budget, Pot, Transaction, Bill } from '~/types/finance.types'
 import { AppTransaction } from '~/utils/transform-data'
 import { requireUserId } from '~/services/auth/session.server'
 import { getBudgets } from '~/models/budget.server'
-import { getFinancialDataByUserId } from '~/repositories/finance.repository'
+import { getFinancialData } from '~/services/finance/finance.service'
+import { useMemo } from 'react'
 
 export const meta: MetaFunction = () => {
   return [
@@ -51,98 +52,117 @@ function transformToAppTransaction(transaction: Transaction): AppTransaction {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = String(await requireUserId(request))
 
-  // Get real data from database
+  // Get budget data
   const budgets = await getBudgets(userId)
 
-  // Get additional financial data
-  const financialData = await getFinancialDataByUserId(userId)
-  console.log('Financial data:', JSON.stringify(financialData, null, 2))
+  // Get financial data (using getFinancialData to ensure we have the bills property)
+  const financialData = await getFinancialData()
 
-  const transactions = financialData.transactions || []
-  const pots = financialData.pots || []
+  // Transform bills to AppTransaction format for components
+  const billsTransactions = financialData.bills
+    ? financialData.bills.map((bill: Bill) => ({
+        id: bill.id.toString(),
+        date: bill.date instanceof Date ? bill.date.toISOString() : bill.date,
+        description: bill.name,
+        amount: bill.amount,
+        type: bill.amount > 0 ? 'income' : 'expense',
+        category: bill.category,
+        avatar: bill.avatar,
+        dueDay: bill.dueDay,
+        isPaid: bill.isPaid,
+        isOverdue: bill.isOverdue,
+      }))
+    : []
 
-  // Transform transactions to AppTransaction format
-  const appTransactions = transactions.map(transformToAppTransaction)
-
-  // Get the main account balance - ensure it's a number
+  // Calculate main account balance and total pots balance
   const mainAccountBalance = Number(financialData.balance?.current || 0)
 
-  // Calculate the total in saving pots
-  let potsTotalBalance = 0
+  // Define potsBalance in the loader scope
+  let potsBalance = 0
   try {
-    potsTotalBalance =
-      Array.isArray(pots) && pots.length > 0
-        ? pots.reduce((total: number, pot: Pot) => {
-            if (pot?.total === undefined || pot?.total === null) {
-              console.warn(`Found pot with undefined total:`, pot)
-              return total
-            }
-            return total + (Number(pot.total) || 0)
-          }, 0)
-        : 0
+    if (financialData?.pots && financialData.pots.length > 0) {
+      potsBalance = financialData.pots.reduce((sum, pot) => {
+        if (pot.total === undefined) {
+          return sum
+        }
+        return sum + Number(pot.total)
+      }, 0)
+    }
   } catch (err) {
     console.error('Error calculating pots balance:', err)
   }
 
-  // The total balance is simply the main account balance
-  // We don't add pot balances because money in pots is already
-  // deducted from the main balance when it's moved there
-  const totalBalance = mainAccountBalance
-  console.log('Balance calculation:', {
-    mainAccountBalance,
-    potsTotalBalance,
-    totalBalance,
-  })
-
+  // Calculate total income from current month
   let income = 0
   try {
-    income =
-      Array.isArray(transactions) && transactions.length > 0
-        ? transactions
-            .filter((t: Transaction) => t?.amount > 0)
-            .reduce(
-              (total: number, t: Transaction) =>
-                total + (Number(t.amount) || 0),
-              0
-            )
-        : 0
+    if (financialData?.transactions && financialData.transactions.length > 0) {
+      // Remove month filtering for demo purposes
+      const positiveTransactions = financialData.transactions.filter(
+        (transaction) => {
+          // Make sure amount is a number and is positive
+          const amount = Number(transaction.amount)
+          return !isNaN(amount) && amount > 0
+        }
+      )
+
+      income = positiveTransactions.reduce((sum, transaction) => {
+        const amount = Number(transaction.amount)
+        return sum + amount
+      }, 0)
+    }
   } catch (err) {
     console.error('Error calculating income:', err)
   }
 
+  // Calculate total expenses from current month
   let expenses = 0
   try {
-    expenses =
-      Array.isArray(transactions) && transactions.length > 0
-        ? transactions
-            .filter((t: Transaction) => t?.amount < 0)
-            .reduce(
-              (total: number, t: Transaction) =>
-                total + Math.abs(Number(t.amount) || 0),
-              0
-            )
-        : 0
+    if (financialData?.transactions && financialData.transactions.length > 0) {
+      // Remove month filtering for demo purposes
+      const negativeTransactions = financialData.transactions.filter(
+        (transaction) => {
+          // Make sure amount is a number and is negative
+          const amount = Number(transaction.amount)
+          return !isNaN(amount) && amount < 0
+        }
+      )
+
+      expenses = negativeTransactions.reduce((sum, transaction) => {
+        const amount = Number(transaction.amount)
+        return sum + Math.abs(amount)
+      }, 0)
+    }
   } catch (err) {
     console.error('Error calculating expenses:', err)
   }
 
-  console.log('Calculated values:', {
-    mainBalance: totalBalance,
-    potsTotal: potsTotalBalance,
-    combinedTotal: totalBalance + potsTotalBalance,
-    income,
-    expenses,
-  })
+  // For demo, use the values from balance if calculations are NaN
+  if (isNaN(income) && financialData.balance?.income) {
+    income = Number(financialData.balance.income)
+  }
+
+  if (isNaN(expenses) && financialData.balance?.expenses) {
+    expenses = Number(financialData.balance.expenses)
+  }
+
+  // The total balance is simply the main account balance
+  const totalBalance = mainAccountBalance
+
+  // Get transactions and transform them to AppTransaction format
+  const appTransactions =
+    financialData?.transactions?.map(transformToAppTransaction) || []
 
   return {
     balance: totalBalance,
-    potsBalance: potsTotalBalance,
-    totalBalance: totalBalance + potsTotalBalance,
+    potsBalance,
+    totalBalance: totalBalance + potsBalance,
     income,
     expenses,
-    pots,
     budgets,
+    financialData,
+    pots: financialData?.pots || [],
     transactions: appTransactions,
+    bills: billsTransactions,
   }
 }
 
@@ -156,6 +176,7 @@ export default function OverviewRoute() {
     income,
     expenses,
     transactions,
+    bills,
   } = useLoaderData<typeof loader>()
 
   return (
@@ -168,6 +189,7 @@ export default function OverviewRoute() {
       totalBalance={totalBalance}
       income={income}
       expenses={expenses}
+      bills={bills as AppTransaction[]}
     />
   )
 }

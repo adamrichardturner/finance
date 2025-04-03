@@ -5,8 +5,6 @@ export function transformPotsToOverview(pots: Pot[]) {
     throw new Error('invalid pots argument supplied to transformer')
   }
 
-  console.log('POTS ARE: ', pots)
-
   const totalAllPots = pots.reduce((sum, pot) => sum + Number(pot.total), 0)
   const formattedTotal = `£${totalAllPots.toFixed(0)}`
 

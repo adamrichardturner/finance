@@ -516,11 +516,11 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = 'SidebarMenuItem'
 
 const sidebarMenuButtonVariants = cva(
-  'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-lg p-2 text-left text-sm outline-none ring-sidebar-ring focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:!w-[3rem] group-data-[collapsible=icon]:!min-w-[3rem] group-data-[collapsible=icon]:!h-[3rem] group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-[#F8F4F0] data-[active=true]:bg-[#F8F4F0] data-[active=true]:border-l-4 data-[active=true]:border-l-[#277C78]',
+  'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-lg p-2 text-left text-sm outline-none ring-sidebar-ring focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:!w-[3rem] group-data-[collapsible=icon]:!min-w-[3rem] group-data-[collapsible=icon]:!h-[3rem] group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 data-[active=true]:bg-[#F8F4F0] data-[active=true]:border-l-4 data-[active=true]:border-l-[#277C78]',
   {
     variants: {
       variant: {
-        default: 'hover:text-[#000000] data-[active=true]:text-[#000000]',
+        default: 'hover:text-white data-[active=true]:text-[#000000]',
         outline:
           'bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]',
       },
