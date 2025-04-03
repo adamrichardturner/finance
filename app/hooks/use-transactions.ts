@@ -5,6 +5,7 @@ import { AppTransaction } from '~/utils/transform-data'
 import filter from 'lodash/filter'
 import orderBy from 'lodash/orderBy'
 import * as React from 'react'
+import { renderAvatar } from '~/utils/avatar-utils'
 
 export interface UseTransactionsReturn {
   isLoading: boolean
@@ -53,66 +54,11 @@ export function useTransactions(): UseTransactionsReturn {
     }).format(Math.abs(amount))
   }
 
-  // Helper function for rendering transaction avatars
+  // Helper function for rendering transaction avatars using the shared utility
   const renderTransactionAvatar = (
     transaction: AppTransaction
   ): JSX.Element => {
-    const getColorFromName = (name: string): string => {
-      const colors = [
-        '#5E76BF',
-        '#F58A51',
-        '#47B4AC',
-        '#D988B9',
-        '#B0A0D6',
-        '#FFB6C1',
-        '#87CEEB',
-        '#FFA07A',
-        '#98FB98',
-        '#DDA0DD',
-      ]
-
-      const hash = name.split('').reduce((acc: number, char: string) => {
-        return acc + char.charCodeAt(0)
-      }, 0)
-
-      return colors[hash % colors.length]
-    }
-
-    const firstLetter = transaction.description.charAt(0).toUpperCase()
-    const bgColor = getColorFromName(transaction.description)
-
-    return React.createElement('div', {
-      className:
-        'relative h-10 w-10 rounded-full overflow-hidden flex-shrink-0',
-      children: [
-        transaction.avatar &&
-          React.createElement('img', {
-            key: 'avatar-img',
-            src: transaction.avatar,
-            alt: `${transaction.description} avatar`,
-            className: 'h-full w-full object-cover',
-            onError: (e: React.SyntheticEvent<HTMLImageElement>) => {
-              const target = e.target as HTMLImageElement
-              target.style.display = 'none'
-              const fallbackDiv =
-                target.parentElement?.querySelector('.fallback-avatar')
-              if (fallbackDiv && fallbackDiv instanceof HTMLElement) {
-                fallbackDiv.style.display = 'flex'
-              }
-            },
-          }),
-        React.createElement('div', {
-          key: 'fallback-avatar',
-          className:
-            'fallback-avatar absolute inset-0 flex items-center justify-center text-white font-medium text-lg',
-          style: {
-            backgroundColor: bgColor,
-            display: transaction.avatar ? 'none' : 'flex',
-          },
-          children: firstLetter,
-        }),
-      ],
-    })
+    return renderAvatar(transaction.description, transaction.avatar, 40)
   }
 
   // Filter and sort transactions

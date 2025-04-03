@@ -2,21 +2,10 @@ import { useQuery } from '@tanstack/react-query'
 import { useFinancialData } from './use-financial-data'
 import { AppTransaction } from '~/utils/transform-data'
 import { Transaction } from '~/types/finance.types'
+import { processAvatarPath } from '~/utils/avatar-utils'
 
 // Transform Transaction to AppTransaction
 function transformToAppTransaction(transaction: Transaction): AppTransaction {
-  // Process avatar path to handle relative paths correctly
-  const processAvatarPath = (path?: string): string | undefined => {
-    if (!path) return undefined
-
-    // If path starts with "./", remove it to make it relative to the public folder
-    if (path.startsWith('./')) {
-      return path.substring(2)
-    }
-
-    return path
-  }
-
   return {
     id:
       transaction.id?.toString() || Math.random().toString(36).substring(2, 9),
