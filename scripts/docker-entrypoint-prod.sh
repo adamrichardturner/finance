@@ -13,6 +13,10 @@ echo "PostgreSQL is ready!"
 echo "Running database migrations..."
 npm run db:migrate
 
+# Run all seed files
+echo "Running all seed files..."
+npm run db:seed
+
 # Ensure demo data exists
 echo "Ensuring demo data exists..."
 npm run db:ensure-demo
