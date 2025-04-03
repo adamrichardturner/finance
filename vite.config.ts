@@ -24,6 +24,24 @@ export default defineConfig({
       usePolling: true,
     },
   },
+  build: {
+    minify: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-progress',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tooltip',
+          ],
+          charts: ['recharts'],
+        },
+      },
+    },
+  },
   plugins: [
     remix({
       future: {
@@ -33,6 +51,8 @@ export default defineConfig({
         v3_singleFetch: true,
         v3_lazyRouteDiscovery: true,
       },
+      ignoredRouteFiles: ['**/.*'],
+      serverModuleFormat: 'esm',
     }),
     babel({
       filter: /\.[jt]sx?$/,
@@ -44,14 +64,21 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   optimizeDeps: {
-    include: ['react', 'react-dom'],
+    include: ['react', 'react-dom', '@tanstack/react-query'],
+    force: true,
+    esbuildOptions: {
+      resolveExtensions: ['.js', '.jsx', '.ts', '.tsx'],
+    },
   },
   esbuild: {
     jsx: 'automatic',
+    target: 'es2020',
+    legalComments: 'none',
   },
   resolve: {
     alias: {
       '~': path.resolve(__dirname, './app'),
     },
+    dedupe: ['react', 'react-dom'],
   },
 })

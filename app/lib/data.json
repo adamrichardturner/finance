@@ -245,6 +245,10 @@
     {
       "name": "Charity",
       "defaultTheme": "#417505"
+    },
+    {
+      "name": "General",
+      "defaultTheme": "#808080"
     }
   ],
   "budgets": [

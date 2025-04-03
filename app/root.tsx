@@ -65,6 +65,10 @@ export const links: LinksFunction = () => [
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap',
   },
+  {
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap',
+  },
 ]
 
 const globalStyles = `
@@ -89,6 +93,10 @@ const globalStyles = `
   .scrollable-content::-webkit-scrollbar {
     display: none;
   }
+
+  body {
+    font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
 `
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -101,7 +109,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
         <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
       </head>
-      <body className='min-h-screen bg-[#F8F4F0] w-full dark:bg-gray-900 text-gray-900 dark:text-white font-sans overflow-x-hidden'>
+      <body className='min-h-screen bg-[#F8F4F0] w-full dark:bg-gray-900 text-gray-900 dark:text-white font-sans font-["Public_Sans",sans-serif] overflow-x-hidden'>
         {children}
         <ScrollRestoration />
         <Scripts />

@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "build": "remix vite:build",
-    "build:fe": "remix vite:build",
     "dev": "remix vite:dev",
     "process-sql": "node scripts/process-sql-template.js",
     "dev:docker": "npm run process-sql && docker compose -f docker-compose.dev.yml down --volumes && docker volume rm finance_postgres-data 2>/dev/null || true && docker compose -f docker-compose.dev.yml up --build",
