@@ -18,8 +18,28 @@ const CUSTOM_STYLES = `
     filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%);
   }
   
-  .sidebar-menu-container:hover .sidebar-hover-icon {
-    filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%);
+  .sidebar-menu-container:not([data-active=true]):hover .sidebar-hover-icon {
+    filter: brightness(0) invert(1);
+  }
+
+  .sidebar-menu-container:not([data-active=true]):hover .sidebar-menu-text {
+    color: #FFFFFF;
+  }
+
+  .sidebar-hover-icon {
+    filter: invert(88%) sepia(0%) saturate(29%) hue-rotate(214deg) brightness(111%) contrast(87%);
+  }
+
+  .sidebar-menu-text {
+    color: #e0e0e0;
+  }
+
+  [data-active=true] .sidebar-menu-text {
+    color: #212121 !important;
+  }
+  
+  [data-active=true] .sidebar-hover-icon {
+    filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%) !important;
   }
 `
 // Add styles to document head
@@ -321,7 +341,7 @@ export function SidebarContents() {
                         isCollapsed
                           ? 'flex w-full h-[56px] items-center justify-center'
                           : 'flex h-[56px] w-full items-center gap-[16px] px-4'
-                      } text-white rounded-lg hover:bg-[#F8F4F0] sidebar-menu-container`}
+                      } text-white rounded-lg ${isActive ? 'bg-[#F8F4F0]' : ''} sidebar-menu-container`}
                       data-active={isActive}
                     >
                       <div
@@ -422,7 +442,7 @@ export function SidebarContents() {
             isCollapsed
               ? 'flex w-full h-[48px] items-center gap-[16px] justify-center'
               : 'flex w-full h-[48px] items-center gap-[16px] px-4'
-          } text-white rounded-lg hover:bg-[#F8F4F0] sidebar-menu-container`}
+          } text-white rounded-lg sidebar-menu-container`}
           onClick={handleMinimize}
         >
           <div
