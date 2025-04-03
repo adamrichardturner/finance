@@ -1,3 +1,4 @@
+import React from 'react'
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
 import Pointer from '/assets/icons/Pointer.svg?url'
 import { ChartContainer, ChartTooltipContent } from '~/components/ui/charts'
