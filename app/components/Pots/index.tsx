@@ -14,14 +14,11 @@ interface PotModalState {
 
 interface PotsProps {
   pots: Pot[]
-  actionData?: {
-    error?: string
-    pot?: any
-    success?: boolean
-  }
+  actionData?: any
+  currentBalance?: number
 }
 
-export function Pots({ pots, actionData }: PotsProps) {
+export function Pots({ pots, actionData, currentBalance = 0 }: PotsProps) {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editModal, setEditModal] = useState<PotModalState>({
     isOpen: false,
@@ -72,16 +69,24 @@ export function Pots({ pots, actionData }: PotsProps) {
     return (
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         {pots.map((pot) => (
-          <PotCard
-            key={pot.id}
-            pot={pot}
-            onEdit={handleOpenEditModal}
-            onDelete={handleOpenDeleteModal}
-          />
+          <div key={pot.id}>
+            <PotCard
+              pot={pot}
+              onEdit={handleOpenEditModal}
+              onDelete={handleOpenDeleteModal}
+              currentBalance={currentBalance}
+            />
+          </div>
         ))}
       </div>
     )
-  }, [pots, handleOpenAddModal, handleOpenEditModal, handleOpenDeleteModal])
+  }, [
+    pots,
+    handleOpenAddModal,
+    handleOpenEditModal,
+    handleOpenDeleteModal,
+    currentBalance,
+  ])
 
   return (
     <div className='space-y-6'>

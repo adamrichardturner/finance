@@ -164,7 +164,7 @@ export function Transactions() {
                 {category.charAt(0).toUpperCase() + category.slice(1)}{' '}
                 Transactions
               </span>
-              <span className='text-sm text-gray-500 font-normal'>
+              <span className='text-[12px] pt-1.5 text-gray-500 font-normal'>
                 Showing {visibleTransactions.length} transaction
                 {visibleTransactions.length !== 1 ? 's' : ''}
                 {filteredCount > 0 && ` of ${filteredCount}`}
@@ -444,7 +444,7 @@ export function Transactions() {
                     <div className='hidden sm:block hide-scrollbar'>
                       <Table className='hide-scrollbar'>
                         <TableHeader className='sticky top-0 bg-card z-10'>
-                          <TableRow className='border-b border-gray-200'>
+                          <TableRow className='border-b border-gray-200 hover:bg-transparent'>
                             <TableHead className='w-[40%] text-[12px]'>
                               Recipient / Sender
                             </TableHead>

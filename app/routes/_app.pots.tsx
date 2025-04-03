@@ -13,6 +13,7 @@ import {
   updatePot,
   deletePot,
   updatePotBalance,
+  getFinancialData,
 } from '~/services/finance/finance.service'
 import { useEffect } from 'react'
 
@@ -28,10 +29,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   try {
     const pots = await getPots(userId.toString())
-    return data({ pots })
+    const financialData = await getFinancialData()
+    const currentBalance = Number(financialData.balance?.current || 0)
+
+    return data({ pots, currentBalance })
   } catch (error) {
     console.error('Error fetching pots:', error)
-    return data({ pots: [], error: 'Failed to fetch pots' }, { status: 500 })
+    return data(
+      { pots: [], currentBalance: 0, error: 'Failed to fetch pots' },
+      { status: 500 }
+    )
   }
 }
 
@@ -161,7 +168,11 @@ export default function PotsRoute() {
 
   return (
     <div className='w-full mb-12 sm:my-[0px]'>
-      <Pots pots={loaderData.pots} actionData={actionData} />
+      <Pots
+        pots={loaderData.pots}
+        actionData={actionData}
+        currentBalance={loaderData.currentBalance}
+      />
     </div>
   )
 }

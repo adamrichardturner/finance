@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Card, CardContent } from '../ui/card'
 import { Button } from '../ui/button'
 import { MoreHorizontal, Plus, ArrowDown } from 'lucide-react'
@@ -17,9 +17,15 @@ interface PotCardProps {
   pot: Pot
   onEdit: (id: string) => void
   onDelete: (id: string) => void
+  currentBalance?: number
 }
 
-export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
+export function PotCard({
+  pot,
+  onEdit,
+  onDelete,
+  currentBalance = 0,
+}: PotCardProps) {
   const [addMoneyOpen, setAddMoneyOpen] = useState(false)
   const [withdrawOpen, setWithdrawOpen] = useState(false)
   const [amount, setAmount] = useState('')
@@ -36,13 +42,18 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
   }, [amount])
 
   // Calculate new values for previews
-  const parsedAmount = parseFloat(debouncedAmount) || 0
-  const newAddTotal = pot.total + parsedAmount
-  const newWithdrawTotal = Math.max(0, pot.total - parsedAmount)
-  const addPercentage = Math.min(100, (newAddTotal / pot.target) * 100)
+  const parsedAmount = debouncedAmount
+    ? debouncedAmount.includes('.')
+      ? parseFloat(debouncedAmount)
+      : parseInt(debouncedAmount, 10)
+    : 0
+
+  const newAddTotal = Math.max(0, Number(pot.total) + parsedAmount)
+  const newWithdrawTotal = Math.max(0, Number(pot.total) - parsedAmount)
+  const addPercentage = Math.min(100, (newAddTotal / Number(pot.target)) * 100)
   const withdrawPercentage = Math.min(
     100,
-    (newWithdrawTotal / pot.target) * 100
+    (newWithdrawTotal / Number(pot.target)) * 100
   )
 
   const { addMoney, withdraw } = usePotMutations()
@@ -72,6 +83,11 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
     const numAmount = parseFloat(amount)
     if (isNaN(numAmount) || numAmount <= 0) {
       setError('Please enter a valid amount')
+      return
+    }
+
+    if (numAmount > currentBalance) {
+      setError('Cannot add more than your available balance')
       return
     }
 
@@ -268,18 +284,27 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
                   <span className='text-gray-500'>£</span>
                 </div>
                 <Input
-                  type='number'
+                  type='text'
+                  inputMode='decimal'
                   placeholder='Enter amount'
                   value={amount}
                   onChange={(e) => {
-                    const value = e.target.value
-                    setAmount(value)
+                    const value = e.target.value.replace(/[^0-9.]/g, '')
+                    const numValue = parseFloat(value || '0')
+                    if (
+                      !value ||
+                      isNaN(numValue) ||
+                      numValue <= currentBalance
+                    ) {
+                      setAmount(value)
+                    }
                   }}
-                  min='0.01'
-                  step='0.01'
                   className='pl-7'
                 />
               </div>
+              <p className='text-xs text-gray-500 mt-1'>
+                Available balance: {formatCurrency(currentBalance)}
+              </p>
             </div>
           </div>
           <Button
@@ -339,16 +364,14 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
                   <span className='text-gray-500'>£</span>
                 </div>
                 <Input
-                  type='number'
+                  type='text'
+                  inputMode='decimal'
                   placeholder='Enter amount'
                   value={amount}
                   onChange={(e) => {
-                    const value = e.target.value
+                    const value = e.target.value.replace(/[^0-9.]/g, '')
                     setAmount(value)
                   }}
-                  min='0.01'
-                  step='0.01'
-                  max={pot.total}
                   className='pl-7'
                 />
               </div>
