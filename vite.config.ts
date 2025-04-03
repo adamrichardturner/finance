@@ -51,6 +51,11 @@ export default defineConfig({
       keepNames: true,
     },
   },
+  build: {
+    rollupOptions: {
+      external: ['remix-utils/client-only'],
+    },
+  },
   esbuild: {
     jsx: 'automatic',
     keepNames: true, // Helps with constructor names and function declarations
