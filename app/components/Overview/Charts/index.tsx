@@ -2,15 +2,13 @@ import React from 'react'
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
 import Pointer from '/assets/icons/Pointer.svg?url'
 import { ChartContainer, ChartTooltipContent } from '~/components/ui/charts'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts'
+import { BarChart } from 'recharts'
+import { Bar } from 'recharts'
+import { XAxis } from 'recharts'
+import { YAxis } from 'recharts'
+import { CartesianGrid } from 'recharts'
+import { Tooltip } from 'recharts'
+import { ResponsiveContainer } from 'recharts'
 
 interface ChartProps {
   data: Array<{

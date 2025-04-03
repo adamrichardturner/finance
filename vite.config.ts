@@ -43,10 +43,15 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   optimizeDeps: {
-    include: ['react', 'react-dom'],
+    include: ['react', 'react-dom', 'recharts', 'recharts/types'],
+    esbuildOptions: {
+      // Prevent tree-shaking of recharts internal dependencies
+      keepNames: true,
+    },
   },
   esbuild: {
     jsx: 'automatic',
+    keepNames: true, // Helps with constructor names and function declarations
   },
   resolve: {
     alias: {
