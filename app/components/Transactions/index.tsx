@@ -30,7 +30,7 @@ import { Button } from '~/components/ui/button'
 import { useTransactions } from '~/hooks/use-transactions'
 import { getThemeForCategory } from '~/utils/budget-categories'
 import { AppTransaction } from '~/utils/transform-data'
-import Pointer from '../../../public/assets/icons/Pointer.svg'
+import Pointer from '/assets/icons/Pointer.svg?url'
 
 // Animation variants
 const itemVariants = {

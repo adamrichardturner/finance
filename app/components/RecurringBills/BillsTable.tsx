@@ -3,7 +3,6 @@ import { format, subMonths } from 'date-fns'
 import { AppTransaction } from '~/utils/transform-data'
 import { renderAvatar } from '~/utils/avatar-utils'
 import { CheckCircle2, AlertCircle } from 'lucide-react'
-import Warning from '../../../public/assets/icons/warning.svg'
 
 interface BillsTableProps {
   bills: AppTransaction[]
@@ -179,11 +178,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                       {paid ? (
                         <CheckCircle2 className='h-4 w-4 text-green-500 ml-2' />
                       ) : overdue ? (
-                        <img
-                          src={Warning}
-                          alt='Warning Icon'
-                          className='h-4 w-4 text-[#C94736] ml-2'
-                        />
+                        <AlertCircle className='h-4 w-4 text-[#C94736] ml-2' />
                       ) : null}
                     </div>
                   </td>

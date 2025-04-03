@@ -22,7 +22,7 @@ import {
   SheetClose,
 } from '~/components/ui/sheet'
 import { Button } from '~/components/ui/button'
-import BillsDark from '../../../public/assets/icons/BillsDark.svg'
+import BillsDark from '/assets/icons/BillsDark.svg?url'
 import debounce from 'lodash/debounce'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -81,17 +81,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
           .includes(debouncedSearchTerm.toLowerCase()) ||
         bill.category.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
     )
-
-  // Debug log to check overdue status
-  console.log(
-    'Filtered Bills:',
-    filteredBills.map((bill) => ({
-      name: bill.description,
-      isOverdue: bill.isOverdue,
-      isPaid: bill.isPaid,
-      date: bill.date,
-    }))
-  )
 
   // Sort bills based on selection
   const sortedBills = [...filteredBills].sort((a, b) => {

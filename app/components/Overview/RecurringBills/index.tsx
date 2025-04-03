@@ -1,8 +1,6 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import Pointer from '../../../../public/assets/icons/Pointer.svg'
+import Pointer from '/assets/icons/Pointer.svg?url'
 import { AppTransaction } from '~/utils/transform-data'
-import { format } from 'date-fns'
-import { AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { useNavigate } from '@remix-run/react'
 import { useMemo } from 'react'
 
