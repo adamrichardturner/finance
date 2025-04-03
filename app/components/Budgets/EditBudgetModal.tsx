@@ -40,7 +40,6 @@ export function EditBudgetModal({
 }: EditBudgetModalProps) {
   const { updateBudget } = useBudgetMutations()
 
-  // Combined state with original and current values
   const [formState, setFormState] = useState<FormState>({
     original: {
       category: '',
@@ -56,7 +55,6 @@ export function EditBudgetModal({
 
   const [error, setError] = useState<string | null>(null)
 
-  // Track if form has changed from initial values using deep comparison
   const hasChanges = useMemo(() => {
     return !isEqual(formState.original, formState.current)
   }, [formState])
