@@ -5,9 +5,16 @@ interface PillProps {
   amount: string | number
   icon?: React.ReactNode
   isTotal?: boolean
+  subtitle?: string
 }
 
-const Pill: React.FC<PillProps> = ({ title, amount, icon, isTotal }) => {
+const Pill: React.FC<PillProps> = ({
+  title,
+  amount,
+  icon,
+  isTotal,
+  subtitle,
+}) => {
   return (
     <Card
       className={`min-h-[120px] ${isTotal ? 'bg-[#201F24] text-white' : 'bg-white'} shadow-none outline-none border-0`}
@@ -17,7 +24,13 @@ const Pill: React.FC<PillProps> = ({ title, amount, icon, isTotal }) => {
       </CardHeader>
       <CardContent>
         <div className='flex items-center justify-between'>
-          <div className='text-2xl font-bold'>{amount}</div>
+          <div>
+            <div className='text-2xl font-bold'>{amount}</div>
+            {subtitle && (
+              <div className='text-sm mt-1 opacity-80'>{subtitle}</div>
+            )}
+          </div>
+          {icon && <div>{icon}</div>}
         </div>
       </CardContent>
     </Card>

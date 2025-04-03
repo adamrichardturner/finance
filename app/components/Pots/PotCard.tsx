@@ -1,0 +1,320 @@
+import { useMemo, useState } from 'react'
+import { Card, CardContent } from '../ui/card'
+import { Button } from '../ui/button'
+import { MoreHorizontal, Plus, ArrowDown } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu'
+import { Pot } from '~/types/finance.types'
+import { usePotMutations } from '~/hooks/use-pot-mutations'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '../ui/dialog'
+import { Input } from '../ui/input'
+
+interface PotCardProps {
+  pot: Pot
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
+}
+
+export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
+  // State for money operations dialogs
+  const [addMoneyOpen, setAddMoneyOpen] = useState(false)
+  const [withdrawOpen, setWithdrawOpen] = useState(false)
+  const [amount, setAmount] = useState('')
+  const [error, setError] = useState<string | null>(null)
+
+  // Use the pot mutations hook
+  const { addMoney, withdraw } = usePotMutations()
+
+  // Calculate percentage with proper boundary checks
+  const progressPercentage = useMemo(() => {
+    if (pot.target <= 0) {
+      return 0
+    }
+
+    const percentage = (pot.total / pot.target) * 100
+    return Math.min(100, Math.max(0, percentage))
+  }, [pot.total, pot.target])
+
+  // Format currency for display
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount)
+  }
+
+  // Handle adding money to pot
+  const handleAddMoney = async () => {
+    if (!amount || Number(amount) <= 0) {
+      setError('Please enter a valid amount')
+      return
+    }
+
+    try {
+      // Make sure we're sending a valid number
+      const numAmount = Number(amount)
+      console.log('Adding money amount:', numAmount, typeof numAmount)
+
+      await addMoney.mutateAsync({
+        potId: String(pot.id),
+        amount: numAmount,
+      })
+
+      // Close the dialog
+      setAddMoneyOpen(false)
+      setAmount('')
+      setError(null)
+    } catch (error) {
+      console.error('Error adding money:', error)
+      setError(error instanceof Error ? error.message : 'Failed to add money')
+    }
+  }
+
+  // Handle withdrawing money from pot
+  const handleWithdraw = async () => {
+    if (!amount || Number(amount) <= 0) {
+      setError('Please enter a valid amount')
+      return
+    }
+
+    const numAmount = Number(amount)
+
+    if (numAmount > Number(pot.total)) {
+      setError('Cannot withdraw more than the current balance')
+      return
+    }
+
+    try {
+      console.log('Withdrawing money amount:', numAmount, typeof numAmount)
+
+      await withdraw.mutateAsync({
+        potId: String(pot.id),
+        amount: numAmount,
+      })
+
+      // Close the dialog
+      setWithdrawOpen(false)
+      setAmount('')
+      setError(null)
+    } catch (error) {
+      console.error('Error withdrawing money:', error)
+      setError(
+        error instanceof Error ? error.message : 'Failed to withdraw money'
+      )
+    }
+  }
+
+  // Reset state when closing dialogs
+  const closeAddMoneyDialog = () => {
+    setAddMoneyOpen(false)
+    setAmount('')
+    setError(null)
+  }
+
+  const closeWithdrawDialog = () => {
+    setWithdrawOpen(false)
+    setAmount('')
+    setError(null)
+  }
+
+  return (
+    <>
+      <Card className='overflow-hidden shadow-none border-none'>
+        <CardContent className='p-6'>
+          <div className='flex justify-between items-center mb-4'>
+            <div className='flex items-center gap-2'>
+              <div
+                className='w-2 h-2 rounded-full'
+                style={{ backgroundColor: pot.theme }}
+              />
+              <h3 className='font-semibold text-lg'>{pot.name}</h3>
+            </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant='ghost' size='icon' className='h-8 w-8'>
+                  <MoreHorizontal className='h-4 w-4' />
+                  <span className='sr-only'>Open menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end'>
+                <DropdownMenuItem onClick={() => onEdit(String(pot.id))}>
+                  Edit Pot
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onDelete(String(pot.id))}
+                  className='text-red-600'
+                >
+                  Delete Pot
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className='space-y-4'>
+            <div className='flex justify-between text-sm mb-1'>
+              <span className='text-gray-500'>Total Saved</span>
+              <div className='flex items-center gap-2'>
+                <span className='font-semibold text-2xl'>
+                  {formatCurrency(pot.total)}
+                </span>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className='w-full bg-gray-100 rounded-full h-2'>
+              <div
+                className='h-2 rounded-full'
+                style={{
+                  width: `${progressPercentage}%`,
+                  backgroundColor: pot.theme,
+                }}
+              />
+            </div>
+            <div className='flex justify-between items-center text-xs text-gray-500'>
+              <span className='font-semibold'>
+                {progressPercentage.toFixed(1)}%
+              </span>
+              <span>Target of {formatCurrency(pot.target)}</span>
+            </div>
+
+            <div className='grid grid-cols-2 gap-4 mt-4'>
+              <Button
+                className='w-full bg-[#F8F4F0] text-gray-900 hover:bg-[#F8F4F0]/90'
+                variant='ghost'
+                size='sm'
+                onClick={() => setAddMoneyOpen(true)}
+              >
+                <Plus className='h-4 w-4 mr-2 text-gray-900' />
+                Add Money
+              </Button>
+              <Button
+                className='w-full bg-[#F8F4F0] text-gray-900 hover:bg-[#F8F4F0]/90'
+                variant='ghost'
+                size='sm'
+                onClick={() => setWithdrawOpen(true)}
+                disabled={pot.total <= 0}
+              >
+                <ArrowDown className='h-4 w-4 mr-2 text-gray-900' />
+                Withdraw
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Add Money Dialog */}
+      <Dialog open={addMoneyOpen} onOpenChange={closeAddMoneyDialog}>
+        <DialogContent className='sm:max-w-[425px]'>
+          <DialogHeader>
+            <DialogTitle>Add Money to {pot.name}</DialogTitle>
+          </DialogHeader>
+          <div className='space-y-4 py-4'>
+            {error && (
+              <div className='bg-red-50 text-red-600 p-3 rounded-md text-sm'>
+                {error}
+              </div>
+            )}
+            <div className='space-y-2'>
+              <label className='text-sm font-medium'>Amount</label>
+              <div className='relative'>
+                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+                  <span className='text-gray-500'>£</span>
+                </div>
+                <Input
+                  type='number'
+                  placeholder='Enter amount'
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  min='0.01'
+                  step='0.01'
+                  className='pl-7'
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={closeAddMoneyDialog}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddMoney}
+              disabled={
+                addMoney.isPending || !amount || parseFloat(amount) <= 0
+              }
+              className='bg-black text-white hover:bg-black/90'
+            >
+              {addMoney.isPending ? 'Adding...' : 'Add Money'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Withdraw Dialog */}
+      <Dialog open={withdrawOpen} onOpenChange={closeWithdrawDialog}>
+        <DialogContent className='sm:max-w-[425px]'>
+          <DialogHeader>
+            <DialogTitle>Withdraw from {pot.name}</DialogTitle>
+          </DialogHeader>
+          <div className='space-y-4 py-4'>
+            <p className='text-sm text-gray-500'>
+              Available balance: {formatCurrency(pot.total)}
+            </p>
+            {error && (
+              <div className='bg-red-50 text-red-600 p-3 rounded-md text-sm'>
+                {error}
+              </div>
+            )}
+            <div className='space-y-2'>
+              <label className='text-sm font-medium'>Amount</label>
+              <div className='relative'>
+                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+                  <span className='text-gray-500'>£</span>
+                </div>
+                <Input
+                  type='number'
+                  placeholder='Enter amount'
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  min='0.01'
+                  step='0.01'
+                  max={pot.total}
+                  className='pl-7'
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={closeWithdrawDialog}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleWithdraw}
+              disabled={
+                withdraw.isPending ||
+                !amount ||
+                parseFloat(amount) <= 0 ||
+                parseFloat(amount) > pot.total
+              }
+              className='bg-black text-white hover:bg-black/90'
+            >
+              {withdraw.isPending ? 'Withdrawing...' : 'Withdraw'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
