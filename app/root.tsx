@@ -21,6 +21,10 @@ export const meta: MetaFunction = () => {
   return [
     { title },
     { name: 'description', content: description },
+    {
+      name: 'viewport',
+      content: 'width=device-width, initial-scale=1, maximum-scale=1',
+    },
 
     // Open Graph / Facebook
     { property: 'og:type', content: 'website' },
