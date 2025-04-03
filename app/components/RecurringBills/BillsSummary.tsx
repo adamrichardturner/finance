@@ -27,8 +27,8 @@ const BillsSummary: React.FC<BillsSummaryProps> = ({ summary }) => {
       {/* Paid Bills */}
       <div className='py-5 max-[640px]:py-3'>
         <div className='flex justify-between items-center'>
-          <span className='text-base text-gray-700'>Paid Bills</span>
-          <span className='text-base font-[700]'>
+          <span className='text-[14px] text-gray-700'>Paid Bills</span>
+          <span className='text-[14px] font-[600]'>
             {summary.paidCount} ({formatCurrency(summary.paidBills)})
           </span>
         </div>
@@ -39,8 +39,8 @@ const BillsSummary: React.FC<BillsSummaryProps> = ({ summary }) => {
       {/* Total Upcoming */}
       <div className='py-5 max-[640px]:py-3'>
         <div className='flex justify-between items-center'>
-          <span className='text-base text-gray-700'>Total Upcoming</span>
-          <span className='text-base font-[700]'>
+          <span className='text-[14px] text-gray-700'>Total Upcoming</span>
+          <span className='text-[14px] font-[600]'>
             {summary.upcomingCount} ({formatCurrency(summary.totalUpcoming)})
           </span>
         </div>
@@ -51,8 +51,8 @@ const BillsSummary: React.FC<BillsSummaryProps> = ({ summary }) => {
       {/* Due Soon */}
       <div className='py-5 max-[640px]:py-3'>
         <div className='flex justify-between items-center'>
-          <span className='text-base text-[#C94736]'>Due Soon</span>
-          <span className='text-base font-medium text-[#C94736]'>
+          <span className='text-[14px] text-[#C94736]'>Due Soon</span>
+          <span className='text-[14px] font-medium text-[#C94736]'>
             {summary.dueSoonCount} ({formatCurrency(summary.dueSoon)})
           </span>
         </div>

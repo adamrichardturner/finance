@@ -133,7 +133,9 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                         {renderAvatar(bill.description, bill.avatar)}
                       </div>
                       <div className='flex-1'>
-                        <p className='font-medium'>{bill.description}</p>
+                        <p className='font-medium text-[14px]'>
+                          {bill.description}
+                        </p>
                         {/* Show due date under description on small screens */}
                         <div className='sm:hidden flex items-center mt-1'>
                           {isOverAMonthOld(bill.date) ? (
@@ -182,7 +184,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                       ) : null}
                     </div>
                   </td>
-                  <td className='py-4 max-[640px]:py-3 text-right font-medium max-[640px]:text-[#C94736] max-[640px]:font-bold'>
+                  <td className='py-4 max-[640px]:py-3 text-[14px] text-right font-medium max-[640px]:text-[#C94736] max-[640px]:font-bold'>
                     {bill.amount < 0 ? (
                       <span
                         className={
@@ -194,7 +196,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                         {formatCurrency(bill.amount)}
                       </span>
                     ) : (
-                      <span className='text-green-600'>
+                      <span className='text-green-600 text-[14px]'>
                         {formatCurrency(bill.amount)}
                       </span>
                     )}

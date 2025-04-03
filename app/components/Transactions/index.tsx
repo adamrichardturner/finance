@@ -193,12 +193,12 @@ export function Transactions() {
         {/* Filters section */}
         <div className='mb-6 flex flex-row items-center justify-between'>
           {/* Search input - always visible */}
-          <div className='relative sm:w-[121px] md:w-[200px] lg:w-[320px] pr-4'>
-            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-gray-500' />
+          <div className='relative sm:w-[121px] md:w-[200px] lg:w-[320px] pr-4 flex items-center h-full'>
+            <Search className='relative left-6 top-0 h-4 w-4 text-gray-500' />
             <Input
               type='text'
               placeholder='Search'
-              className='pl-8 border border-gray-100 hover:shadow-lg transition-shadow duration-200 placeholder:text-xs sm:placeholder:text-sm shadow-md'
+              className='pl-8 border border-gray-100 placeholder:text-[12px] text-[12px] hover:shadow-lg transition-shadow duration-200 placeholder:text-xs sm:placeholder:text-sm shadow-md'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -211,7 +211,7 @@ export function Transactions() {
                 Sort by
               </label>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className='w-[160px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
+                <SelectTrigger className='w-[160px] border border-gray-100 text-[12px] text-color-grey-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                   <SelectValue placeholder='Sort by' />
                 </SelectTrigger>
                 <SelectContent className='min-w-[160px]'>
@@ -230,7 +230,7 @@ export function Transactions() {
                 Category
               </label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className='w-[180px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
+                <SelectTrigger className='w-[180px] border text-[12px] border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                   <SelectValue placeholder='Category' />
                 </SelectTrigger>
                 <SelectContent className='min-w-[180px] max-h-[300px] overflow-y-auto'>
