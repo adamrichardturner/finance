@@ -1,25 +1,33 @@
 import { createRequestHandler } from '@remix-run/express'
 import {
-  useRefreshToken,
-  createUserRefreshToken,
-  refreshTokenCookie,
-} from '~/services/auth/auth.service'
-import {
   getUserSession,
   isSessionExpired,
 } from '~/services/auth/session.server'
+import {
+  refreshTokenCookie,
+  useRefreshToken,
+  createUserRefreshToken,
+} from '~/services/auth/auth.service'
 
 import { createCookieSessionStorage } from '@remix-run/node'
 import { authCookie } from '~/services/auth/auth.service'
+import type { Request, Response, NextFunction } from 'express'
 
 const sessionStorage = createCookieSessionStorage({
   cookie: authCookie,
 })
 
+// Type for the request handler function
+type RequestHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => Promise<void> | void
+
 export function createSessionRefreshHandler(
   handler: ReturnType<typeof createRequestHandler>
-) {
-  return async (req: any, res: any, next: any) => {
+): RequestHandler {
+  return async (req: Request, res: Response, next: NextFunction) => {
     if (req.method !== 'GET') {
       return handler(req, res, next)
     }

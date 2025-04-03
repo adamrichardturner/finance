@@ -1,5 +1,5 @@
 import db from '~/lib/db.server'
-import { Budget } from '~/types/finance.types'
+import { Budget, Transaction } from '~/types/finance.types'
 
 interface CreateBudgetParams {
   userId: string
@@ -44,7 +44,7 @@ export async function getBudgets(userId: string): Promise<Budget[]> {
       acc[transaction.category].push(transaction)
       return acc
     },
-    {} as Record<string, any[]>
+    {} as Record<string, Transaction[]>
   )
 
   return budgets.map((budget) => ({

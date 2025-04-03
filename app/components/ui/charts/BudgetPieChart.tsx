@@ -5,14 +5,6 @@ import { Budget } from '~/types/finance.types'
 import { transformBudgetsToChart } from '~/transformers/budgetTransformer'
 import { useMemo, useState, useEffect } from 'react'
 
-interface BudgetPieChartProps {
-  budgets: Budget[]
-  title?: string
-  showAllCategories?: boolean
-  chartSize?: 'sm' | 'lg'
-  showHeader?: boolean
-}
-
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('en-GB', {
     style: 'currency',
@@ -26,20 +18,21 @@ const ChartContent = ({
   chartData,
   dimensions,
 }: {
-  chartData: any[]
+  chartData: ChartDataItem[]
   dimensions: {
     containerSize: string
     outerRadius: number
     innerRadius: number
   }
 }) => {
-  const [RechartsComponents, setRechartsComponents] = useState<any>(null)
+  const [RechartsComponents, setRechartsComponents] =
+    useState<RechartsModule | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     import('recharts')
       .then((module) => {
-        setRechartsComponents(module)
+        setRechartsComponents(module as unknown as RechartsModule)
         setLoading(false)
       })
       .catch((error) => {
@@ -216,4 +209,54 @@ export function BudgetPieChart({
       </div>
     </Card>
   )
+}
+
+interface ChartDataItem {
+  name: string
+  value: number
+  fill: string
+}
+
+// Interface for dynamically imported Recharts components
+interface RechartsModule {
+  ResponsiveContainer: React.ComponentType<{
+    width: string | number
+    height: string | number
+    children: React.ReactNode
+  }>
+  PieChart: React.ComponentType<{
+    children: React.ReactNode
+  }>
+  Pie: React.ComponentType<{
+    data: ChartDataItem[]
+    dataKey: string
+    nameKey: string
+    cx: string
+    cy: string
+    outerRadius: number
+    innerRadius: number
+    paddingAngle: number
+    stroke: string
+    startAngle: number
+    endAngle: number
+    animationBegin: number
+    animationDuration: number
+    animationEasing: string
+    children: React.ReactNode
+  }>
+  Cell: React.ComponentType<{
+    key: string
+    fill: string
+  }>
+  Tooltip: React.ComponentType<{
+    content: React.ReactElement
+  }>
+}
+
+interface BudgetPieChartProps {
+  budgets: Budget[]
+  title?: string
+  showAllCategories?: boolean
+  chartSize?: 'sm' | 'lg'
+  showHeader?: boolean
 }

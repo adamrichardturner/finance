@@ -1,3 +1,5 @@
+import { Budget } from '~/types/finance.types'
+
 export interface BudgetCategory {
   name: string
   theme: string
@@ -35,7 +37,7 @@ export function getThemeForCategory(categoryName: string): string {
 }
 
 export function getAvailableCategories(
-  existingBudgets: any[] | undefined,
+  existingBudgets: Budget[] | undefined,
   currentBudgetId?: string,
   currentCategory?: string
 ) {

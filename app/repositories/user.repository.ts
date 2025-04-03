@@ -120,15 +120,20 @@ export async function createUser(
   user: Omit<UserWithPassword, 'id' | 'created_at' | 'updated_at'>
 ): Promise<User> {
   try {
+    const newUserData: Record<
+      string,
+      string | number | boolean | string[] | undefined
+    > = {
+      email: user.email.toLowerCase(),
+      password_hash: user.password_hash,
+      full_name: user.full_name,
+      email_verified: user.email_verified,
+      verification_token: user.verification_token,
+      mfa_enabled: false,
+    }
+
     const [newUser] = await db('users')
-      .insert<User>({
-        email: user.email.toLowerCase(),
-        password_hash: user.password_hash,
-        full_name: user.full_name,
-        email_verified: user.email_verified,
-        verification_token: user.verification_token,
-        mfa_enabled: false,
-      } as any)
+      .insert<User>(newUserData)
       .returning([
         'id',
         'email',
@@ -201,48 +206,56 @@ export async function updateLoginAttempt(
         }
 
         const failedAttempts = user.failed_login_attempts + 1
-        const updates: Partial<UserWithPassword> = {
-          failed_login_attempts: failedAttempts,
-        }
+        let lockoutUntil: Date | undefined = undefined
 
         if (failedAttempts >= 5) {
-          const lockoutUntil = new Date()
-          lockoutUntil.setMinutes(lockoutUntil.getMinutes() + 15)
-          updates.lockout_until = lockoutUntil
+          const now = new Date()
+          now.setMinutes(now.getMinutes() + 10)
+          lockoutUntil = now
         }
 
-        await trx<UserWithPassword>('users').where('id', userId).update(updates)
+        await trx<UserWithPassword>('users').where('id', userId).update({
+          failed_login_attempts: failedAttempts,
+          lockout_until: lockoutUntil,
+          last_ip_address: data.ip_address,
+        })
 
-        await trx<LoginAttempt>('login_history').insert({
+        const loginAttemptData: Partial<LoginAttempt> = {
           user_id: userId,
           ip_address: data.ip_address,
           user_agent: data.user_agent,
           location: data.location,
           success,
           failure_reason: data.failure_reason,
-        } as any)
+        }
+
+        await trx<LoginAttempt>('login_history').insert(loginAttemptData)
       })
 
       return
     }
 
     await db.transaction(async (trx) => {
+      const updateData: Partial<UserWithPassword> = {
+        failed_login_attempts: 0,
+        lockout_until: undefined,
+        last_login_at: new Date(),
+        last_ip_address: data.ip_address,
+      }
+
       await trx<UserWithPassword>('users')
         .where('id', userId)
-        .update({
-          failed_login_attempts: 0,
-          lockout_until: null,
-          last_login_at: new Date(),
-          last_ip_address: data.ip_address,
-        } as any)
+        .update(updateData)
 
-      await trx<LoginAttempt>('login_history').insert({
+      const loginHistoryData: Partial<LoginAttempt> = {
         user_id: userId,
         ip_address: data.ip_address,
         user_agent: data.user_agent,
         location: data.location,
         success: true,
-      } as any)
+      }
+
+      await trx<LoginAttempt>('login_history').insert(loginHistoryData)
     })
   } catch (error) {
     console.error('Error updating login attempt:', error)

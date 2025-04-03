@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { SidebarProvider } from '~/components/ui/sidebar'
-import { AppSidebar } from '../Sidebar'
+import { ClientSidebarWrapper } from '~/components/Sidebar'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -8,15 +7,13 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <SidebarProvider>
-      <div className='flex min-h-screen w-full'>
-        <AppSidebar />
-        <div className='flex flex-col flex-1 w-full min-h-screen'>
-          <main className='flex-1 w-full h-full p-[16px] sm:p-[40px] pb-[106px] md:pb-[40px] max-w-[1200px]'>
-            {children}
-          </main>
-        </div>
+    <div className='flex min-h-screen w-full'>
+      <ClientSidebarWrapper />
+      <div className='flex flex-col flex-1 w-full min-h-screen pl-4 md:pl-10'>
+        <main className='flex-1 w-full h-full pb-[106px] pt-[16px] sm:pt-[40px] max-w-[1200px]'>
+          {children}
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   )
 }

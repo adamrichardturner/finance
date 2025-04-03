@@ -10,16 +10,23 @@ const ChartContainer = React.forwardRef<HTMLDivElement, ChartContainerProps>(
 )
 ChartContainer.displayName = 'ChartContainer'
 
+// Define a more specific type for chart payload items
+interface ChartPayloadItem {
+  value: number
+  name: string
+  dataKey: string
+  color: string
+  payload?: Record<string, string | number>
+  fill?: string
+  stroke?: string
+  strokeWidth?: number
+  strokeDasharray?: string
+}
+
 interface ChartTooltipContentProps
   extends React.HTMLAttributes<HTMLDivElement> {
   active?: boolean
-  payload?: Array<{
-    value: number
-    name: string
-    dataKey: string
-    color: string
-    [key: string]: any
-  }>
+  payload?: ChartPayloadItem[]
   label?: string
   formatter?: (value: number) => string
 }

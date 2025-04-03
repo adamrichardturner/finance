@@ -71,6 +71,7 @@
     "@babel/preset-react": "^7.26.3",
     "@remix-run/dev": "^2.16.4",
     "@types/babel__core": "^7.20.5",
+    "@types/express": "^5.0.1",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.21.0",

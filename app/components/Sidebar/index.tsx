@@ -1,5 +1,6 @@
 import { Link, useLocation } from '@remix-run/react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { ClientOnly } from 'remix-utils/client-only'
 import {
   Sidebar,
   SidebarContent as SidebarContentSection,
@@ -11,41 +12,57 @@ import {
   SidebarProvider,
   useSidebar,
 } from '~/components/ui/sidebar'
+import React from 'react'
 
-const CUSTOM_STYLES = `
-  .filter-active-icon {
-    filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%);
-  }
-  
-  .sidebar-menu-container:not([data-active=true]):hover .sidebar-hover-icon {
-    filter: brightness(0) invert(1);
-  }
+const SidebarStyles = () => {
+  React.useEffect(() => {
+    const style = document.createElement('style')
+    style.innerHTML = `
+      .filter-active-icon {
+        filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%) !important;
+      }
+      
+      .sidebar-menu-container:not([data-active="true"]):hover .sidebar-hover-icon {
+        filter: brightness(0) invert(1) !important;
+      }
 
-  .sidebar-menu-container:not([data-active=true]):hover .sidebar-menu-text {
-    color: #FFFFFF;
-  }
+      .sidebar-menu-container:not([data-active="true"]):hover .sidebar-menu-text {
+        color: #FFFFFF !important;
+      }
 
-  .sidebar-hover-icon {
-    filter: invert(88%) sepia(0%) saturate(29%) hue-rotate(214deg) brightness(111%) contrast(87%);
-  }
+      .sidebar-hover-icon {
+        filter: invert(88%) sepia(0%) saturate(29%) hue-rotate(214deg) brightness(111%) contrast(87%);
+      }
 
-  .sidebar-menu-text {
-    color: #e0e0e0;
-  }
+      .filter-white {
+        filter: brightness(0) invert(1) !important;
+      }
 
-  [data-active=true] .sidebar-menu-text {
-    color: #212121 !important;
-  }
-  
-  [data-active=true] .sidebar-hover-icon {
-    filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%) !important;
-  }
-`
+      .sidebar-menu-text {
+        color: #e0e0e0;
+      }
 
-if (typeof document !== 'undefined') {
-  const style = document.createElement('style')
-  style.innerHTML = CUSTOM_STYLES
-  document.head.appendChild(style)
+      [data-active="true"] .sidebar-menu-text {
+        color: #212121 !important;
+      }
+      
+      [data-active="true"] .sidebar-hover-icon {
+        filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%) !important;
+      }
+
+      /* Add sidebar border radius styles */
+      .Sidebar, [data-sidebar] {
+        border-top-right-radius: 16px !important;
+        border-bottom-right-radius: 16px !important;
+      }
+    `
+    document.head.appendChild(style)
+    return () => {
+      document.head.removeChild(style)
+    }
+  }, [])
+
+  return null
 }
 
 type MenuItem = {
@@ -253,19 +270,33 @@ export function SidebarContents() {
     )
   }
 
+  const isItemActive = (path: string): boolean => {
+    if (typeof window === 'undefined') return false
+
+    if (path === '/overview') {
+      return location.pathname === '/overview' || location.pathname === '/'
+    }
+    return location.pathname === path
+  }
+
   return (
     <Sidebar
       side='left'
       variant='sidebar'
       collapsible='icon'
-      className={
-        `${isCollapsed ? 'w-[92px]' : 'w-[300px]'}` +
-        `hidden md:block bg-gray-900 text-white border-r-0 [border-radius:0px_var(--spacing-200,16px)_var(--spacing-200,16px)_0px] [&.group[data-collapsible="icon"]_.group-data-\[collapsible\=icon\]\:\!size-8]:!w-[92px]`
-      }
+      className={`
+        ${isCollapsed ? 'w-[92px]' : 'w-[300px]'}
+        hidden md:block bg-gray-900 text-white border-r-0 
+        rounded-tr-[16px] !rounded-tr-[16px] rounded-br-[16px] !rounded-br-[16px]
+      `}
+      style={{
+        borderTopRightRadius: '16px',
+        borderBottomRightRadius: '16px',
+      }}
     >
       <SidebarHeader
-        className={`p-4 flex flex-row justify-between items-center ${
-          isCollapsed ? 'px-4 py-[40px] justify-center' : 'px-[32px] py-[40px]'
+        className={`flex flex-row justify-between items-center ${
+          isCollapsed ? 'px-4 py-[40px] justify-center' : 'pl-[26px] py-[40px]'
         }`}
       >
         <div className='flex items-center'>
@@ -312,10 +343,7 @@ export function SidebarContents() {
           className={`flex flex-col gap-4 px-0 ${isCollapsed ? 'pr-0' : 'pr-4'}`}
         >
           {MENU_ITEMS.map((item) => {
-            const isActive =
-              location.pathname === item.path ||
-              (item.path === '/overview' && location.pathname === '/')
-
+            const active = isItemActive(item.path)
             const enabled = isEnabled(item.name)
 
             return (
@@ -335,8 +363,8 @@ export function SidebarContents() {
                         isCollapsed
                           ? 'flex w-full h-[56px] items-center justify-center'
                           : 'flex h-[56px] w-full items-center gap-[16px] px-4'
-                      } text-white rounded-lg ${isActive ? 'bg-[#F8F4F0]' : ''} sidebar-menu-container`}
-                      data-active={isActive}
+                      } text-white rounded-lg ${active ? 'bg-[#F8F4F0]' : ''} sidebar-menu-container`}
+                      data-active={active ? 'true' : 'false'}
                     >
                       <div
                         className={`flex ${
@@ -349,9 +377,7 @@ export function SidebarContents() {
                           <img
                             src={item.icon}
                             alt={item.label}
-                            className={`w-5 h-5 
-                              ${isActive ? 'filter-active-icon' : ''} 
-                              sidebar-hover-icon`}
+                            className={`w-5 h-5 sidebar-hover-icon ${active ? 'filter-active-icon' : ''}`}
                           />
                         </div>
                         <AnimatePresence mode='wait'>
@@ -430,7 +456,7 @@ export function SidebarContents() {
 
       <SidebarFooter className='p-0 w-full flex items-center justify-center mb-6'>
         <SidebarMenuButton
-          tooltip='Minimize Menu'
+          tooltip={isCollapsed ? 'Expand Menu' : 'Minimize Menu'}
           data-active={false}
           className={`${
             isCollapsed
@@ -454,9 +480,18 @@ export function SidebarContents() {
               }
             >
               <img
-                src='/assets/icons/MinimizeIcon.svg'
-                alt='Minimize Menu'
-                className='w-5 h-5 sidebar-hover-icon'
+                src={
+                  isCollapsed
+                    ? '/assets/icons/ExpandIcon.svg'
+                    : '/assets/icons/MinimizeIcon.svg'
+                }
+                alt={isCollapsed ? 'Expand Menu' : 'Minimize Menu'}
+                className={`w-5 h-5 ${isCollapsed ? 'filter-white' : 'sidebar-hover-icon'}`}
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  display: 'block',
+                }}
               />
             </div>
             <AnimatePresence mode='wait'>
@@ -470,7 +505,7 @@ export function SidebarContents() {
                   transition={{ duration: 0.1 }}
                   className={`sidebar-menu-text font-["Public_Sans"] text-[16px] font-medium leading-[150%]`}
                 >
-                  Minimize Menu
+                  {isCollapsed ? 'Expand Menu' : 'Minimize Menu'}
                 </motion.span>
               )}
             </AnimatePresence>
@@ -481,10 +516,29 @@ export function SidebarContents() {
   )
 }
 
+export function ClientSidebarWrapper() {
+  const placeholder = (
+    <div
+      className='bg-gray-900 h-screen w-[300px] hidden md:block rounded-tr-[16px] rounded-br-[16px]'
+      aria-hidden='true'
+    />
+  )
+
+  return <ClientOnly fallback={placeholder}>{() => <AppSidebar />}</ClientOnly>
+}
+
 export function AppSidebar() {
   return (
     <>
-      <SidebarProvider>
+      <SidebarStyles />
+      <SidebarProvider
+        style={
+          {
+            '--sidebar-width': '300px',
+            '--sidebar-width-icon': '92px',
+          } as React.CSSProperties
+        }
+      >
         <SidebarContents />
       </SidebarProvider>
       <TabBar />

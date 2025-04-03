@@ -20,6 +20,7 @@ export interface UserWithPassword extends User {
   mfa_secret?: string
   session_token?: string
   last_ip_address?: string
+  last_login_at?: string | Date
 }
 
 export interface RefreshToken {
