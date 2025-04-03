@@ -19,8 +19,8 @@ COPY . .
 # Set the Docker environment flag
 ENV DOCKER_ENV=true
 
-# Build only the frontend without database operations
-RUN npm run build:fe
+# Build the app
+RUN npm run build
 
 # ----- Stage 2: Production -----
 FROM node:18-alpine AS runner
