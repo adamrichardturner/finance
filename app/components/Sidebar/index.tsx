@@ -62,8 +62,8 @@ const MENU_ITEMS: MenuItem[] = [
     label: 'Pots',
   },
   {
-    name: 'bills',
-    path: '/bills',
+    name: 'recurring-bills',
+    path: '/recurring-bills',
     icon: '/assets/icons/RecurringBillsIcon.svg',
     label: 'Recurring bills',
   },
@@ -85,7 +85,8 @@ function MobileTabBar() {
       name === 'overview' ||
       name === 'transactions' ||
       name === 'budgets' ||
-      name === 'pots'
+      name === 'pots' ||
+      name === 'recurring-bills'
     )
   }
 
@@ -149,7 +150,8 @@ function TabBar() {
       name === 'overview' ||
       name === 'transactions' ||
       name === 'budgets' ||
-      name === 'pots'
+      name === 'pots' ||
+      name === 'recurring-bills'
     )
   }
 
@@ -232,7 +234,8 @@ export function SidebarContents() {
       name === 'overview' ||
       name === 'transactions' ||
       name === 'budgets' ||
-      name === 'pots'
+      name === 'pots' ||
+      name === 'recurring-bills'
     )
   }
 
