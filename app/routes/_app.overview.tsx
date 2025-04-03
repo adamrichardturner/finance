@@ -15,6 +15,23 @@ export const meta: MetaFunction = () => {
 }
 
 function transformToAppTransaction(transaction: Transaction): AppTransaction {
+  // Process avatar path to handle relative paths correctly
+  const processAvatarPath = (path?: string): string | undefined => {
+    if (!path) {
+      // Default fallback icons based on transaction type
+      return transaction.amount > 0
+        ? '/assets/icons/salary.svg'
+        : '/assets/icons/expense.svg'
+    }
+
+    // If path starts with "./", remove it to make it relative to the public folder
+    if (path.startsWith('./')) {
+      return path.substring(2)
+    }
+
+    return path
+  }
+
   return {
     id:
       transaction.id?.toString() || Math.random().toString(36).substring(2, 9),
@@ -26,9 +43,7 @@ function transformToAppTransaction(transaction: Transaction): AppTransaction {
     amount: transaction.amount,
     type: transaction.amount > 0 ? 'income' : 'expense',
     category: transaction.category,
-    avatar:
-      transaction.avatar ||
-      `/assets/icons/${transaction.amount > 0 ? 'salary' : 'expense'}.svg`,
+    avatar: processAvatarPath(transaction.avatar),
     recurring: transaction.recurring || false,
   }
 }
@@ -49,10 +64,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   // Transform transactions to AppTransaction format
   const appTransactions = transactions.map(transformToAppTransaction)
 
-  // Calculate totals with safeguards
-  let balance = 0
+  // Get the main account balance - ensure it's a number
+  const mainAccountBalance = Number(financialData.balance?.current || 0)
+
+  // Calculate the total in saving pots
+  let potsTotalBalance = 0
   try {
-    balance =
+    potsTotalBalance =
       Array.isArray(pots) && pots.length > 0
         ? pots.reduce((total: number, pot: Pot) => {
             if (pot?.total === undefined || pot?.total === null) {
@@ -63,8 +81,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           }, 0)
         : 0
   } catch (err) {
-    console.error('Error calculating balance:', err)
+    console.error('Error calculating pots balance:', err)
   }
+
+  // The total balance is simply the main account balance
+  // We don't add pot balances because money in pots is already
+  // deducted from the main balance when it's moved there
+  const totalBalance = mainAccountBalance
+  console.log('Balance calculation:', {
+    mainAccountBalance,
+    potsTotalBalance,
+    totalBalance,
+  })
 
   let income = 0
   try {
@@ -98,10 +126,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     console.error('Error calculating expenses:', err)
   }
 
-  console.log('Calculated values:', { balance, income, expenses })
+  console.log('Calculated values:', {
+    mainBalance: totalBalance,
+    potsTotal: potsTotalBalance,
+    combinedTotal: totalBalance + potsTotalBalance,
+    income,
+    expenses,
+  })
 
   return {
-    balance,
+    balance: totalBalance,
+    potsBalance: potsTotalBalance,
+    totalBalance: totalBalance + potsTotalBalance,
     income,
     expenses,
     pots,
@@ -111,8 +147,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 }
 
 export default function OverviewRoute() {
-  const { pots, budgets, balance, income, expenses, transactions } =
-    useLoaderData<typeof loader>()
+  const {
+    pots,
+    budgets,
+    balance,
+    potsBalance,
+    totalBalance,
+    income,
+    expenses,
+    transactions,
+  } = useLoaderData<typeof loader>()
 
   return (
     <Overview
@@ -120,6 +164,8 @@ export default function OverviewRoute() {
       budgets={budgets as Budget[]}
       transactions={transactions as AppTransaction[]}
       balance={balance}
+      potsBalance={potsBalance}
+      totalBalance={totalBalance}
       income={income}
       expenses={expenses}
     />

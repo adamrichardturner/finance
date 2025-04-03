@@ -81,7 +81,12 @@ function MobileTabBar() {
   }
 
   const isEnabled = (name: string): boolean => {
-    return name === 'overview' || name === 'transactions' || name === 'budgets'
+    return (
+      name === 'overview' ||
+      name === 'transactions' ||
+      name === 'budgets' ||
+      name === 'pots'
+    )
   }
 
   // Use all menu items including Pots
@@ -140,7 +145,12 @@ function TabBar() {
   }
 
   const isEnabled = (name: string): boolean => {
-    return name === 'overview' || name === 'transactions' || name === 'budgets'
+    return (
+      name === 'overview' ||
+      name === 'transactions' ||
+      name === 'budgets' ||
+      name === 'pots'
+    )
   }
 
   return (
@@ -218,7 +228,12 @@ export function SidebarContents() {
   }
 
   const isEnabled = (name: string): boolean => {
-    return name === 'overview' || name === 'transactions' || name === 'budgets'
+    return (
+      name === 'overview' ||
+      name === 'transactions' ||
+      name === 'budgets' ||
+      name === 'pots'
+    )
   }
 
   return (

@@ -1,4 +1,3 @@
-import { DollarSignIcon, TrendingUpIcon, TrendingDownIcon } from 'lucide-react'
 import PageTitle from '../PageTitle'
 import Pill from './Pill'
 import Pots from './Pots'
@@ -10,7 +9,9 @@ import { AppTransaction } from '~/utils/transform-data'
 import { useNavigate } from '@remix-run/react'
 
 interface OverviewProps {
-  balance: number
+  balance: number // Main account balance
+  potsBalance: number // Total in savings pots
+  totalBalance: number // Combined total (balance + potsBalance)
   income: number
   expenses: number
   pots: Pot[]
@@ -20,6 +21,8 @@ interface OverviewProps {
 
 const Overview: React.FC<OverviewProps> = ({
   balance,
+  potsBalance,
+  totalBalance,
   income,
   expenses,
   pots,
@@ -31,6 +34,17 @@ const Overview: React.FC<OverviewProps> = ({
     navigate(path)
   }
 
+  const formatCurrency = (amount: number | null | undefined): string => {
+    if (amount === null || amount === undefined) {
+      return '£0.00'
+    }
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      minimumFractionDigits: 2,
+    }).format(amount)
+  }
+
   return (
     <div className='w-full mb-12 sm:mt-[0px] sm:my-[0px]'>
       <PageTitle title='Overview' />
@@ -38,25 +52,17 @@ const Overview: React.FC<OverviewProps> = ({
         <div className='grid grid-cols-1 sm:grid-cols-3 gap-[24px]'>
           <div>
             <Pill
-              title='Total Balance'
+              title='Main Account'
               amount={formatCurrency(balance)}
-              icon={<DollarSignIcon className='text-blue-500' size={24} />}
               isTotal={true}
+              subtitle={`Savings: ${formatCurrency(potsBalance)}`}
             />
           </div>
           <div>
-            <Pill
-              title='Income'
-              amount={formatCurrency(income)}
-              icon={<TrendingUpIcon className='text-green-500' size={24} />}
-            />
+            <Pill title='Income' amount={formatCurrency(income)} />
           </div>
           <div>
-            <Pill
-              title='Expenses'
-              amount={formatCurrency(expenses)}
-              icon={<TrendingDownIcon className='text-red-500' size={24} />}
-            />
+            <Pill title='Expenses' amount={formatCurrency(expenses)} />
           </div>
         </div>
         <div className='flex flex-col max-[1457px]:flex-col min-[1457px]:grid min-[1457px]:grid-cols-12 gap-[32px]'>
@@ -92,15 +98,3 @@ const Overview: React.FC<OverviewProps> = ({
 }
 
 export default Overview
-
-function formatCurrency(amount: number | undefined | null) {
-  if (amount === undefined || amount === null || isNaN(amount)) {
-    return '£0.00'
-  }
-
-  return new Intl.NumberFormat('en-GB', {
-    style: 'currency',
-    currency: 'GBP',
-    minimumFractionDigits: 2,
-  }).format(amount)
-}

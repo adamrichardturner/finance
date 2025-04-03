@@ -1,6 +1,6 @@
 import { Card, CardTitle, CardContent, CardHeader } from '~/components/ui/card'
-import Pointer from '../../../../public/assets/icons/Pointer.svg'
-import PiggyBank from '../../../../public/assets/icons/PiggyBank.svg'
+import Pointer from '/assets/icons/Pointer.svg?url'
+import PiggyBank from '/assets/icons/PiggyBank.svg?url'
 import { Pot } from '~/types/finance.types'
 import { transformPotsToOverview } from '~/transformers/potTransformer'
 

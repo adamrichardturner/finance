@@ -11,7 +11,7 @@ import { EllipsisIcon } from '../ui/icons/EllipsisIcon'
 import { Progress } from '../ui/progress'
 import { useNavigate } from '@remix-run/react'
 import { getThemeForCategory } from '~/utils/budget-categories'
-import Pointer from '../../../public/assets/icons/Pointer.svg'
+import Pointer from '/assets/icons/Pointer.svg?url'
 
 interface BudgetCardProps {
   budget: Budget
