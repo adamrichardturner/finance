@@ -48,4 +48,4 @@ ENV DOCKER_ENV=true
 EXPOSE 6001 6000
 
 # Start the app
-CMD ["npm", "run", "start:with-db"]
+CMD ["npm", "run", "prod:docker"]
