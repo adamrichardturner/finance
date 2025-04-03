@@ -30,14 +30,17 @@ export function AddBudgetModal({
   const [error, setError] = useState<string | null>(null)
   const { createBudget } = useBudgetMutations()
 
-  useEffect(() => {
-    if (!isOpen) {
-      setCategory('')
-      setAmount('')
-      setTheme(THEME_COLORS[0].value)
-      setError(null)
-    }
-  }, [isOpen])
+  const resetForm = () => {
+    setCategory('')
+    setAmount('')
+    setTheme(THEME_COLORS[0].value)
+    setError(null)
+  }
+
+  const handleClose = () => {
+    resetForm()
+    onClose()
+  }
 
   const availableCategories = getAvailableCategories(budgets)
 
@@ -95,7 +98,7 @@ export function AddBudgetModal({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Budget</DialogTitle>

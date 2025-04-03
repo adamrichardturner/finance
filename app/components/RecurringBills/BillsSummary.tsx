@@ -24,7 +24,6 @@ const BillsSummary: React.FC<BillsSummaryProps> = ({ summary }) => {
 
   return (
     <div className='flex flex-col p-4 max-[640px]:pt-3'>
-      {}
       <div className='py-5 max-[640px]:py-3'>
         <div className='flex justify-between items-center'>
           <span className='text-[14px] text-gray-700'>Paid Bills</span>
@@ -36,7 +35,6 @@ const BillsSummary: React.FC<BillsSummaryProps> = ({ summary }) => {
 
       <div className='border-t border-gray-200'></div>
 
-      {}
       <div className='py-5 max-[640px]:py-3'>
         <div className='flex justify-between items-center'>
           <span className='text-[14px] text-gray-700'>Total Upcoming</span>
@@ -48,7 +46,6 @@ const BillsSummary: React.FC<BillsSummaryProps> = ({ summary }) => {
 
       <div className='border-t border-gray-200'></div>
 
-      {}
       <div className='py-5 max-[640px]:py-3'>
         <div className='flex justify-between items-center'>
           <span className='text-[14px] text-[#C94736]'>Due Soon</span>

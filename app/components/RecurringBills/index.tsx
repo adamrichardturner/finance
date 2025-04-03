@@ -57,6 +57,10 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
     debouncedSearch(e.target.value)
+
+    if (e.target.value && sortBy !== 'latest') {
+      setSortBy('latest')
+    }
   }
 
   const formatCurrency = (amount: number) => {
@@ -98,9 +102,7 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
       <PageTitle title='Recurring Bills' />
 
       <div className='flex flex-col max-[1127px]:flex-col min-[1127px]:flex-row gap-8'>
-        {}
         <div className='w-full min-[1127px]:w-1/3 flex flex-col gap-6'>
-          {}
           <Card className='bg-[#1a1a1e] min-h-[180px] text-white p-6'>
             <CardContent className='p-0 flex flex-col justify-between h-full'>
               <div className='mb-4'>
@@ -117,7 +119,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
             </CardContent>
           </Card>
 
-          {}
           <Card className='bg-white border-none shadow-none max-[640px]:px-0 max-[640px]:py-0'>
             <CardContent className='p-6 max-[640px]:p-0'>
               <h3 className='text-xl font-semibold mb-4 max-[640px]:hidden'>
@@ -128,12 +129,10 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
           </Card>
         </div>
 
-        {}
         <div className='w-full min-[1127px]:w-2/3'>
           <Card className='max-[640px]:border-0 p-4 max-[640px]:shadow-none'>
             <CardContent className='p-6 max-[640px]:px-0 max-[640px]:py-4'>
               <div className='flex flex-row justify-between items-center mb-6 gap-4'>
-                {}
                 <div className='relative flex items-center flex-1 max-w-[320px]'>
                   <Search className='absolute left-[12px] h-4 w-4 text-gray-500 max-w-[320px]' />
                   <Input
@@ -155,13 +154,18 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
                     </div>
                   )}
                 </div>
-
-                {}
                 <div className='relative hidden min-[640px]:block'>
                   <label className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'>
                     Sort by
                   </label>
-                  <Select value={sortBy} onValueChange={setSortBy}>
+                  <Select
+                    value={sortBy}
+                    onValueChange={(value) => {
+                      setSortBy(value)
+                      setSearchTerm('')
+                      setDebouncedSearchTerm('')
+                    }}
+                  >
                     <SelectTrigger className='w-[120px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                       <SelectValue placeholder='Sort by' />
                     </SelectTrigger>
@@ -173,8 +177,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
                     </SelectContent>
                   </Select>
                 </div>
-
-                {}
                 <div className='block min-[640px]:hidden'>
                   <Sheet>
                     <SheetTrigger asChild>
@@ -205,7 +207,11 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
                                 sortBy === option.value ? 'default' : 'outline'
                               }
                               className='w-full justify-start text-sm h-[38px]'
-                              onClick={() => setSortBy(option.value)}
+                              onClick={() => {
+                                setSortBy(option.value)
+                                setSearchTerm('')
+                                setDebouncedSearchTerm('')
+                              }}
                             >
                               {option.label}
                             </Button>
@@ -223,6 +229,7 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.2 }}
+                  className='scrollable-content hide-scrollbar'
                 >
                   <BillsTable bills={sortedBills} />
                 </motion.div>

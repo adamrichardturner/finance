@@ -158,13 +158,6 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function PotsRoute() {
   const loaderData = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
-  const revalidator = useRevalidator()
-
-  useEffect(() => {
-    if (actionData && 'success' in actionData && actionData.success === true) {
-      revalidator.revalidate()
-    }
-  }, [actionData, revalidator])
 
   return (
     <div className='w-full mb-12 sm:my-[0px]'>

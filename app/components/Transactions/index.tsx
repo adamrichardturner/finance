@@ -187,9 +187,7 @@ export function Transactions() {
         )}
       </CardHeader>
       <CardContent>
-        {}
         <div className='mb-6 flex flex-row items-center justify-between'>
-          {}
           <div className='relative sm:w-[121px] md:w-[200px] lg:w-[320px] pr-4 flex items-center h-full'>
             <Search className='absolute left-[12px] h-4 w-4 text-gray-500' />
             <Input
@@ -197,7 +195,16 @@ export function Transactions() {
               placeholder='Search'
               className='pl-8 pr-8 border border-gray-100 placeholder:text-[12px] hover:shadow-lg transition-shadow duration-200 placeholder:text-xs sm:placeholder:text-sm shadow-md'
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                if (
+                  e.target.value &&
+                  (category !== 'all' || sortBy !== 'latest')
+                ) {
+                  setCategory('all')
+                  setSortBy('latest')
+                }
+              }}
             />
             {searchQuery && (
               <div
@@ -209,13 +216,18 @@ export function Transactions() {
             )}
           </div>
 
-          {}
           <div className='hidden sm:flex items-center space-x-4'>
             <div className='relative'>
               <label className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'>
                 Sort by
               </label>
-              <Select value={sortBy} onValueChange={setSortBy}>
+              <Select
+                value={sortBy}
+                onValueChange={(value) => {
+                  setSortBy(value)
+                  setSearchQuery('')
+                }}
+              >
                 <SelectTrigger className='w-[160px] border border-gray-100 text-[12px] text-color-grey-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                   <SelectValue placeholder='Sort by' />
                 </SelectTrigger>
@@ -234,7 +246,13 @@ export function Transactions() {
               <label className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'>
                 Category
               </label>
-              <Select value={category} onValueChange={setCategory}>
+              <Select
+                value={category}
+                onValueChange={(value) => {
+                  setCategory(value)
+                  setSearchQuery('')
+                }}
+              >
                 <SelectTrigger className='w-[180px] border text-[12px] border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                   <SelectValue placeholder='Category' />
                 </SelectTrigger>
@@ -252,10 +270,7 @@ export function Transactions() {
               </Select>
             </div>
           </div>
-
-          {}
           <div className='flex sm:hidden space-x-2 ml-2'>
-            {}
             <Sheet>
               <SheetTrigger asChild>
                 <Button
@@ -287,7 +302,10 @@ export function Transactions() {
                           sortBy === option.value ? 'default' : 'outline'
                         }
                         className='w-full justify-start text-sm h-[38px]'
-                        onClick={() => setSortBy(option.value)}
+                        onClick={() => {
+                          setSortBy(option.value)
+                          setSearchQuery('')
+                        }}
                       >
                         {option.label}
                       </Button>
@@ -297,7 +315,6 @@ export function Transactions() {
               </SheetContent>
             </Sheet>
 
-            {}
             <Sheet>
               <SheetTrigger asChild>
                 <Button
@@ -319,7 +336,10 @@ export function Transactions() {
                     <Button
                       variant={category === 'all' ? 'default' : 'outline'}
                       className='w-full justify-start text-sm h-[38px]'
-                      onClick={() => setCategory('all')}
+                      onClick={() => {
+                        setCategory('all')
+                        setSearchQuery('')
+                      }}
                     >
                       All Transactions
                     </Button>
@@ -335,7 +355,10 @@ export function Transactions() {
                               : 'outline'
                           }
                           className='w-full justify-start text-sm h-[38px]'
-                          onClick={() => setCategory(cat.toLowerCase())}
+                          onClick={() => {
+                            setCategory(cat.toLowerCase())
+                            setSearchQuery('')
+                          }}
                         >
                           {cat}
                         </Button>
@@ -346,8 +369,6 @@ export function Transactions() {
             </Sheet>
           </div>
         </div>
-
-        {}
         <div
           id='scrollable-transactions'
           className='overflow-auto hide-scrollbar'
@@ -420,7 +441,6 @@ export function Transactions() {
               >
                 {visibleTransactions.length > 0 ? (
                   <>
-                    {}
                     <div className='hidden sm:block hide-scrollbar'>
                       <Table className='hide-scrollbar'>
                         <TableHeader className='sticky top-0 bg-card z-10'>
@@ -491,15 +511,12 @@ export function Transactions() {
                               </tr>
                             )
                           )}
-                          {}
                           <tr className='h-8'>
                             <td colSpan={4}></td>
                           </tr>
                         </TableBody>
                       </Table>
                     </div>
-
-                    {}
                     <div className='sm:hidden mb-10'>
                       {visibleTransactions.map(
                         (transaction: AppTransaction, index: number) => (

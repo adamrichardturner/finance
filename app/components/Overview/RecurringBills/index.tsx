@@ -121,7 +121,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
         </div>
       </CardHeader>
       <div className='grid grid-cols-1 gap-4 mt-2'>
-        {}
         <div className='flex items-center justify-between p-4 rounded-lg bg-[#F8F4F0] border-l-4 border-blue-400 transition-colors duration-200 hover:bg-[#f9f9f9]'>
           <div className='flex flex-col'>
             <span className='font-[400] text-[16px] text-gray-900'>
@@ -133,7 +132,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
           </span>
         </div>
 
-        {}
         <div className='flex items-center justify-between p-4 rounded-lg bg-[#F8F4F0] border-l-4 border-orange-400 transition-colors duration-200 hover:bg-[#f9f9f9]'>
           <div className='flex flex-col'>
             <span className='font-[400] text-[16px] text-gray-900'>
@@ -145,7 +143,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
           </span>
         </div>
 
-        {}
         <div className='flex items-center justify-between p-4 rounded-lg bg-[#F8F4F0] border-l-4 border-green-400 transition-colors duration-200 hover:bg-[#f9f9f9]'>
           <div className='flex flex-col'>
             <span className='font-[400] text-[16px] text-gray-900'>

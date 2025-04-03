@@ -46,11 +46,10 @@ export function EditBudgetModal({
     }
   }, [isOpen, budgetId, budgets])
 
-  useEffect(() => {
-    if (!isOpen) {
-      setError(null)
-    }
-  }, [isOpen])
+  const handleClose = () => {
+    setError(null)
+    onClose()
+  }
 
   const handleCategoryChange = (newCategory: string) => {
     if (
@@ -134,7 +133,7 @@ export function EditBudgetModal({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Budget</DialogTitle>

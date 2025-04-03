@@ -114,7 +114,6 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
           </div>
         </div>
 
-        {}
         {budget.transactions && budget.transactions.length > 0 && (
           <div
             className='bg-[#F8F4F0] mt-6 p-6 rounded-lg space-y-4 cursor-pointer'

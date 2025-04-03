@@ -139,6 +139,11 @@ export function EditPotModal({
                 className='pl-7'
               />
             </div>
+            <div className='text-sm text-gray-600 mt-1'>
+              {target
+                ? `New target amount: £${parseFloat(target).toFixed(2)}`
+                : ''}
+            </div>
           </div>
 
           <div className='space-y-2'>

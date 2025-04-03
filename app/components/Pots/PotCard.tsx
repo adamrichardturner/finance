@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect, useCallback } from 'react'
 import { Card, CardContent } from '../ui/card'
 import { Button } from '../ui/button'
 import { MoreHorizontal, Plus, ArrowDown } from 'lucide-react'
@@ -23,7 +23,27 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
   const [addMoneyOpen, setAddMoneyOpen] = useState(false)
   const [withdrawOpen, setWithdrawOpen] = useState(false)
   const [amount, setAmount] = useState('')
+  const [debouncedAmount, setDebouncedAmount] = useState('')
   const [error, setError] = useState<string | null>(null)
+
+  // Debounce amount changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedAmount(amount)
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [amount])
+
+  // Calculate new values for previews
+  const parsedAmount = parseFloat(debouncedAmount) || 0
+  const newAddTotal = pot.total + parsedAmount
+  const newWithdrawTotal = Math.max(0, pot.total - parsedAmount)
+  const addPercentage = Math.min(100, (newAddTotal / pot.target) * 100)
+  const withdrawPercentage = Math.min(
+    100,
+    (newWithdrawTotal / pot.target) * 100
+  )
 
   const { addMoney, withdraw } = usePotMutations()
 
@@ -153,8 +173,6 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
                 </span>
               </div>
             </div>
-
-            {}
             <div className='w-full bg-gray-100 rounded-full h-2'>
               <div
                 className='h-2 rounded-full'
@@ -173,7 +191,7 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
 
             <div className='grid grid-cols-2 gap-4 mt-4'>
               <Button
-                className='w-full bg-[rgba(248,244,240,1)] text-gray-900 hover:text-white hover:ring-1 min-h-[56px] hover:bg-[#201F24] hover:text-white hover:shadow-sm transition-all duration-200'
+                className='w-full bg-[rgba(248,244,240,1)] text-[14px] font-[600] text-gray-900 hover:text-white hover:ring-1 min-h-[56px] hover:bg-[#201F24] hover:text-white hover:shadow-sm transition-all duration-200'
                 variant='ghost'
                 size='sm'
                 onClick={(e) => {
@@ -185,7 +203,7 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
                 Add Money
               </Button>
               <Button
-                className='w-full bg-[rgba(248,244,240,0.95)] text-gray-900 hover:text-white hover:ring-1 min-h-[56px] hover:bg-[#201F24] hover:text-white hover:shadow-sm transition-all duration-200'
+                className='w-full bg-[rgba(248,244,240,0.95)] text-[14px] font-[600] text-gray-900 hover:text-white hover:ring-1 min-h-[56px] hover:bg-[#201F24] hover:text-white hover:shadow-sm transition-all duration-200'
                 variant='ghost'
                 size='sm'
                 onClick={(e) => {
@@ -202,7 +220,6 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
         </CardContent>
       </Card>
 
-      {}
       <Dialog open={addMoneyOpen} onOpenChange={closeAddMoneyDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
@@ -223,27 +240,22 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
 
             <div className='space-y-2'>
               <label className='text-sm font-medium'>New Amount</label>
-              <div className='text-3xl font-bold'>
-                {formatCurrency(pot.total + (Number(amount) || 0))}
+              <div className='text-3xl font-bold' key={newAddTotal}>
+                {formatCurrency(newAddTotal)}
               </div>
 
-              {}
               <div className='w-full bg-gray-100 rounded-full h-2 mt-4'>
                 <div
                   className='h-2 rounded-full'
                   style={{
-                    width: `${Math.min(100, ((pot.total + (Number(amount) || 0)) / pot.target) * 100)}%`,
+                    width: `${addPercentage}%`,
                     backgroundColor: pot.theme,
                   }}
                 />
               </div>
               <div className='flex justify-between items-center text-xs text-gray-500 mt-1'>
                 <span className='font-semibold'>
-                  {(
-                    ((pot.total + (Number(amount) || 0)) / pot.target) *
-                    100
-                  ).toFixed(2)}
-                  %
+                  {addPercentage.toFixed(1)}%
                 </span>
                 <span>Target of {formatCurrency(pot.target)}</span>
               </div>
@@ -259,7 +271,10 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
                   type='number'
                   placeholder='Enter amount'
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setAmount(value)
+                  }}
                   min='0.01'
                   step='0.01'
                   className='pl-7'
@@ -277,7 +292,6 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
         </DialogContent>
       </Dialog>
 
-      {}
       <Dialog open={withdrawOpen} onOpenChange={closeWithdrawDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
@@ -297,29 +311,22 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
 
             <div className='space-y-2'>
               <label className='text-sm font-medium'>New Amount</label>
-              <div className='text-3xl font-bold'>
-                {formatCurrency(Math.max(0, pot.total - (Number(amount) || 0)))}
+              <div className='text-3xl font-bold' key={newWithdrawTotal}>
+                {formatCurrency(newWithdrawTotal)}
               </div>
 
-              {}
               <div className='w-full bg-gray-100 rounded-full h-2 mt-4'>
                 <div
                   className='h-2 rounded-full'
                   style={{
-                    width: `${Math.min(100, Math.max(0, (Math.max(0, pot.total - (Number(amount) || 0)) / pot.target) * 100))}%`,
+                    width: `${withdrawPercentage}%`,
                     backgroundColor: pot.theme,
                   }}
                 />
               </div>
               <div className='flex justify-between items-center text-xs text-gray-500 mt-1'>
                 <span className='font-semibold'>
-                  {(
-                    Math.max(
-                      0,
-                      (pot.total - (Number(amount) || 0)) / pot.target
-                    ) * 100
-                  ).toFixed(2)}
-                  %
+                  {withdrawPercentage.toFixed(1)}%
                 </span>
                 <span>Target of {formatCurrency(pot.target)}</span>
               </div>
@@ -335,7 +342,10 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
                   type='number'
                   placeholder='Enter amount'
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setAmount(value)
+                  }}
                   min='0.01'
                   step='0.01'
                   max={pot.total}

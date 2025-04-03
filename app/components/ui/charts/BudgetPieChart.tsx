@@ -126,7 +126,6 @@ export function BudgetPieChart({
           </PieChart>
         </ResponsiveContainer>
 
-        {}
         <div className='absolute inset-0 flex flex-col items-center justify-center text-center'>
           <h3 className='text-[32px] font-bold leading-8'>
             {formattedSpentAmount}
@@ -147,10 +146,7 @@ export function BudgetPieChart({
     <Card className='p-[32px] flex flex-col gap-4 shadow-none'>
       <CardHeader className='flex p-0 flex-row justify-between items-center w-full'>
         <CardTitle className='text-[20px]'>{title}</CardTitle>
-        <div
-          className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex flex-row gap-1 items-center'
-          onClick={() => {}}
-        >
+        <div className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex flex-row gap-1 items-center'>
           See Details
           <span className='flex items-center'>
             <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2 ml-2`} />
@@ -158,20 +154,16 @@ export function BudgetPieChart({
         </div>
       </CardHeader>
 
-      {}
       <div className='flex flex-col sm:flex-row gap-4'>
-        {}
         <div className='flex justify-center sm:justify-start'>
           <ChartContent />
         </div>
 
-        {}
         <div className='hidden sm:flex flex-1 flex-col justify-center gap-4 pl-4'>
           <BudgetItems />
         </div>
       </div>
 
-      {}
       <div className='sm:hidden grid grid-cols-2 gap-4 mt-4'>
         <BudgetItems />
       </div>

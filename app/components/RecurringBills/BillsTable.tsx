@@ -3,6 +3,8 @@ import { format, subMonths } from 'date-fns'
 import { AppTransaction } from '~/utils/transform-data'
 import { renderAvatar } from '~/utils/avatar-utils'
 import { CheckCircle2, AlertCircle } from 'lucide-react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import { Loader2 } from 'lucide-react'
 
 interface BillsTableProps {
   bills: AppTransaction[]
@@ -90,10 +92,14 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
   }
 
   return (
-    <div className='overflow-x-auto'>
+    <div
+      id='scrollable-bills'
+      className='overflow-hidden hide-scrollbar'
+      style={{ overflow: 'hidden', overflowY: 'auto', maxHeight: '60vh' }}
+    >
       <table className='w-full'>
         <thead className='max-[640px]:hidden'>
-          <tr className='border-b'>
+          <tr className='border-b sticky top-0 bg-white z-10'>
             <th className='text-left pb-4 font-[400] text-gray-500 text-[12px]'>
               Bill Title
             </th>
@@ -125,7 +131,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                         <p className='font-medium text-[14px]'>
                           {bill.description}
                         </p>
-                        {}
+
                         <div className='sm:hidden flex items-center mt-1'>
                           {isOverAMonthOld(bill.date) ? (
                             <p
@@ -197,6 +203,15 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
             <tr>
               <td colSpan={3} className='py-6 text-center text-gray-500'>
                 No bills found
+              </td>
+            </tr>
+          )}
+          {bills.length > 0 && (
+            <tr>
+              <td colSpan={3} className='py-2 text-center'>
+                <div className='text-xs text-muted-foreground'>
+                  End of bills
+                </div>
               </td>
             </tr>
           )}

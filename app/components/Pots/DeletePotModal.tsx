@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Pot } from '~/types/finance.types'
@@ -18,8 +18,6 @@ export function DeletePotModal({
   pots = [],
 }: DeletePotModalProps) {
   const [error, setError] = useState<string | null>(null)
-  const [potName, setPotName] = useState<string | null>(null)
-
   const { deletePot } = usePotMutations()
 
   const handleClose = () => {
@@ -27,14 +25,13 @@ export function DeletePotModal({
     onClose()
   }
 
-  useEffect(() => {
-    if (isOpen && potId && pots.length > 0) {
+  const potName = useMemo(() => {
+    if (potId && pots.length > 0) {
       const currentPot = pots.find((p) => String(p.id) === potId)
-      setPotName(currentPot?.name ? `'${currentPot.name}'` : "'Savings'")
-    } else if (isOpen && potId) {
-      setPotName("'Savings'")
+      return currentPot?.name ? `'${currentPot.name}'` : "'Savings'"
     }
-  }, [isOpen, potId, pots])
+    return "'Savings'"
+  }, [potId, pots])
 
   const handleDelete = async () => {
     if (!potId) {
