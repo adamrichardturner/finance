@@ -75,7 +75,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
           Maximum of £{maximum.toFixed(2)}
         </span>
 
-        <div className='mt-4 space-y-6'>
+        <div className='mt-4 space-y-4'>
           <Progress
             value={percentage}
             className='h-[32px] rounded-lg bg-[#F8F4F0]'
@@ -117,7 +117,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         {/* Only show the Latest Spending section if there are transactions */}
         {budget.transactions && budget.transactions.length > 0 && (
           <div
-            className='mt-6 bg-[#F8F4F0] p-6 rounded-lg space-y-8 cursor-pointer'
+            className='bg-[#F8F4F0] mt-6 p-6 rounded-lg space-y-4 cursor-pointer'
             onClick={navigateToTransactions}
           >
             <div className='flex items-center justify-between'>
@@ -141,11 +141,11 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
               {budget.transactions.slice(0, 3).map((transaction, index) => (
                 <div key={transaction.id}>
                   <div
-                    className='flex items-center justify-between min-h-[56px] cursor-pointer hover:bg-white/60 transition-colors duration-200 p-2 rounded-md'
+                    className='flex items-center justify-between min-h-[42px] cursor-pointer hover:bg-white/60 transition-colors duration-200 py-2 px-2 rounded-md'
                     onClick={() => navigateToTransaction(transaction.name)}
                   >
                     <div className='flex items-center gap-3'>
-                      <div className='relative h-8 w-8 rounded-full bg-gray-100 overflow-hidden'>
+                      <div className='relative h-12 w-12 rounded-full bg-gray-100 overflow-hidden'>
                         {transaction.avatar && (
                           <img
                             src={transaction.avatar}

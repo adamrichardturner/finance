@@ -274,7 +274,7 @@ export async function updatePotBalance({
       name: isAddingToPot
         ? `Transfer to ${pot.name} Savings Pot`
         : `Withdrawal from ${pot.name} Savings Pot`,
-      category: 'Savings',
+      category: isAddingToPot ? 'Savings' : 'Withdrawal',
       date: now,
       // For pot transfers, we negate the amount in the transaction record
       // since adding to pot is reducing main balance (negative amount)

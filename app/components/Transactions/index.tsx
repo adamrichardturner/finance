@@ -33,6 +33,7 @@ import { useTransactions } from '~/hooks/use-transactions'
 import { getThemeForCategory } from '~/utils/budget-categories'
 import { AppTransaction } from '~/utils/transform-data'
 import Pointer from '../../../public/assets/icons/Pointer.svg'
+import { renderAvatar } from '~/utils/avatar-utils'
 
 // Animation variants
 const itemVariants = {
@@ -431,9 +432,9 @@ export function Transactions() {
                         (transaction: AppTransaction, index: number) => (
                           <tr
                             key={transaction.id}
-                            className='transition-colors duration-200 hover:bg-gray-100 border-b border-gray-100 last:border-0 cursor-pointer'
+                            className='transition-colors duration-200 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-[#f9f9f9]'
                           >
-                            <TableCell className='flex items-center gap-3'>
+                            <TableCell className='flex items-center gap-3 min-h-[56px]'>
                               {renderTransactionAvatar(transaction)}
                               <span
                                 className='cursor-pointer font-semibold hover:font-[700] transition-all'
@@ -445,7 +446,7 @@ export function Transactions() {
                                 {transaction.description}
                               </span>
                             </TableCell>
-                            <TableCell className='text-left'>
+                            <TableCell className='text-left '>
                               <div
                                 className='flex items-center gap-2 cursor-pointer hover:font-[600] transition-all'
                                 onClick={(e) => {
@@ -498,7 +499,7 @@ export function Transactions() {
                         initial='hidden'
                         animate='visible'
                         custom={index}
-                        className='flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0 transition-colors duration-200 hover:bg-gray-100 rounded-lg cursor-pointer mb-1'
+                        className='flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0 transition-colors duration-200 hover:bg-[#f9f9f9] rounded-lg cursor-pointer mb-1'
                       >
                         <div className='flex items-start gap-3'>
                           {renderTransactionAvatar(transaction)}

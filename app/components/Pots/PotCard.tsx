@@ -192,22 +192,22 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
 
             <div className='grid grid-cols-2 gap-4 mt-4'>
               <Button
-                className='w-full bg-[#F8F4F0] text-gray-900 hover:bg-[#F8F4F0]/90'
+                className='w-full bg-[rgba(248,244,240,1)] text-gray-900 hover:text-white hover:ring-1 min-h-[56px] hover:bg-[#201F24] hover:text-white hover:shadow-sm transition-all duration-200'
                 variant='ghost'
                 size='sm'
                 onClick={() => setAddMoneyOpen(true)}
               >
-                <Plus className='h-4 w-4 mr-2 text-gray-900' />
+                <Plus className='h-4 w-4 mr-2' />
                 Add Money
               </Button>
               <Button
-                className='w-full bg-[#F8F4F0] text-gray-900 hover:bg-[#F8F4F0]/90'
+                className='w-full bg-[rgba(248,244,240,0.95)] text-gray-900 hover:text-white hover:ring-1 min-h-[56px] hover:bg-[#201F24] hover:text-white hover:shadow-sm transition-all duration-200'
                 variant='ghost'
                 size='sm'
                 onClick={() => setWithdrawOpen(true)}
                 disabled={pot.total <= 0}
               >
-                <ArrowDown className='h-4 w-4 mr-2 text-gray-900' />
+                <ArrowDown className='h-4 w-4 mr-2' />
                 Withdraw
               </Button>
             </div>
@@ -219,16 +219,51 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
       <Dialog open={addMoneyOpen} onOpenChange={closeAddMoneyDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Add Money to {pot.name}</DialogTitle>
+            <DialogTitle>Add to '{pot.name}'</DialogTitle>
           </DialogHeader>
-          <div className='space-y-4 py-4'>
+          <div className='space-y-6 py-4'>
+            <p className='text-sm text-gray-500'>
+              Add money to your pot to keep it separate from your main balance.
+              As soon as you add this money, it will be deducted from your
+              current balance.
+            </p>
+
             {error && (
               <div className='bg-red-50 text-red-600 p-3 rounded-md text-sm'>
                 {error}
               </div>
             )}
+
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Amount</label>
+              <label className='text-sm font-medium'>New Amount</label>
+              <div className='text-3xl font-bold'>
+                {formatCurrency(pot.total + (Number(amount) || 0))}
+              </div>
+
+              {/* Progress bar */}
+              <div className='w-full bg-gray-100 rounded-full h-2 mt-4'>
+                <div
+                  className='h-2 rounded-full'
+                  style={{
+                    width: `${Math.min(100, ((pot.total + (Number(amount) || 0)) / pot.target) * 100)}%`,
+                    backgroundColor: pot.theme,
+                  }}
+                />
+              </div>
+              <div className='flex justify-between items-center text-xs text-gray-500 mt-1'>
+                <span className='font-semibold'>
+                  {(
+                    ((pot.total + (Number(amount) || 0)) / pot.target) *
+                    100
+                  ).toFixed(2)}
+                  %
+                </span>
+                <span>Target of {formatCurrency(pot.target)}</span>
+              </div>
+            </div>
+
+            <div className='space-y-2 mt-4'>
+              <label className='text-sm font-medium'>Amount to Add</label>
               <div className='relative'>
                 <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
                   <span className='text-gray-500'>£</span>
@@ -245,20 +280,13 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant='outline' onClick={closeAddMoneyDialog}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleAddMoney}
-              disabled={
-                addMoney.isPending || !amount || parseFloat(amount) <= 0
-              }
-              className='bg-black text-white hover:bg-black/90'
-            >
-              {addMoney.isPending ? 'Adding...' : 'Add Money'}
-            </Button>
-          </DialogFooter>
+          <Button
+            onClick={handleAddMoney}
+            disabled={addMoney.isPending || !amount || parseFloat(amount) <= 0}
+            className='w-full bg-[#202020] text-white hover:bg-[#000000] py-6'
+          >
+            Confirm Addition
+          </Button>
         </DialogContent>
       </Dialog>
 
@@ -266,19 +294,52 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
       <Dialog open={withdrawOpen} onOpenChange={closeWithdrawDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Withdraw from {pot.name}</DialogTitle>
+            <DialogTitle>Withdraw from '{pot.name}'</DialogTitle>
           </DialogHeader>
-          <div className='space-y-4 py-4'>
+          <div className='space-y-6 py-4'>
             <p className='text-sm text-gray-500'>
-              Available balance: {formatCurrency(pot.total)}
+              Withdraw from your pot to put money back in your main balance.
+              This will reduce the amount you have in this pot.
             </p>
+
             {error && (
               <div className='bg-red-50 text-red-600 p-3 rounded-md text-sm'>
                 {error}
               </div>
             )}
+
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Amount</label>
+              <label className='text-sm font-medium'>New Amount</label>
+              <div className='text-3xl font-bold'>
+                {formatCurrency(Math.max(0, pot.total - (Number(amount) || 0)))}
+              </div>
+
+              {/* Progress bar */}
+              <div className='w-full bg-gray-100 rounded-full h-2 mt-4'>
+                <div
+                  className='h-2 rounded-full'
+                  style={{
+                    width: `${Math.min(100, Math.max(0, (Math.max(0, pot.total - (Number(amount) || 0)) / pot.target) * 100))}%`,
+                    backgroundColor: pot.theme,
+                  }}
+                />
+              </div>
+              <div className='flex justify-between items-center text-xs text-gray-500 mt-1'>
+                <span className='font-semibold'>
+                  {(
+                    Math.max(
+                      0,
+                      (pot.total - (Number(amount) || 0)) / pot.target
+                    ) * 100
+                  ).toFixed(2)}
+                  %
+                </span>
+                <span>Target of {formatCurrency(pot.target)}</span>
+              </div>
+            </div>
+
+            <div className='space-y-2 mt-4'>
+              <label className='text-sm font-medium'>Amount to Withdraw</label>
               <div className='relative'>
                 <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
                   <span className='text-gray-500'>£</span>
@@ -296,23 +357,18 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant='outline' onClick={closeWithdrawDialog}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleWithdraw}
-              disabled={
-                withdraw.isPending ||
-                !amount ||
-                parseFloat(amount) <= 0 ||
-                parseFloat(amount) > pot.total
-              }
-              className='bg-black text-white hover:bg-black/90'
-            >
-              {withdraw.isPending ? 'Withdrawing...' : 'Withdraw'}
-            </Button>
-          </DialogFooter>
+          <Button
+            onClick={handleWithdraw}
+            disabled={
+              withdraw.isPending ||
+              !amount ||
+              parseFloat(amount) <= 0 ||
+              parseFloat(amount) > pot.total
+            }
+            className='w-full bg-[#202020] text-white hover:bg-[#000000] py-6'
+          >
+            Confirm Withdrawal
+          </Button>
         </DialogContent>
       </Dialog>
     </>

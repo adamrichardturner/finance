@@ -66,8 +66,8 @@ const Overview: React.FC<OverviewProps> = ({
           </div>
         </div>
         <div className='flex flex-col max-[1457px]:flex-col min-[1457px]:grid min-[1457px]:grid-cols-12 gap-[32px]'>
-          <div className='w-full min-[1457px]:col-span-7 flex flex-col gap-[32px]'>
-            <div>
+          <div className='w-full min-[1457px]:col-span-7 flex flex-col gap-[32px] cursor-pointer'>
+            <div onClick={() => handleNavigate('/pots')}>
               <Pots pots={pots} />
             </div>
 
