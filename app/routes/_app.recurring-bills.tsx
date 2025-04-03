@@ -66,16 +66,32 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   // Get financial data from the service which will fall back to JSON file if DB fails
   const financialData = await getFinancialData()
 
-  // Get all transactions
-  const transactions = financialData.transactions || []
+  // Debug: Log bills data
+  console.log(
+    'Bills Data:',
+    financialData.bills.map((bill) => ({
+      name: bill.name,
+      isPaid: bill.isPaid,
+      isOverdue: bill.isOverdue,
+    }))
+  )
 
-  // Filter for recurring transactions only
-  const recurringTransactions = transactions
-    .filter((transaction) => transaction.recurring === true)
-    .map(transformToAppTransaction)
+  // Transform bills to AppTransaction format
+  const billsTransactions = financialData.bills.map((bill) => ({
+    id: bill.id.toString(),
+    date: bill.date instanceof Date ? bill.date.toISOString() : bill.date,
+    description: bill.name,
+    amount: bill.amount,
+    type: bill.amount > 0 ? 'income' : 'expense',
+    category: bill.category,
+    avatar: bill.avatar,
+    dueDay: bill.dueDay,
+    isPaid: bill.isPaid,
+    isOverdue: bill.isOverdue,
+  }))
 
   // Calculate total of recurring bills (only negative amounts)
-  const recurringBills = recurringTransactions.filter((tx) => tx.amount < 0)
+  const recurringBills = billsTransactions.filter((tx) => tx.amount < 0)
   const totalBills = recurringBills.reduce(
     (total, tx) => total + Math.abs(tx.amount),
     0
@@ -84,26 +100,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   // Get today's date
   const today = new Date()
 
-  // Only consider a bill paid if it has isPaid=true
-  // Otherwise, bills before today without isPaid specified are considered paid
-  const paidBillsList = recurringBills.filter(
-    (bill) =>
-      bill.isPaid === true ||
-      (bill.isPaid === undefined && new Date(bill.date) < today)
-  )
-
-  // Only consider upcoming bills those that aren't paid
+  // Filter bills based on their isPaid status
+  const paidBillsList = recurringBills.filter((bill) => bill.isPaid === true)
   const upcomingBillsList = recurringBills.filter(
-    (bill) =>
-      bill.isPaid === false ||
-      (bill.isPaid === undefined && new Date(bill.date) >= today)
+    (bill) => bill.isPaid === false
   )
 
   // Bills due within the next 5 days are considered "due soon"
   const fiveDaysFromNow = new Date(today)
   fiveDaysFromNow.setDate(today.getDate() + 5)
   const dueSoonBillsList = upcomingBillsList.filter(
-    (bill) => new Date(bill.date) <= fiveDaysFromNow
+    (bill) => !bill.isOverdue && new Date(bill.date) <= fiveDaysFromNow
   )
 
   // Calculate summary amounts
@@ -121,7 +128,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   )
 
   return {
-    transactions: recurringTransactions.filter((tx) => tx.amount < 0),
+    transactions: recurringBills,
     summary: {
       totalBills,
       paidBills,

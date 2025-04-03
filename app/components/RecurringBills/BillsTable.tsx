@@ -1,8 +1,9 @@
 import React from 'react'
-import { format, isAfter, subMonths } from 'date-fns'
+import { format, subMonths } from 'date-fns'
 import { AppTransaction } from '~/utils/transform-data'
 import { renderAvatar } from '~/utils/avatar-utils'
-import { CheckCircle2, AlertTriangle } from 'lucide-react'
+import { CheckCircle2, AlertCircle } from 'lucide-react'
+import Warning from '../../../public/assets/icons/warning.svg'
 
 interface BillsTableProps {
   bills: AppTransaction[]
@@ -69,6 +70,11 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
       return bill.isPaid
     }
 
+    // If it's explicitly marked as overdue, it's not paid
+    if (bill.isOverdue === true) {
+      return false
+    }
+
     // Otherwise fall back to date-based logic
     return (
       isOverAMonthOld(bill.date) ||
@@ -117,17 +123,10 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
               const paid = isPaid(bill)
               const overdue = checkOverdue(bill)
 
-              // Debug overdue calculation
-              console.log(
-                `Bill ${bill.description}: isPaid=${paid}, isOverdue property=${bill.isOverdue}, calculated overdue=${overdue}`
-              )
-
               return (
                 <tr
                   key={bill.id}
-                  className={`border-b hover:bg-gray-50 min-h-[56px] ${
-                    overdue ? 'border-l-2 border-l-[#C94736]' : ''
-                  }`}
+                  className={`border-b hover:bg-gray-50 min-h-[56px]`}
                 >
                   <td className='py-4 max-[640px]:py-3'>
                     <div className='flex items-center gap-3'>
@@ -155,7 +154,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                           {paid ? (
                             <CheckCircle2 className='h-4 w-4 text-green-500 ml-2' />
                           ) : overdue ? (
-                            <AlertTriangle className='h-4 w-4 text-[#C94736] ml-2' />
+                            <AlertCircle className='h-4 w-4 text-[#C94736] ml-2' />
                           ) : null}
                         </div>
                       </div>
@@ -180,7 +179,11 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                       {paid ? (
                         <CheckCircle2 className='h-4 w-4 text-green-500 ml-2' />
                       ) : overdue ? (
-                        <AlertTriangle className='h-4 w-4 text-[#C94736] ml-2' />
+                        <img
+                          src={Warning}
+                          alt='Warning Icon'
+                          className='h-4 w-4 text-[#C94736] ml-2'
+                        />
                       ) : null}
                     </div>
                   </td>

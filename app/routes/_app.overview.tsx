@@ -1,11 +1,11 @@
 import { type MetaFunction, type LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import Overview from '~/components/Overview'
-import { Budget, Pot, Transaction } from '~/types/finance.types'
+import { Budget, Pot, Transaction, Bill } from '~/types/finance.types'
 import { AppTransaction } from '~/utils/transform-data'
 import { requireUserId } from '~/services/auth/session.server'
 import { getBudgets } from '~/models/budget.server'
-import { getFinancialDataByUserId } from '~/repositories/finance.repository'
+import { getFinancialData } from '~/services/finance/finance.service'
 import { useMemo } from 'react'
 
 export const meta: MetaFunction = () => {
@@ -55,8 +55,24 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   // Get budget data
   const budgets = await getBudgets(userId)
 
-  // Get financial data
-  const financialData = await getFinancialDataByUserId(userId)
+  // Get financial data (using getFinancialData to ensure we have the bills property)
+  const financialData = await getFinancialData()
+
+  // Transform bills to AppTransaction format for components
+  const billsTransactions = financialData.bills
+    ? financialData.bills.map((bill: Bill) => ({
+        id: bill.id.toString(),
+        date: bill.date instanceof Date ? bill.date.toISOString() : bill.date,
+        description: bill.name,
+        amount: bill.amount,
+        type: bill.amount > 0 ? 'income' : 'expense',
+        category: bill.category,
+        avatar: bill.avatar,
+        dueDay: bill.dueDay,
+        isPaid: bill.isPaid,
+        isOverdue: bill.isOverdue,
+      }))
+    : []
 
   // Calculate main account balance and total pots balance
   const mainAccountBalance = Number(financialData.balance?.current || 0)
@@ -81,15 +97,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     if (financialData?.transactions && financialData.transactions.length > 0) {
       const currentMonth = new Date().getMonth()
-      const currentYear = new Date().getFullYear()
 
       income = financialData.transactions
         .filter((transaction) => {
           const txDate = new Date(transaction.date)
           return (
-            transaction.amount > 0 &&
-            txDate.getMonth() === currentMonth &&
-            txDate.getFullYear() === currentYear
+            transaction.amount > 0 && txDate.getMonth() === currentMonth
+            // Removed year check to show income regardless of year
           )
         })
         .reduce((sum, transaction) => sum + transaction.amount, 0)
@@ -103,15 +117,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     if (financialData?.transactions && financialData.transactions.length > 0) {
       const currentMonth = new Date().getMonth()
-      const currentYear = new Date().getFullYear()
 
       expenses = financialData.transactions
         .filter((transaction) => {
           const txDate = new Date(transaction.date)
           return (
-            transaction.amount < 0 &&
-            txDate.getMonth() === currentMonth &&
-            txDate.getFullYear() === currentYear
+            transaction.amount < 0 && txDate.getMonth() === currentMonth
+            // Removed year check to show expenses regardless of year
           )
         })
         .reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0)
@@ -137,6 +149,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     financialData,
     pots: financialData?.pots || [],
     transactions: appTransactions,
+    bills: billsTransactions,
   }
 }
 
@@ -150,6 +163,7 @@ export default function OverviewRoute() {
     income,
     expenses,
     transactions,
+    bills,
   } = useLoaderData<typeof loader>()
 
   return (
@@ -162,6 +176,7 @@ export default function OverviewRoute() {
       totalBalance={totalBalance}
       income={income}
       expenses={expenses}
+      bills={bills as AppTransaction[]}
     />
   )
 }

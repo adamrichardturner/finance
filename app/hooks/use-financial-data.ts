@@ -11,6 +11,7 @@ const initialFinancialData: FinancialData = {
   transactions: [],
   budgets: [],
   pots: [],
+  bills: [],
 }
 
 // Fetch financial data function

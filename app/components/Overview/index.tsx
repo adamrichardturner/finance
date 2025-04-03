@@ -17,6 +17,7 @@ interface OverviewProps {
   pots: Pot[]
   budgets: Budget[]
   transactions: AppTransaction[]
+  bills: AppTransaction[]
 }
 
 const Overview: React.FC<OverviewProps> = ({
@@ -28,6 +29,7 @@ const Overview: React.FC<OverviewProps> = ({
   pots,
   budgets,
   transactions,
+  bills,
 }) => {
   const navigate = useNavigate()
   const handleNavigate = (path: string) => {
@@ -44,6 +46,9 @@ const Overview: React.FC<OverviewProps> = ({
       minimumFractionDigits: 2,
     }).format(amount)
   }
+
+  // Get recurringBills for the RecurringBills component
+  const recurringBills = bills.filter((bill) => bill.amount < 0)
 
   return (
     <div className='w-full mb-12 sm:mt-[0px] sm:my-[0px]'>
@@ -91,7 +96,9 @@ const Overview: React.FC<OverviewProps> = ({
               onClick={() => handleNavigate('/recurring-bills')}
               className='flex-1 cursor-pointer'
             >
-              <RecurringBills bills={transactions} />
+              {recurringBills.length > 0 && (
+                <RecurringBills bills={recurringBills} />
+              )}
             </div>
           </div>
         </div>

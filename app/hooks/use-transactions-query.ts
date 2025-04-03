@@ -18,21 +18,41 @@ function transformToAppTransaction(transaction: Transaction): AppTransaction {
     type: transaction.amount > 0 ? 'income' : 'expense',
     category: transaction.category,
     avatar: processAvatarPath(transaction.avatar),
+    recurring: transaction.recurring,
+    dueDay: transaction.dueDay,
+    isPaid: transaction.isPaid,
+    isOverdue: transaction.isOverdue,
+  }
+}
+
+// Get data from JSON file as fallback
+const fetchTransactionsFromJson = async () => {
+  try {
+    const response = await fetch('/data.json')
+    if (!response.ok) {
+      throw new Error(`Failed to fetch JSON data: ${response.statusText}`)
+    }
+    const data = await response.json()
+    return data.transactions || []
+  } catch (err) {
+    console.error('Error fetching from JSON:', err)
+    return []
   }
 }
 
 // Get data directly from API endpoint
 const fetchTransactionsDirectly = async () => {
   try {
-    const response = await fetch('/api/transactions')
+    const response = await fetch('/api/financial-data')
     if (!response.ok) {
       throw new Error(`Failed to fetch transactions: ${response.statusText}`)
     }
     const data = await response.json()
-    return data
+    return data.transactions || []
   } catch (err) {
     console.error('Error fetching transactions directly:', err)
-    throw err
+    // Return empty array instead of throwing
+    return []
   }
 }
 
@@ -47,9 +67,15 @@ export function useTransactionsQuery() {
         return financialData.transactions.map(transformToAppTransaction)
       }
 
-      // Otherwise, fetch directly as a fallback
-      const data = await fetchTransactionsDirectly()
-      return Array.isArray(data) ? data.map(transformToAppTransaction) : []
+      // Try fetching from API
+      const apiData = await fetchTransactionsDirectly()
+      if (apiData && apiData.length > 0) {
+        return apiData.map(transformToAppTransaction)
+      }
+
+      // Fallback to JSON file
+      const jsonData = await fetchTransactionsFromJson()
+      return jsonData.map(transformToAppTransaction)
     },
     // Always run this query, don't wait for loading state
     enabled: true,
@@ -57,5 +83,8 @@ export function useTransactionsQuery() {
     staleTime: 5 * 60 * 1000,
     // Don't refetch on window focus
     refetchOnWindowFocus: false,
+    // Add retry options
+    retry: 2,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
   })
 }

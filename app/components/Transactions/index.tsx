@@ -211,10 +211,10 @@ export function Transactions() {
                 Sort by
               </label>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className='w-[120px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
+                <SelectTrigger className='w-[160px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                   <SelectValue placeholder='Sort by' />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='min-w-[160px]'>
                   <SelectItem value='latest'>Latest</SelectItem>
                   <SelectItem value='oldest'>Oldest</SelectItem>
                   <SelectItem value='a-z'>A to Z</SelectItem>
@@ -230,10 +230,10 @@ export function Transactions() {
                 Category
               </label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className='w-[140px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
+                <SelectTrigger className='w-[180px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                   <SelectValue placeholder='Category' />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='min-w-[180px] max-h-[300px] overflow-y-auto'>
                   <SelectItem value='all'>All Transactions</SelectItem>
                   {categories.map(
                     (cat: string) =>
@@ -420,7 +420,7 @@ export function Transactions() {
                       <Table className='hide-scrollbar'>
                         <TableHeader className='sticky top-0 bg-card z-10'>
                           <TableRow className='border-b border-gray-200'>
-                            <TableHead className='w-[30%] text-[12px]'>
+                            <TableHead className='w-[40%] text-[12px]'>
                               Recipient / Sender
                             </TableHead>
                             <TableHead className='w-[15%] text-left text-[12px]'>
@@ -453,9 +453,9 @@ export function Transactions() {
                                     {transaction.description}
                                   </span>
                                 </TableCell>
-                                <TableCell className='text-left '>
+                                <TableCell className='text-left'>
                                   <div
-                                    className='flex items-center gap-2 cursor-pointer hover:font-[600] transition-all'
+                                    className='flex items-center justify-start gap-2 cursor-pointer hover:font-[600] transition-all'
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       handleCategoryClick(transaction.category)
@@ -474,7 +474,7 @@ export function Transactions() {
                                     </span>
                                   </div>
                                 </TableCell>
-                                <TableCell className='font-[400] text-[12px]'>
+                                <TableCell className='font-[400] text-[12px] text-left'>
                                   {formatTransactionDate(transaction.date)}
                                 </TableCell>
                                 <TableCell
@@ -506,7 +506,7 @@ export function Transactions() {
                             custom={index}
                             className='flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0 transition-colors duration-200 hover:bg-[#f9f9f9] rounded-lg cursor-pointer mb-1'
                           >
-                            <div className='flex items-start gap-3'>
+                            <div className='flex items-start gap-3 flex-1'>
                               {renderTransactionAvatar(transaction)}
                               <div className='flex flex-col'>
                                 <span
@@ -519,7 +519,7 @@ export function Transactions() {
                                   {transaction.description}
                                 </span>
                                 <span
-                                  className='text-xs text-gray-500 font-normal flex items-center gap-1 cursor-pointer hover:font-[700] transition-all'
+                                  className='text-xs text-gray-500 font-normal flex items-center gap-1 cursor-pointer hover:font-[700] transition-all mt-1'
                                   onClick={(e) => {
                                     e.stopPropagation()
                                     handleCategoryClick(transaction.category)
@@ -544,7 +544,7 @@ export function Transactions() {
                                 {transaction.amount >= 0 ? '+' : '-'}
                                 {formatCurrency(Math.abs(transaction.amount))}
                               </span>
-                              <span className='text-xs text-gray-500 font-normal'>
+                              <span className='text-xs text-gray-500 font-normal text-center'>
                                 {formatTransactionDate(transaction.date)}
                               </span>
                             </div>

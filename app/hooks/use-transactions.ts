@@ -193,13 +193,26 @@ export function useTransactions(): UseTransactionsReturn {
   }, [filteredTransactions, page])
 
   // Get unique categories for filter dropdown
-  const categories = useMemo(() => {
+  const categories = useMemo<string[]>(() => {
     if (!transactions) return []
 
-    const uniqueCategories = [
-      ...new Set(transactions.map((tx: AppTransaction) => tx.category)),
-    ]
-    return ['All Transactions', ...uniqueCategories] as string[]
+    // First, map transactions to capitalized category names
+    const allCategories = transactions.map(
+      (tx: AppTransaction) =>
+        tx.category.charAt(0).toUpperCase() + tx.category.slice(1).toLowerCase()
+    )
+
+    // Then create a unique set by filtering
+    const uniqueCategories: string[] = allCategories.filter(
+      (category: string, index: number, self: string[]) =>
+        self.indexOf(category) === index
+    )
+
+    // Sort categories alphabetically
+    uniqueCategories.sort((a, b) => a.localeCompare(b))
+
+    // Add 'All Transactions' at the beginning
+    return ['All Transactions', ...uniqueCategories]
   }, [transactions])
 
   const loadMore = useCallback(() => {

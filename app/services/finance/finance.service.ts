@@ -5,6 +5,7 @@ import {
   FinancialData,
   Pot,
   Transaction,
+  Bill,
 } from '~/types/finance.types'
 import fs from 'fs'
 import path from 'path'
@@ -47,11 +48,15 @@ export async function getFinancialData(): Promise<FinancialData> {
 
     const pots = await db<Pot>('pots').select('*')
 
+    // Get bills
+    const bills = await db<Bill>('bills').select('*').orderBy('date', 'desc')
+
     return {
       balance: balance || { current: 0, income: 0, expenses: 0 },
       transactions: transactions || [],
       budgets: budgets || [],
       pots: pots || [],
+      bills: bills || [],
     }
   } catch (error) {
     console.error('Error accessing database, falling back to JSON file:', error)
