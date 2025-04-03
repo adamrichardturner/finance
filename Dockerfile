@@ -38,6 +38,7 @@ COPY --from=builder /app/server.js ./server.js
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/app/lib ./app/lib
+COPY --from=builder /app/knexfile.ts ./knexfile.ts
 
 # Set production port (default port will be set by server.js based on NODE_ENV)
 ENV NODE_ENV=production
