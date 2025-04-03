@@ -15,6 +15,9 @@ export interface Transaction {
   date: string | Date
   amount: number
   recurring: boolean
+  dueDay?: number
+  isPaid?: boolean
+  isOverdue?: boolean
   created_at?: string
   updated_at?: string
 }

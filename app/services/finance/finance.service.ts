@@ -199,13 +199,6 @@ export async function updatePotBalance({
   userId: string
   amount: number // Positive for adding, negative for withdrawing
 }): Promise<Pot> {
-  console.log('updatePotBalance called with:', {
-    id,
-    userId,
-    amount,
-    amountType: typeof amount,
-  })
-
   // Ensure amount is a proper number
   const numAmount = Number(amount)
 
@@ -216,19 +209,11 @@ export async function updatePotBalance({
     throw new Error('Pot not found')
   }
 
-  console.log('Existing pot type:', typeof pot.total, 'value:', pot.total)
-
   // Ensure pot.total is a number
   const currentTotal = Number(pot.total || 0)
 
   // Calculate new total (rounded to 2 decimal places)
   const newTotal = Math.round((currentTotal + numAmount) * 100) / 100
-
-  console.log('Calculated new total:', {
-    existingTotal: currentTotal,
-    amountToAdd: numAmount,
-    newTotal,
-  })
 
   // Validate that withdrawal doesn't exceed current total
   if (newTotal < 0) {
@@ -246,8 +231,6 @@ export async function updatePotBalance({
         updated_at: new Date().toISOString(),
       })
       .returning('*')
-
-    console.log('Updated pot in transaction:', updatedPot)
 
     // 2. Update the main account balance
     // When adding money to pot (positive amount), decrease main balance
@@ -287,7 +270,6 @@ export async function updatePotBalance({
     }
 
     await trx('transactions').insert(transactionData)
-    console.log('Created transaction for pot movement:', transactionData)
 
     return updatedPot
   })

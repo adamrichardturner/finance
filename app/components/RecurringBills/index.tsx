@@ -82,6 +82,17 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
         bill.category.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
     )
 
+  // Debug log to check overdue status
+  console.log(
+    'Filtered Bills:',
+    filteredBills.map((bill) => ({
+      name: bill.description,
+      isOverdue: bill.isOverdue,
+      isPaid: bill.isPaid,
+      date: bill.date,
+    }))
+  )
+
   // Sort bills based on selection
   const sortedBills = [...filteredBills].sort((a, b) => {
     switch (sortBy) {

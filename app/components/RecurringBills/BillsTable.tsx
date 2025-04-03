@@ -64,11 +64,12 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
 
   // For demo purposes, consider bills with dates in the past as paid unless explicitly marked as unpaid
   const isPaid = (bill: AppTransaction): boolean => {
-    // Use the explicit isPaid property if available
+    // If isPaid is explicitly defined, always respect that value
     if (bill.isPaid !== undefined) {
       return bill.isPaid
     }
-    // Otherwise fall back to the previous logic
+
+    // Otherwise fall back to date-based logic
     return (
       isOverAMonthOld(bill.date) ||
       (isOverdue(bill.date) && Math.random() > 0.3)
@@ -77,12 +78,21 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
 
   // Check if a bill is overdue
   const checkOverdue = (bill: AppTransaction): boolean => {
-    // Use the explicit isOverdue property if available
+    // If explicitly marked as overdue, respect that value
     if (bill.isOverdue !== undefined) {
       return bill.isOverdue
     }
-    // Otherwise fall back to the date-based logic
-    return isOverdue(bill.date)
+
+    // If it's paid, it can't be overdue
+    if (isPaid(bill)) {
+      return false
+    }
+
+    // Otherwise, check date
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const billDate = new Date(bill.date)
+    return billDate < today
   }
 
   return (
@@ -107,10 +117,17 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
               const paid = isPaid(bill)
               const overdue = checkOverdue(bill)
 
+              // Debug overdue calculation
+              console.log(
+                `Bill ${bill.description}: isPaid=${paid}, isOverdue property=${bill.isOverdue}, calculated overdue=${overdue}`
+              )
+
               return (
                 <tr
                   key={bill.id}
-                  className='border-b hover:bg-gray-50 min-h-[56px]'
+                  className={`border-b hover:bg-gray-50 min-h-[56px] ${
+                    overdue ? 'border-l-2 border-l-[#C94736]' : ''
+                  }`}
                 >
                   <td className='py-4 max-[640px]:py-3'>
                     <div className='flex items-center gap-3'>
@@ -119,17 +136,18 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                       </div>
                       <div className='flex-1'>
                         <p className='font-medium'>{bill.description}</p>
-                        <p className='hidden sm:block text-sm text-gray-500'>
-                          {bill.category}
-                        </p>
                         {/* Show due date under description on small screens */}
                         <div className='sm:hidden flex items-center mt-1'>
                           {isOverAMonthOld(bill.date) ? (
-                            <p className='text-[12px] text-gray-600'>
+                            <p
+                              className={`text-[12px] ${overdue ? 'text-[#C94736]' : 'text-gray-600'}`}
+                            >
                               {format(new Date(bill.date), 'dd/MM/yyyy')}
                             </p>
                           ) : (
-                            <p className='text-[12px] text-gray-600'>
+                            <p
+                              className={`text-[12px] ${overdue ? 'text-[#C94736]' : 'text-gray-600'}`}
+                            >
                               Monthly-{formatDueDay(getDueDay(bill))}
                             </p>
                           )}
@@ -138,11 +156,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                             <CheckCircle2 className='h-4 w-4 text-green-500 ml-2' />
                           ) : overdue ? (
                             <AlertTriangle className='h-4 w-4 text-[#C94736] ml-2' />
-                          ) : isUpcoming(bill.date) ? (
-                            <div className='w-2 h-2 rounded-full bg-green-500 ml-2'></div>
-                          ) : (
-                            <div className='w-2 h-2 rounded-full bg-blue-500 ml-2'></div>
-                          )}
+                          ) : null}
                         </div>
                       </div>
                     </div>
@@ -150,11 +164,15 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                   <td className='py-4 max-[640px]:py-3 sm:table-cell hidden'>
                     <div className='flex items-center'>
                       {isOverAMonthOld(bill.date) ? (
-                        <p className='text-[12px] text-gray-600'>
+                        <p
+                          className={`text-[12px] ${overdue ? 'text-[#C94736]' : 'text-gray-600'}`}
+                        >
                           {format(new Date(bill.date), 'dd/MM/yyyy')}
                         </p>
                       ) : (
-                        <p className='text-[12px] text-gray-600'>
+                        <p
+                          className={`text-[12px] ${overdue ? 'text-[#C94736]' : 'text-gray-600'}`}
+                        >
                           Monthly-{formatDueDay(getDueDay(bill))}
                         </p>
                       )}
@@ -163,16 +181,20 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                         <CheckCircle2 className='h-4 w-4 text-green-500 ml-2' />
                       ) : overdue ? (
                         <AlertTriangle className='h-4 w-4 text-[#C94736] ml-2' />
-                      ) : isUpcoming(bill.date) ? (
-                        <div className='w-2 h-2 rounded-full bg-green-500 ml-2'></div>
-                      ) : (
-                        <div className='w-2 h-2 rounded-full bg-blue-500 ml-2'></div>
-                      )}
+                      ) : null}
                     </div>
                   </td>
                   <td className='py-4 max-[640px]:py-3 text-right font-medium max-[640px]:text-[#C94736] max-[640px]:font-bold'>
                     {bill.amount < 0 ? (
-                      formatCurrency(bill.amount)
+                      <span
+                        className={
+                          overdue
+                            ? 'text-[#C94736] font-medium'
+                            : 'text-gray-900'
+                        }
+                      >
+                        {formatCurrency(bill.amount)}
+                      </span>
                     ) : (
                       <span className='text-green-600'>
                         {formatCurrency(bill.amount)}

@@ -15,7 +15,6 @@ const initialFinancialData: FinancialData = {
 
 // Fetch financial data function
 async function fetchFinancialData(): Promise<FinancialData> {
-  console.log('Fetching financial data from API')
   const response = await fetch('/api/financial-data')
 
   if (!response.ok) {
@@ -23,9 +22,6 @@ async function fetchFinancialData(): Promise<FinancialData> {
   }
 
   const data = await response.json()
-  console.log(
-    `Fetched financial data with ${data.transactions.length} transactions`
-  )
   return data
 }
 

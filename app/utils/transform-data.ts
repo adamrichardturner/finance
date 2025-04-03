@@ -31,5 +31,7 @@ export function transformDbTransaction(
     avatar: transaction.avatar,
     recurring: transaction.recurring,
     dueDay: transaction.dueDay || new Date(transaction.date).getDate(),
+    isPaid: transaction.isPaid,
+    isOverdue: transaction.isOverdue,
   }
 }

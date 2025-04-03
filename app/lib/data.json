@@ -316,7 +316,9 @@
       "date": "2024-08-21T12:00:00Z",
       "amount": -9.99,
       "recurring": true,
-      "dueDay": 21
+      "dueDay": 21,
+      "isPaid": false,
+      "isOverdue": true
     },
     {
       "avatar": "/assets/avatars/bytewise.jpg",
@@ -325,7 +327,9 @@
       "date": "2024-08-23T14:30:00Z",
       "amount": -49.99,
       "recurring": true,
-      "dueDay": 23
+      "dueDay": 23,
+      "isPaid": false,
+      "isOverdue": true
     },
     {
       "avatar": "/assets/avatars/ecofuel-energy.jpg",
@@ -334,7 +338,9 @@
       "date": "2024-08-29T10:15:00Z",
       "amount": -35.0,
       "recurring": true,
-      "dueDay": 29
+      "dueDay": 29,
+      "isPaid": false,
+      "isOverdue": false
     },
     {
       "avatar": "/assets/avatars/premium-internet.jpg",

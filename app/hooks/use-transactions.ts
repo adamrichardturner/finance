@@ -108,7 +108,6 @@ export function useTransactions(): UseTransactionsReturn {
   // Filter and sort transactions
   const filteredTransactions = useMemo(() => {
     if (!transactions) {
-      console.error('No transactions data received')
       return []
     }
 
@@ -200,7 +199,7 @@ export function useTransactions(): UseTransactionsReturn {
     const uniqueCategories = [
       ...new Set(transactions.map((tx: AppTransaction) => tx.category)),
     ]
-    return ['All Transactions', ...uniqueCategories]
+    return ['All Transactions', ...uniqueCategories] as string[]
   }, [transactions])
 
   const loadMore = useCallback(() => {

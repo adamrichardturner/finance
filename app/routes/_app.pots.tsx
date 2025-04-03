@@ -15,7 +15,6 @@ import {
   updatePotBalance,
 } from '~/services/finance/finance.service'
 import { useEffect } from 'react'
-import db from '~/lib/db.server'
 
 export const meta: MetaFunction = () => {
   return [
@@ -127,72 +126,30 @@ export async function action({ request }: ActionFunctionArgs) {
     const potId = formData.get('potId')
     const amount = formData.get('amount')
 
-    console.log('Raw amount from form:', amount, typeof amount)
-
     if (typeof potId !== 'string' || typeof amount !== 'string') {
       return data({ error: 'Invalid form data' }, { status: 400 })
     }
 
-    // Ensure we parse the amount correctly as a number
-    const parsedAmount = Number(amount)
-    console.log('Parsed amount:', parsedAmount, typeof parsedAmount)
+    // Parse the amount from the input field
+    const parsedAmount = parseFloat(amount.replace(/[^0-9.-]+/g, ''))
+    if (isNaN(parsedAmount)) {
+      return data({ error: 'Invalid amount' }, { status: 400 })
+    }
 
-    // For withdrawals, convert the amount to negative
-    const finalAmount =
-      intent === 'withdraw' ? -Math.abs(parsedAmount) : Math.abs(parsedAmount)
-    console.log('Final amount:', finalAmount, typeof finalAmount)
+    // Ensure amount is positive
+    const finalAmount = Math.abs(parsedAmount)
 
     try {
-      // For adding money, check if there's enough in the main account
-      if (intent === 'add-money') {
-        // Get the current balance
-        const balance = await db('balance').where('user_id', userId).first()
-
-        console.log(
-          'Current balance:',
-          balance?.current,
-          typeof balance?.current
-        )
-
-        // Ensure balance.current is a number
-        const currentBalance = Number(balance?.current || 0)
-
-        if (!balance || currentBalance < parsedAmount) {
-          return data(
-            {
-              error: `Not enough funds in your main account. Available: £${currentBalance.toFixed(2)}`,
-            },
-            { status: 400 }
-          )
-        }
-      }
-
-      console.log('Updating pot balance:', {
+      const updatedPot = await updatePotBalance({
         id: parseInt(potId),
         userId,
-        amount: finalAmount,
+        amount: intent === 'add-money' ? finalAmount : -finalAmount,
       })
-      const pot = await updatePotBalance({
-        id: parseInt(potId),
-        userId,
-        amount: finalAmount,
-      })
-      console.log('Updated pot:', pot)
-      return data({ success: true, pot })
+      return data({ success: true, pot: updatedPot })
     } catch (error) {
       console.error('Error updating pot balance:', error)
-      if (error instanceof Error && error.message === 'Pot not found') {
-        return data({ error: 'Pot not found' }, { status: 404 })
-      } else if (
-        error instanceof Error &&
-        error.message.includes('Cannot withdraw')
-      ) {
-        return data({ error: error.message }, { status: 400 })
-      }
       return data(
-        {
-          error: `Failed to ${intent === 'add-money' ? 'add money to' : 'withdraw from'} pot`,
-        },
+        { error: error instanceof Error ? error.message : 'Unknown error' },
         { status: 500 }
       )
     }

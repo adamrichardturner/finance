@@ -145,7 +145,6 @@ export function EditBudgetModal({
       } else {
         setError('Failed to update budget')
       }
-      console.error('Failed to update budget:', error)
     }
   }
 

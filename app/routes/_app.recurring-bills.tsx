@@ -1,12 +1,10 @@
 import { type MetaFunction, type LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { requireUserId } from '../services/auth/session.server'
-import {
-  getFinancialDataByUserId,
-  Transaction,
-} from '../repositories/finance.repository'
 import { AppTransaction } from '../utils/transform-data'
 import RecurringBills from '../components/RecurringBills'
+import { getFinancialData } from '../services/finance/finance.service'
+import { Transaction } from '../types/finance.types'
 
 export const meta: MetaFunction = () => {
   return [
@@ -34,8 +32,11 @@ function transformToAppTransaction(transaction: Transaction): AppTransaction {
   }
 
   // Get date string safely
-  const getDateString = (dateValue: string): string => {
+  const getDateString = (dateValue: string | Date): string => {
     try {
+      if (dateValue instanceof Date) {
+        return dateValue.toISOString().split('T')[0]
+      }
       return new Date(dateValue).toISOString().split('T')[0]
     } catch (e) {
       return new Date().toISOString().split('T')[0]
@@ -53,14 +54,17 @@ function transformToAppTransaction(transaction: Transaction): AppTransaction {
     avatar: processAvatarPath(transaction.avatar),
     recurring: transaction.recurring || false,
     dueDay: transaction.dueDay || new Date(transaction.date).getDate(),
+    isPaid: transaction.isPaid,
+    isOverdue: transaction.isOverdue,
   }
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const userId = String(await requireUserId(request))
+  // Require user ID for authorization
+  await requireUserId(request)
 
-  // Get financial data from database
-  const financialData = await getFinancialDataByUserId(userId)
+  // Get financial data from the service which will fall back to JSON file if DB fails
+  const financialData = await getFinancialData()
 
   // Get all transactions
   const transactions = financialData.transactions || []
@@ -80,12 +84,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   // Get today's date
   const today = new Date()
 
-  // For demo purposes, let's say bills before today are paid and after are upcoming
+  // Only consider a bill paid if it has isPaid=true
+  // Otherwise, bills before today without isPaid specified are considered paid
   const paidBillsList = recurringBills.filter(
-    (bill) => new Date(bill.date) < today
+    (bill) =>
+      bill.isPaid === true ||
+      (bill.isPaid === undefined && new Date(bill.date) < today)
   )
+
+  // Only consider upcoming bills those that aren't paid
   const upcomingBillsList = recurringBills.filter(
-    (bill) => new Date(bill.date) >= today
+    (bill) =>
+      bill.isPaid === false ||
+      (bill.isPaid === undefined && new Date(bill.date) >= today)
   )
 
   // Bills due within the next 5 days are considered "due soon"

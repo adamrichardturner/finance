@@ -1,6 +1,8 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
 import Pointer from '../../../../public/assets/icons/Pointer.svg'
 import { AppTransaction } from '~/utils/transform-data'
+import { format } from 'date-fns'
+import { AlertTriangle, CheckCircle2 } from 'lucide-react'
 
 interface RecurringBillsProps {
   bills: AppTransaction[]
@@ -21,15 +23,62 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
       currency: 'GBP',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount)
+    }).format(Math.abs(amount))
   }
 
-  // Placeholder values
+  // Placeholder values for summary data
   const summaryData = {
     paidBills: 190.0,
     totalUpcoming: 194.98,
     dueSoon: 59.98,
   }
+
+  // Check if a bill is overdue
+  const isOverdue = (bill: AppTransaction): boolean => {
+    // Use the explicit isOverdue property if available
+    if (bill.isOverdue !== undefined) {
+      return bill.isOverdue
+    }
+    // Otherwise use the date to determine if it's overdue
+    return new Date(bill.date) < new Date()
+  }
+
+  // Check if a bill is paid
+  const isPaid = (bill: AppTransaction): boolean => {
+    if (bill.isPaid !== undefined) {
+      return bill.isPaid
+    }
+    return false
+  }
+
+  // Format the due day with the appropriate suffix
+  const formatDueDay = (day: number): string => {
+    if (day >= 11 && day <= 13) {
+      return `${day}th`
+    }
+
+    switch (day % 10) {
+      case 1:
+        return `${day}st`
+      case 2:
+        return `${day}nd`
+      case 3:
+        return `${day}rd`
+      default:
+        return `${day}th`
+    }
+  }
+
+  // Get due day from transaction
+  const getDueDay = (bill: AppTransaction): number => {
+    if (bill.dueDay) return bill.dueDay
+    return new Date(bill.date).getDate()
+  }
+
+  // Filter to only show recurring bills
+  const recurringBills = bills.filter(
+    (bill) => bill.recurring && bill.amount < 0
+  )
 
   return (
     <Card className='p-[32px] flex flex-col gap-4 shadow-none flex-grow flex-1 h-full'>
