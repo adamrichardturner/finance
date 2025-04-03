@@ -66,16 +66,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   // Get financial data from the service which will fall back to JSON file if DB fails
   const financialData = await getFinancialData()
 
-  // Debug: Log bills data
-  console.log(
-    'Bills Data:',
-    financialData.bills.map((bill) => ({
-      name: bill.name,
-      isPaid: bill.isPaid,
-      isOverdue: bill.isOverdue,
-    }))
-  )
-
   // Transform bills to AppTransaction format
   const billsTransactions = financialData.bills.map((bill) => ({
     id: bill.id.toString(),

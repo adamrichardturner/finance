@@ -96,17 +96,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   let income = 0
   try {
     if (financialData?.transactions && financialData.transactions.length > 0) {
-      const currentMonth = new Date().getMonth()
+      // Remove month filtering for demo purposes
+      const positiveTransactions = financialData.transactions.filter(
+        (transaction) => {
+          // Make sure amount is a number and is positive
+          const amount = Number(transaction.amount)
+          return !isNaN(amount) && amount > 0
+        }
+      )
 
-      income = financialData.transactions
-        .filter((transaction) => {
-          const txDate = new Date(transaction.date)
-          return (
-            transaction.amount > 0 && txDate.getMonth() === currentMonth
-            // Removed year check to show income regardless of year
-          )
-        })
-        .reduce((sum, transaction) => sum + transaction.amount, 0)
+      income = positiveTransactions.reduce((sum, transaction) => {
+        const amount = Number(transaction.amount)
+        return sum + amount
+      }, 0)
     }
   } catch (err) {
     console.error('Error calculating income:', err)
@@ -116,20 +118,31 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   let expenses = 0
   try {
     if (financialData?.transactions && financialData.transactions.length > 0) {
-      const currentMonth = new Date().getMonth()
+      // Remove month filtering for demo purposes
+      const negativeTransactions = financialData.transactions.filter(
+        (transaction) => {
+          // Make sure amount is a number and is negative
+          const amount = Number(transaction.amount)
+          return !isNaN(amount) && amount < 0
+        }
+      )
 
-      expenses = financialData.transactions
-        .filter((transaction) => {
-          const txDate = new Date(transaction.date)
-          return (
-            transaction.amount < 0 && txDate.getMonth() === currentMonth
-            // Removed year check to show expenses regardless of year
-          )
-        })
-        .reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0)
+      expenses = negativeTransactions.reduce((sum, transaction) => {
+        const amount = Number(transaction.amount)
+        return sum + Math.abs(amount)
+      }, 0)
     }
   } catch (err) {
     console.error('Error calculating expenses:', err)
+  }
+
+  // For demo, use the values from balance if calculations are NaN
+  if (isNaN(income) && financialData.balance?.income) {
+    income = Number(financialData.balance.income)
+  }
+
+  if (isNaN(expenses) && financialData.balance?.expenses) {
+    expenses = Number(financialData.balance.expenses)
   }
 
   // The total balance is simply the main account balance

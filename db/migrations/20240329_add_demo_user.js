@@ -44,8 +44,6 @@ export async function up(knex) {
   const existingUser = await knex('users').where({ id: DEMO_USER_ID }).first()
 
   if (!existingUser) {
-    console.log('Creating demo user...')
-
     // 1. Create the demo user
     await knex('users').insert({
       id: DEMO_USER_ID,
@@ -59,18 +57,13 @@ export async function up(knex) {
       created_at: new Date(),
       updated_at: new Date(),
     })
-  } else {
-    console.log('Demo user already exists, skipping user creation')
   }
-
   // Check if financial data is already loaded for the demo user
   const existingBalance = await knex('balance')
     .where({ user_id: DEMO_USER_ID })
     .first()
 
   if (!existingBalance) {
-    console.log('Adding demo financial data...')
-
     // Run operations within a transaction to ensure integrity
     await knex.transaction(async (trx) => {
       // 2. Insert balance data
