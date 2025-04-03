@@ -32,6 +32,8 @@ export default defineConfig({
         v3_singleFetch: true,
         v3_lazyRouteDiscovery: true,
       },
+      // Use standard ignoredRouteFiles pattern
+      ignoredRouteFiles: ['**/.*'],
     }),
     babel({
       filter: /\.[jt]sx?$/,
@@ -43,7 +45,7 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   optimizeDeps: {
-    include: ['react', 'react-dom', 'recharts', 'recharts/types'],
+    include: ['react', 'react-dom', 'recharts'],
     esbuildOptions: {
       // Prevent tree-shaking of recharts internal dependencies
       keepNames: true,

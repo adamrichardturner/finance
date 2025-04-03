@@ -1,14 +1,11 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
 import Pointer from '/assets/icons/Pointer.svg?url'
 import { ChartTooltipContent } from '~/components/ui/charts'
-import { PieChart } from 'recharts'
-import { Pie } from 'recharts'
-import { Cell } from 'recharts'
-import { ResponsiveContainer } from 'recharts'
-import { Tooltip } from 'recharts'
 import { Budget } from '~/types/finance.types'
 import { transformBudgetsToChart } from '~/transformers/budgetTransformer'
 import { useMemo } from 'react'
+import { ClientOnly } from 'remix-utils/client-only'
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
 
 interface BudgetPieChartProps {
   budgets: Budget[]
@@ -16,6 +13,73 @@ interface BudgetPieChartProps {
   showAllCategories?: boolean
   chartSize?: 'sm' | 'lg'
   showHeader?: boolean
+}
+
+// Simple component that directly imports recharts
+const ChartContent = ({
+  chartData,
+  dimensions,
+}: {
+  chartData: any[]
+  dimensions: {
+    containerSize: string
+    outerRadius: number
+    innerRadius: number
+  }
+}) => {
+  return (
+    <ClientOnly
+      fallback={
+        <div className='w-full h-full flex items-center justify-center'>
+          Loading chart...
+        </div>
+      }
+    >
+      {() => (
+        <ResponsiveContainer width='100%' height='100%'>
+          <PieChart>
+            <Pie
+              data={chartData}
+              dataKey='value'
+              nameKey='name'
+              cx='50%'
+              cy='50%'
+              outerRadius={dimensions.outerRadius}
+              innerRadius={dimensions.innerRadius}
+              paddingAngle={2}
+              stroke='none'
+              startAngle={90}
+              endAngle={-270}
+              animationBegin={0}
+              animationDuration={500}
+              animationEasing='ease-out'
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-outer-${index}`} fill={entry.fill} />
+              ))}
+            </Pie>
+            <Tooltip
+              content={
+                <ChartTooltipContent
+                  formatter={(value: number) => formatCurrency(value)}
+                />
+              }
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      )}
+    </ClientOnly>
+  )
+}
+
+// Move this function to the top level for reuse
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value)
 }
 
 export function BudgetPieChart({
@@ -27,15 +91,6 @@ export function BudgetPieChart({
 }: BudgetPieChartProps) {
   if (!budgets || budgets.length === 0) {
     return null
-  }
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value)
   }
 
   const { chartData: allChartData, formattedTotal } = useMemo(
@@ -98,37 +153,18 @@ export function BudgetPieChart({
     </>
   )
 
-  const ChartContent = () => (
+  const ChartWrapper = () => (
     <div className='flex justify-center'>
       <div className={`relative flex-shrink-0 ${dimensions.containerSize}`}>
-        <ResponsiveContainer width='100%' height='100%'>
-          <PieChart>
-            <Pie
-              data={chartData}
-              dataKey='value'
-              nameKey='name'
-              cx='50%'
-              cy='50%'
-              outerRadius={dimensions.outerRadius}
-              innerRadius={dimensions.innerRadius}
-              paddingAngle={2}
-              stroke='none'
-              startAngle={90}
-              endAngle={-270}
-              animationBegin={0}
-              animationDuration={500}
-              animationEasing='ease-out'
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-outer-${index}`} fill={entry.fill} />
-              ))}
-            </Pie>
-
-            <Tooltip
-              content={<ChartTooltipContent formatter={formatCurrency} />}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+        <ClientOnly
+          fallback={
+            <div className='w-full h-full flex items-center justify-center'>
+              Loading chart...
+            </div>
+          }
+        >
+          {() => <ChartContent chartData={chartData} dimensions={dimensions} />}
+        </ClientOnly>
 
         <div className='absolute inset-0 flex flex-col items-center justify-center text-center'>
           <h3 className='text-[32px] font-bold leading-8'>
@@ -143,7 +179,7 @@ export function BudgetPieChart({
   )
 
   if (!showHeader) {
-    return <ChartContent />
+    return <ChartWrapper />
   }
 
   return (
@@ -160,7 +196,7 @@ export function BudgetPieChart({
 
       <div className='flex flex-col sm:flex-row gap-4'>
         <div className='flex justify-center sm:justify-start'>
-          <ChartContent />
+          <ChartWrapper />
         </div>
 
         <div className='hidden sm:flex flex-1 flex-col justify-center gap-4 pl-4'>

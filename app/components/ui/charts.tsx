@@ -18,6 +18,7 @@ interface ChartTooltipContentProps
     name: string
     dataKey: string
     color: string
+    [key: string]: any
   }>
   label?: string
   formatter?: (value: number) => string
