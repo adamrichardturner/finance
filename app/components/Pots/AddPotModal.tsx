@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
@@ -11,6 +11,18 @@ import {
 } from '../ui/select'
 import { usePotMutations } from '~/hooks/use-pot-mutations'
 import { THEME_COLORS } from '~/utils/budget-categories'
+import isEqual from 'lodash/isEqual'
+
+interface PotFormValues {
+  name: string
+  target: string
+  theme: string
+}
+
+interface FormState {
+  original: PotFormValues
+  current: PotFormValues
+}
 
 interface AddPotModalProps {
   isOpen: boolean
@@ -18,18 +30,32 @@ interface AddPotModalProps {
 }
 
 export function AddPotModal({ isOpen, onClose }: AddPotModalProps) {
-  const [name, setName] = useState('')
-  const [target, setTarget] = useState('')
-  const [theme, setTheme] = useState(THEME_COLORS[0].value)
+  const initialValues: PotFormValues = {
+    name: '',
+    target: '',
+    theme: THEME_COLORS[0].value,
+  }
+
+  const [formState, setFormState] = useState<FormState>({
+    original: initialValues,
+    current: initialValues,
+  })
+
   const [error, setError] = useState<string | null>(null)
   const maxNameLength = 30
 
   const { createPot } = usePotMutations()
 
+  // Check if any fields have been modified from their initial state
+  const hasChanges = useMemo(() => {
+    return !isEqual(formState.original, formState.current)
+  }, [formState])
+
   const handleClose = () => {
-    setName('')
-    setTarget('')
-    setTheme(THEME_COLORS[0].value)
+    setFormState({
+      original: initialValues,
+      current: initialValues,
+    })
     setError(null)
     onClose()
   }
@@ -37,23 +63,53 @@ export function AddPotModal({ isOpen, onClose }: AddPotModalProps) {
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     if (value.length <= maxNameLength) {
-      setName(value)
+      setFormState((prev) => ({
+        ...prev,
+        current: {
+          ...prev.current,
+          name: value,
+        },
+      }))
     }
+  }
+
+  const handleTargetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormState((prev) => ({
+      ...prev,
+      current: {
+        ...prev.current,
+        target: e.target.value,
+      },
+    }))
+  }
+
+  const handleThemeChange = (value: string) => {
+    setFormState((prev) => ({
+      ...prev,
+      current: {
+        ...prev.current,
+        theme: value,
+      },
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!name || !target || !theme) {
+    if (
+      !formState.current.name ||
+      !formState.current.target ||
+      !formState.current.theme
+    ) {
       setError('Please fill in all fields')
       return
     }
 
     try {
       await createPot.mutateAsync({
-        name,
-        target: parseFloat(target),
-        theme,
+        name: formState.current.name,
+        target: parseFloat(formState.current.target),
+        theme: formState.current.theme,
       })
       handleClose()
     } catch (error) {
@@ -90,12 +146,12 @@ export function AddPotModal({ isOpen, onClose }: AddPotModalProps) {
               <Input
                 type='text'
                 placeholder='e.g. New Laptop'
-                value={name}
+                value={formState.current.name}
                 onChange={handleNameChange}
                 required
               />
               <div className='absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400'>
-                {maxNameLength - name.length} characters left
+                {maxNameLength - formState.current.name.length} characters left
               </div>
             </div>
           </div>
@@ -109,8 +165,8 @@ export function AddPotModal({ isOpen, onClose }: AddPotModalProps) {
               <Input
                 type='number'
                 placeholder='e.g. 2000'
-                value={target}
-                onChange={(e) => setTarget(e.target.value)}
+                value={formState.current.target}
+                onChange={handleTargetChange}
                 min='0'
                 step='0.01'
                 required
@@ -121,16 +177,24 @@ export function AddPotModal({ isOpen, onClose }: AddPotModalProps) {
 
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Theme</label>
-            <Select value={theme} onValueChange={setTheme} required>
+            <Select
+              value={formState.current.theme}
+              onValueChange={handleThemeChange}
+              required
+            >
               <SelectTrigger>
                 <SelectValue>
-                  {theme && (
+                  {formState.current.theme && (
                     <div className='flex items-center gap-2'>
                       <div
                         className='w-2 h-2 rounded-full'
-                        style={{ backgroundColor: theme }}
+                        style={{ backgroundColor: formState.current.theme }}
                       />
-                      <span>Green</span>
+                      <span>
+                        {THEME_COLORS.find(
+                          (color) => color.value === formState.current.theme
+                        )?.name || 'Select theme'}
+                      </span>
                     </div>
                   )}
                 </SelectValue>
@@ -154,7 +218,13 @@ export function AddPotModal({ isOpen, onClose }: AddPotModalProps) {
           <Button
             type='submit'
             className='w-full bg-black text-white hover:bg-black/90'
-            disabled={createPot.isPending || !name || !target || !theme}
+            disabled={
+              createPot.isPending ||
+              !formState.current.name ||
+              !formState.current.target ||
+              !formState.current.theme ||
+              !hasChanges
+            }
           >
             {createPot.isPending ? 'Creating...' : 'Add Pot'}
           </Button>

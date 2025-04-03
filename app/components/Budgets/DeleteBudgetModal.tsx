@@ -1,10 +1,5 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog'
+import { useState, useMemo } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { useFinancialData } from '~/hooks/use-financial-data'
 import { useBudgetMutations } from '~/hooks/use-budget-mutations'
@@ -20,15 +15,26 @@ export function DeleteBudgetModal({
   budgetId,
   onClose,
 }: DeleteBudgetModalProps) {
+  const [error, setError] = useState<string | null>(null)
   const { financialData } = useFinancialData()
   const { deleteBudget } = useBudgetMutations()
-  const budget = budgetId
-    ? financialData.budgets.find((b) => String(b.id) === budgetId)
-    : undefined
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleClose = () => {
+    setError(null)
+    onClose()
+  }
 
+  const budgetName = useMemo(() => {
+    if (budgetId && financialData?.budgets) {
+      const budget = financialData.budgets.find(
+        (b) => String(b.id) === budgetId
+      )
+      return budget?.category || 'Budget'
+    }
+    return 'Budget'
+  }, [budgetId, financialData?.budgets])
+
+  const handleDelete = async () => {
     if (!budgetId) {
       return
     }
@@ -37,32 +43,45 @@ export function DeleteBudgetModal({
       await deleteBudget.mutateAsync({ budgetId })
       onClose()
     } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message)
+      } else {
+        setError('Failed to delete budget')
+      }
       console.error('Failed to delete budget:', error)
     }
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete '{budget?.category}'?</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete this budget? This action cannot be
-            undone and all the associated data will be permanently removed.
-          </DialogDescription>
+          <DialogTitle>Delete Budget</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className='flex justify-end gap-4'>
-          <Button variant='outline' onClick={onClose} type='button'>
+        <div className='text-sm text-gray-600 mt-1 mb-4'>
+          Are you sure you want to delete "{budgetName}"? This action cannot be
+          undone and all the associated data will be permanently removed.
+        </div>
+
+        {error && (
+          <div className='bg-red-50 text-red-600 p-3 rounded-md text-sm mb-4'>
+            {error}
+          </div>
+        )}
+
+        <div className='flex space-x-2'>
+          <Button variant='outline' className='flex-1' onClick={handleClose}>
             Cancel
           </Button>
           <Button
-            type='submit'
-            className='bg-red-600 text-white hover:bg-red-700'
+            variant='destructive'
+            className='flex-1'
+            onClick={handleDelete}
             disabled={deleteBudget.isPending}
           >
-            {deleteBudget.isPending ? 'Deleting...' : 'Yes, Confirm Deletion'}
+            {deleteBudget.isPending ? 'Deleting...' : 'Delete'}
           </Button>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   )

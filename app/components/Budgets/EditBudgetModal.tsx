@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
@@ -12,6 +12,18 @@ import {
 import { useBudgetMutations } from '~/hooks/use-budget-mutations'
 import { THEME_COLORS, getAvailableCategories } from '~/utils/budget-categories'
 import { Budget } from '~/types/finance.types'
+import isEqual from 'lodash/isEqual'
+
+interface BudgetFormValues {
+  category: string
+  amount: string
+  theme: string
+}
+
+interface FormState {
+  original: BudgetFormValues
+  current: BudgetFormValues
+}
 
 interface EditBudgetModalProps {
   isOpen: boolean
@@ -27,21 +39,43 @@ export function EditBudgetModal({
   budgets,
 }: EditBudgetModalProps) {
   const { updateBudget } = useBudgetMutations()
-  const [category, setCategory] = useState<string>('')
-  const [amount, setAmount] = useState('')
-  const [theme, setTheme] = useState(THEME_COLORS[0].value)
-  const [originalCategory, setOriginalCategory] = useState<string>('')
+
+  // Combined state with original and current values
+  const [formState, setFormState] = useState<FormState>({
+    original: {
+      category: '',
+      amount: '',
+      theme: THEME_COLORS[0].value,
+    },
+    current: {
+      category: '',
+      amount: '',
+      theme: THEME_COLORS[0].value,
+    },
+  })
+
   const [error, setError] = useState<string | null>(null)
+
+  // Track if form has changed from initial values using deep comparison
+  const hasChanges = useMemo(() => {
+    return !isEqual(formState.original, formState.current)
+  }, [formState])
 
   useEffect(() => {
     if (isOpen && budgetId && budgets) {
       const currentBudget = budgets.find((b) => String(b.id) === budgetId)
 
       if (currentBudget) {
-        setCategory(currentBudget.category)
-        setOriginalCategory(currentBudget.category)
-        setAmount(currentBudget.maximum)
-        setTheme(currentBudget.theme)
+        const newValues = {
+          category: currentBudget.category,
+          amount: currentBudget.maximum,
+          theme: currentBudget.theme,
+        }
+
+        setFormState({
+          original: newValues,
+          current: newValues,
+        })
       }
     }
   }, [isOpen, budgetId, budgets])
@@ -52,10 +86,18 @@ export function EditBudgetModal({
   }
 
   const handleCategoryChange = (newCategory: string) => {
+    setFormState((prev) => ({
+      ...prev,
+      current: {
+        ...prev.current,
+        category: newCategory,
+      },
+    }))
+
     if (
-      newCategory.toLowerCase().trim() === originalCategory.toLowerCase().trim()
+      newCategory.toLowerCase().trim() ===
+      formState.original.category.toLowerCase().trim()
     ) {
-      setCategory(newCategory)
       setError(null)
       return
     }
@@ -74,18 +116,38 @@ export function EditBudgetModal({
           `A budget for "${newCategory}" already exists. Please select a different category.`
         )
       } else {
-        setCategory(newCategory)
         setError(null)
       }
     } else {
-      setCategory(newCategory)
+      setError(null)
     }
+  }
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormState((prev) => ({
+      ...prev,
+      current: {
+        ...prev.current,
+        amount: e.target.value,
+      },
+    }))
+  }
+
+  const handleThemeChange = (value: string) => {
+    console.log('Theme changed to:', value)
+    setFormState((prev) => ({
+      ...prev,
+      current: {
+        ...prev.current,
+        theme: value,
+      },
+    }))
   }
 
   const availableCategories = getAvailableCategories(
     budgets,
     budgetId,
-    originalCategory
+    formState.original.category
   )
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,10 +158,13 @@ export function EditBudgetModal({
     }
 
     if (
-      category.toLowerCase().trim() !== originalCategory.toLowerCase().trim() &&
+      formState.current.category.toLowerCase().trim() !==
+        formState.original.category.toLowerCase().trim() &&
       budgets
     ) {
-      const normalizedSelectedCategory = category.toLowerCase().trim()
+      const normalizedSelectedCategory = formState.current.category
+        .toLowerCase()
+        .trim()
 
       const isDuplicate = budgets.some(
         (budget) =>
@@ -109,18 +174,19 @@ export function EditBudgetModal({
 
       if (isDuplicate) {
         setError(
-          `A budget for "${category}" already exists. Please select a different category.`
+          `A budget for "${formState.current.category}" already exists. Please select a different category.`
         )
         return
       }
     }
 
     try {
+      console.log('Updating budget with theme:', formState.current.theme)
       await updateBudget.mutateAsync({
         budgetId,
-        category,
-        maxAmount: parseFloat(amount),
-        theme,
+        category: formState.current.category,
+        maxAmount: parseFloat(formState.current.amount),
+        theme: formState.current.theme,
       })
       onClose()
     } catch (error) {
@@ -147,19 +213,19 @@ export function EditBudgetModal({
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Budget Category</label>
             <Select
-              value={category}
+              value={formState.current.category}
               onValueChange={handleCategoryChange}
               required
             >
               <SelectTrigger>
                 <SelectValue placeholder='Select a category'>
-                  {category && (
+                  {formState.current.category && (
                     <div className='flex items-center gap-2'>
                       <div
                         className='w-2 h-2 rounded-full'
-                        style={{ backgroundColor: theme }}
+                        style={{ backgroundColor: formState.current.theme }}
                       />
-                      {category}
+                      {formState.current.category}
                     </div>
                   )}
                 </SelectValue>
@@ -189,8 +255,8 @@ export function EditBudgetModal({
               <Input
                 type='number'
                 placeholder='e.g. 2000'
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                value={formState.current.amount}
+                onChange={handleAmountChange}
                 min='0'
                 step='0.01'
                 required
@@ -201,18 +267,23 @@ export function EditBudgetModal({
 
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Theme</label>
-            <Select value={theme} onValueChange={setTheme} required>
-              <SelectTrigger>
+            <Select
+              value={formState.current.theme}
+              onValueChange={handleThemeChange}
+              required
+            >
+              <SelectTrigger className='border border-gray-200 hover:border-gray-400 transition-colors shadow-sm'>
                 <SelectValue>
-                  {theme && (
+                  {formState.current.theme && (
                     <div className='flex items-center gap-2'>
                       <div
-                        className='w-2 h-2 rounded-full'
-                        style={{ backgroundColor: theme }}
+                        className='w-4 h-4 rounded-full'
+                        style={{ backgroundColor: formState.current.theme }}
                       />
                       <span>
-                        {THEME_COLORS.find((color) => color.value === theme)
-                          ?.name || 'Custom'}
+                        {THEME_COLORS.find(
+                          (color) => color.value === formState.current.theme
+                        )?.name || 'Custom'}
                       </span>
                     </div>
                   )}
@@ -237,7 +308,12 @@ export function EditBudgetModal({
           <Button
             type='submit'
             className='w-full bg-black text-white hover:bg-black/90'
-            disabled={updateBudget.isPending || !!error || !category}
+            disabled={
+              updateBudget.isPending ||
+              !!error ||
+              !formState.current.category ||
+              !hasChanges
+            }
           >
             {updateBudget.isPending ? 'Saving...' : 'Save Budget'}
           </Button>

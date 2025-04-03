@@ -22,6 +22,7 @@ export const BUDGET_CATEGORIES: BudgetCategory[] = [
   { name: 'Entertainment', theme: '#FF9F1C' },
   { name: 'Dining Out', theme: '#FB5607' },
   { name: 'Personal Care', theme: '#3A86FF' },
+  { name: 'Bills', theme: '#FF9F1C' },
 ]
 
 export const EXCLUDED_BUDGET_CATEGORIES = ['Income']
@@ -57,39 +58,59 @@ export function getAvailableCategories(
     ? existingBudgets.find((b) => String(b.id) === currentBudgetId)
     : undefined
 
-  return BUDGET_CATEGORIES.filter((cat) => {
-    const normalizedCatName = cat.name.toLowerCase().trim()
+  // Create a working copy of budget categories that may include the current category
+  let workingCategories = [...BUDGET_CATEGORIES]
 
-    if (
-      EXCLUDED_BUDGET_CATEGORIES.map((c) => c.toLowerCase()).includes(
-        normalizedCatName
-      )
-    ) {
-      return false
-    }
+  // If current budget has a category not in our predefined list, add it
+  if (
+    currentBudget &&
+    !BUDGET_CATEGORIES.some(
+      (cat) =>
+        cat.name.toLowerCase().trim() ===
+        currentBudget.category.toLowerCase().trim()
+    )
+  ) {
+    workingCategories.push({
+      name: currentBudget.category,
+      theme: currentBudget.theme,
+    })
+  }
 
-    if (
-      currentCategory &&
-      normalizedCatName === currentCategory.toLowerCase().trim()
-    ) {
+  return workingCategories
+    .filter((cat) => {
+      const normalizedCatName = cat.name.toLowerCase().trim()
+
+      if (
+        EXCLUDED_BUDGET_CATEGORIES.map((c) => c.toLowerCase()).includes(
+          normalizedCatName
+        )
+      ) {
+        return false
+      }
+
+      if (
+        currentCategory &&
+        normalizedCatName === currentCategory.toLowerCase().trim()
+      ) {
+        if (
+          currentBudget &&
+          currentBudget.category.toLowerCase().trim() === normalizedCatName
+        ) {
+          return { ...cat, theme: currentBudget.theme }
+        }
+        return true
+      }
+
+      return !usedCategories.includes(normalizedCatName)
+    })
+    .map((cat) => {
       if (
         currentBudget &&
-        currentBudget.category.toLowerCase().trim() === normalizedCatName
+        cat.name.toLowerCase().trim() ===
+          currentBudget.category.toLowerCase().trim()
       ) {
         return { ...cat, theme: currentBudget.theme }
       }
-      return true
-    }
-
-    return !usedCategories.includes(normalizedCatName)
-  }).map((cat) => {
-    if (
-      currentBudget &&
-      cat.name.toLowerCase().trim() ===
-        currentBudget.category.toLowerCase().trim()
-    ) {
-      return { ...cat, theme: currentBudget.theme }
-    }
-    return cat
-  })
+      return cat
+    })
 }

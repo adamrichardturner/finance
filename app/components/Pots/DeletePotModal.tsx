@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
-import { Pot } from '~/types/finance.types'
 import { usePotMutations } from '~/hooks/use-pot-mutations'
+import { Pot } from '~/types/finance.types'
 
 interface DeletePotModalProps {
   isOpen: boolean
@@ -15,7 +15,7 @@ export function DeletePotModal({
   isOpen,
   potId,
   onClose,
-  pots = [],
+  pots,
 }: DeletePotModalProps) {
   const [error, setError] = useState<string | null>(null)
   const { deletePot } = usePotMutations()
@@ -26,22 +26,21 @@ export function DeletePotModal({
   }
 
   const potName = useMemo(() => {
-    if (potId && pots.length > 0) {
-      const currentPot = pots.find((p) => String(p.id) === potId)
-      return currentPot?.name ? `'${currentPot.name}'` : "'Savings'"
+    if (potId && pots) {
+      const pot = pots.find((p) => String(p.id) === potId)
+      return pot?.name || 'Savings'
     }
-    return "'Savings'"
+    return 'Savings'
   }, [potId, pots])
 
   const handleDelete = async () => {
     if (!potId) {
-      setError('Invalid pot ID')
       return
     }
 
     try {
       await deletePot.mutateAsync({ potId })
-      handleClose()
+      onClose()
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message)
@@ -53,35 +52,33 @@ export function DeletePotModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className='sm:max-w-[425px]'>
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete {potName}?</DialogTitle>
+          <DialogTitle>Delete Pot</DialogTitle>
         </DialogHeader>
-        <div className='space-y-4 py-4'>
-          <p className='text-sm text-gray-500'>
-            Are you sure you want to delete this pot? This action cannot be
-            reversed, and all the data inside it will be removed forever.
-          </p>
+        <div className='text-sm text-gray-600 mt-1 mb-4'>
+          Are you sure you want to delete "{potName}"? This action cannot be
+          undone.
+        </div>
 
-          {error && (
-            <div className='bg-red-50 text-red-600 p-3 rounded-md text-sm'>
-              {error}
-            </div>
-          )}
-
-          <div className='flex flex-col gap-2 pt-4'>
-            <Button
-              variant='destructive'
-              onClick={handleDelete}
-              disabled={deletePot.isPending}
-              className='w-full bg-red-600 hover:bg-red-700'
-            >
-              {deletePot.isPending ? 'Deleting...' : 'Yes, Confirm Deletion'}
-            </Button>
-            <Button variant='outline' onClick={handleClose} className='w-full'>
-              No, Go Back
-            </Button>
+        {error && (
+          <div className='bg-red-50 text-red-600 p-3 rounded-md text-sm mb-4'>
+            {error}
           </div>
+        )}
+
+        <div className='flex space-x-2'>
+          <Button variant='outline' className='flex-1' onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button
+            variant='destructive'
+            className='flex-1'
+            onClick={handleDelete}
+            disabled={deletePot.isPending}
+          >
+            {deletePot.isPending ? 'Deleting...' : 'Delete'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

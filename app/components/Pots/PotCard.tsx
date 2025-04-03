@@ -370,11 +370,17 @@ export function PotCard({
                   value={amount}
                   onChange={(e) => {
                     const value = e.target.value.replace(/[^0-9.]/g, '')
-                    setAmount(value)
+                    const numValue = parseFloat(value || '0')
+                    if (!value || isNaN(numValue) || numValue <= pot.total) {
+                      setAmount(value)
+                    }
                   }}
                   className='pl-7'
                 />
               </div>
+              <p className='text-xs text-gray-500 mt-1'>
+                Available in pot: {formatCurrency(pot.total)}
+              </p>
             </div>
           </div>
           <Button

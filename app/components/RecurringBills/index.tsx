@@ -22,8 +22,8 @@ import {
   SheetClose,
 } from '~/components/ui/sheet'
 import { Button } from '~/components/ui/button'
-import BillsDark from '../../../public/assets/icons/BillsDark.svg?url'
-import BillsLight from '../../../public/assets/icons/BillsLight.svg?url'
+import BillsDark from '/assets/icons/BillsDark.svg?url'
+import BillsLight from '/assets/icons/BillsLight.svg?url'
 import debounce from 'lodash/debounce'
 import { motion, AnimatePresence } from 'framer-motion'
 

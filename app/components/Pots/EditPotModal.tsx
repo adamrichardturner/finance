@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
@@ -12,6 +12,18 @@ import {
 import { Pot } from '~/types/finance.types'
 import { THEME_COLORS } from '~/utils/budget-categories'
 import { usePotMutations } from '~/hooks/use-pot-mutations'
+import isEqual from 'lodash/isEqual'
+
+interface PotFormValues {
+  name: string
+  target: string
+  theme: string
+}
+
+interface FormState {
+  original: PotFormValues
+  current: PotFormValues
+}
 
 interface EditPotModalProps {
   isOpen: boolean
@@ -26,22 +38,44 @@ export function EditPotModal({
   onClose,
   pots,
 }: EditPotModalProps) {
-  const [name, setName] = useState('')
-  const [target, setTarget] = useState('')
-  const [theme, setTheme] = useState(THEME_COLORS[0].value)
+  const [formState, setFormState] = useState<FormState>({
+    original: {
+      name: '',
+      target: '',
+      theme: THEME_COLORS[0].value,
+    },
+    current: {
+      name: '',
+      target: '',
+      theme: THEME_COLORS[0].value,
+    },
+  })
+
   const [error, setError] = useState<string | null>(null)
   const maxNameLength = 30
 
   const { updatePot } = usePotMutations()
+
+  // Track if form has changes using deep comparison
+  const hasChanges = useMemo(() => {
+    return !isEqual(formState.original, formState.current)
+  }, [formState])
 
   useEffect(() => {
     if (isOpen && potId && pots) {
       const currentPot = pots.find((p) => String(p.id) === potId)
 
       if (currentPot) {
-        setName(currentPot.name)
-        setTarget(currentPot.target.toString())
-        setTheme(currentPot.theme)
+        const newValues = {
+          name: currentPot.name,
+          target: currentPot.target.toString(),
+          theme: currentPot.theme,
+        }
+
+        setFormState({
+          original: newValues,
+          current: newValues,
+        })
       }
     }
   }, [isOpen, potId, pots])
@@ -54,8 +88,34 @@ export function EditPotModal({
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     if (value.length <= maxNameLength) {
-      setName(value)
+      setFormState((prev) => ({
+        ...prev,
+        current: {
+          ...prev.current,
+          name: value,
+        },
+      }))
     }
+  }
+
+  const handleTargetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormState((prev) => ({
+      ...prev,
+      current: {
+        ...prev.current,
+        target: e.target.value,
+      },
+    }))
+  }
+
+  const handleThemeChange = (value: string) => {
+    setFormState((prev) => ({
+      ...prev,
+      current: {
+        ...prev.current,
+        theme: value,
+      },
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,7 +125,11 @@ export function EditPotModal({
       return
     }
 
-    if (!name || !target || !theme) {
+    if (
+      !formState.current.name ||
+      !formState.current.target ||
+      !formState.current.theme
+    ) {
       setError('Please fill in all fields')
       return
     }
@@ -73,9 +137,9 @@ export function EditPotModal({
     try {
       await updatePot.mutateAsync({
         potId,
-        name,
-        target: parseFloat(target),
-        theme,
+        name: formState.current.name,
+        target: parseFloat(formState.current.target),
+        theme: formState.current.theme,
       })
       handleClose()
     } catch (error) {
@@ -112,12 +176,12 @@ export function EditPotModal({
               <Input
                 type='text'
                 placeholder='e.g. Concert Ticket'
-                value={name}
+                value={formState.current.name}
                 onChange={handleNameChange}
                 required
               />
               <div className='absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400'>
-                {maxNameLength - name.length} characters left
+                {maxNameLength - formState.current.name.length} characters left
               </div>
             </div>
           </div>
@@ -131,8 +195,8 @@ export function EditPotModal({
               <Input
                 type='number'
                 placeholder='e.g. 110.00'
-                value={target}
-                onChange={(e) => setTarget(e.target.value)}
+                value={formState.current.target}
+                onChange={handleTargetChange}
                 min='0'
                 step='0.01'
                 required
@@ -140,24 +204,32 @@ export function EditPotModal({
               />
             </div>
             <div className='text-sm text-gray-600 mt-1'>
-              {target
-                ? `New target amount: £${parseFloat(target).toFixed(2)}`
+              {formState.current.target
+                ? `New target amount: £${parseFloat(formState.current.target).toFixed(2)}`
                 : ''}
             </div>
           </div>
 
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Theme</label>
-            <Select value={theme} onValueChange={setTheme} required>
+            <Select
+              value={formState.current.theme}
+              onValueChange={handleThemeChange}
+              required
+            >
               <SelectTrigger>
                 <SelectValue>
-                  {theme && (
+                  {formState.current.theme && (
                     <div className='flex items-center gap-2'>
                       <div
                         className='w-2 h-2 rounded-full'
-                        style={{ backgroundColor: theme }}
+                        style={{ backgroundColor: formState.current.theme }}
                       />
-                      <span>Green</span>
+                      <span>
+                        {THEME_COLORS.find(
+                          (color) => color.value === formState.current.theme
+                        )?.name || 'Select theme'}
+                      </span>
                     </div>
                   )}
                 </SelectValue>
@@ -181,7 +253,13 @@ export function EditPotModal({
           <Button
             type='submit'
             className='w-full bg-black text-white hover:bg-black/90'
-            disabled={updatePot.isPending || !name || !target || !theme}
+            disabled={
+              updatePot.isPending ||
+              !formState.current.name ||
+              !formState.current.target ||
+              !formState.current.theme ||
+              !hasChanges
+            }
           >
             {updatePot.isPending ? 'Saving...' : 'Save Changes'}
           </Button>
