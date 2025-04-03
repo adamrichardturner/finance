@@ -28,32 +28,7 @@ export default defineConfig({
     minify: true,
     rollupOptions: {
       output: {
-        // Only apply manual chunks for client builds
-        manualChunks(id, { getModuleInfo }) {
-          // Skip manualChunks for SSR build
-          const moduleInfo = getModuleInfo(id)
-          if (process.env.NODE_ENV === 'production' && moduleInfo?.isEntry) {
-            return
-          }
-
-          if (id.includes('node_modules')) {
-            if (
-              id.includes('react/') ||
-              id.includes('react-dom/') ||
-              id.includes('react-router-dom/')
-            ) {
-              return 'vendor'
-            }
-
-            if (id.includes('@radix-ui/')) {
-              return 'ui'
-            }
-
-            if (id.includes('recharts/')) {
-              return 'recharts-lib'
-            }
-          }
-        },
+        // No manual chunks
       },
     },
   },
