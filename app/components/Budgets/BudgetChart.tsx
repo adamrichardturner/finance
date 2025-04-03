@@ -1,5 +1,6 @@
 import { Budget } from '~/types/finance.types'
 import { BudgetPieChart } from '~/components/ui/charts/BudgetPieChart'
+import { EXCLUDED_BUDGET_CATEGORIES } from '~/utils/budget-categories'
 
 interface BudgetChartProps {
   budgets: Budget[]
@@ -10,17 +11,29 @@ export function BudgetChart({ budgets }: BudgetChartProps) {
     return null
   }
 
+  // Filter out Income budgets
+  const expenseBudgets = budgets.filter(
+    (budget) =>
+      !EXCLUDED_BUDGET_CATEGORIES.map((cat) => cat.toLowerCase()).includes(
+        budget.category.toLowerCase()
+      )
+  )
+
+  if (expenseBudgets.length === 0) {
+    return null
+  }
+
   return (
     <div className='space-y-6'>
       <BudgetPieChart
-        budgets={budgets}
+        budgets={expenseBudgets}
         showAllCategories={true}
         chartSize='lg'
         showHeader={false}
       />
 
       <div className='space-y-3'>
-        {budgets.map((budget, index) => {
+        {expenseBudgets.map((budget, index) => {
           const spentAmount =
             budget.transactions?.reduce(
               (total, transaction) => total + Math.abs(transaction.amount),
@@ -49,7 +62,7 @@ export function BudgetChart({ budgets }: BudgetChartProps) {
                   </span>
                 </div>
               </div>
-              {index < budgets.length - 1 && (
+              {index < expenseBudgets.length - 1 && (
                 <div
                   className='mt-3'
                   style={{

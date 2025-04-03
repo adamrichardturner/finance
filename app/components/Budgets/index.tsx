@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Button } from '../ui/button'
 import { BudgetCard } from './BudgetCard'
 import { AddBudgetModal } from './AddBudgetModal'
@@ -31,12 +31,57 @@ export function Budgets({ budgets, actionData }: BudgetsProps) {
     isOpen: false,
   })
 
+  // Use callbacks for modal handlers to prevent recreating functions on each render
+  const handleOpenAddModal = useCallback(() => setAddModalOpen(true), [])
+  const handleCloseAddModal = useCallback(() => setAddModalOpen(false), [])
+
+  const handleOpenEditModal = useCallback((id: string) => {
+    setEditModal({ isOpen: true, budgetId: id })
+  }, [])
+
+  const handleCloseEditModal = useCallback(() => {
+    setEditModal({ isOpen: false })
+  }, [])
+
+  const handleOpenDeleteModal = useCallback((id: string) => {
+    setDeleteModal({ isOpen: true, budgetId: id })
+  }, [])
+
+  const handleCloseDeleteModal = useCallback(() => {
+    setDeleteModal({ isOpen: false })
+  }, [])
+
+  // Memoize the budget chart to prevent unnecessary re-renders
+  const memoizedBudgetChart = useMemo(() => {
+    return <BudgetChart budgets={budgets} />
+  }, [budgets])
+
+  // Memoize the budget cards to prevent unnecessary re-renders
+  const memoizedBudgetCards = useMemo(() => {
+    if (budgets.length === 0) {
+      return (
+        <div className='text-center py-4 text-gray-500'>
+          No budgets created yet
+        </div>
+      )
+    }
+
+    return budgets.map((budget) => (
+      <BudgetCard
+        key={budget.id}
+        budget={budget}
+        onEdit={handleOpenEditModal}
+        onDelete={handleOpenDeleteModal}
+      />
+    ))
+  }, [budgets, handleOpenEditModal, handleOpenDeleteModal])
+
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
         <PageTitle title='Budgets' />
         <Button
-          onClick={() => setAddModalOpen(true)}
+          onClick={handleOpenAddModal}
           className='bg-black text-white hover:bg-black/90'
         >
           + Add New Budget
@@ -51,48 +96,31 @@ export function Budgets({ budgets, actionData }: BudgetsProps) {
 
       <div className='flex flex-col max-[1457px]:flex-col min-[1457px]:flex-row gap-6'>
         <div className='w-full min-[1457px]:w-[400px]'>
-          <div className='bg-white rounded-lg p-6'>
-            <BudgetChart budgets={budgets} />
-          </div>
+          <div className='bg-white rounded-lg p-6'>{memoizedBudgetChart}</div>
         </div>
 
         <div className='w-full min-[1457px]:w-2/3 space-y-6'>
-          {budgets.length === 0 ? (
-            <div className='text-center py-4 text-gray-500'>
-              No budgets created yet
-            </div>
-          ) : (
-            budgets.map((budget) => (
-              <BudgetCard
-                key={budget.id}
-                budget={budget}
-                onEdit={(id) => setEditModal({ isOpen: true, budgetId: id })}
-                onDelete={(id) =>
-                  setDeleteModal({ isOpen: true, budgetId: id })
-                }
-              />
-            ))
-          )}
+          {memoizedBudgetCards}
         </div>
       </div>
 
       <AddBudgetModal
         budgets={budgets}
         isOpen={addModalOpen}
-        onClose={() => setAddModalOpen(false)}
+        onClose={handleCloseAddModal}
       />
 
       <EditBudgetModal
         isOpen={editModal.isOpen}
         budgetId={editModal.budgetId}
-        onClose={() => setEditModal({ isOpen: false })}
+        onClose={handleCloseEditModal}
         budgets={budgets}
       />
 
       <DeleteBudgetModal
         isOpen={deleteModal.isOpen}
         budgetId={deleteModal.budgetId}
-        onClose={() => setDeleteModal({ isOpen: false })}
+        onClose={handleCloseDeleteModal}
       />
     </div>
   )

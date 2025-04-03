@@ -13,6 +13,7 @@ import { useBudgetMutations } from '~/hooks/use-budget-mutations'
 import { useBudgets } from '~/hooks/use-budgets'
 import {
   BUDGET_CATEGORIES,
+  THEME_COLORS,
   getThemeForCategory,
   getAvailableCategories,
 } from '~/utils/budget-categories'
@@ -31,6 +32,7 @@ export function AddBudgetModal({
 }: AddBudgetModalProps) {
   const [category, setCategory] = useState('')
   const [amount, setAmount] = useState('')
+  const [theme, setTheme] = useState(THEME_COLORS[0].value)
   const [error, setError] = useState<string | null>(null)
   const { createBudget } = useBudgetMutations()
 
@@ -39,19 +41,20 @@ export function AddBudgetModal({
     if (!isOpen) {
       setCategory('')
       setAmount('')
+      setTheme(THEME_COLORS[0].value)
       setError(null)
     }
   }, [isOpen])
 
-  // Create a proper list of existing budget categories
-  const existingBudgetCategories = budgets.map((budget) =>
-    budget.category.toLowerCase().trim()
-  )
+  // Get available categories using the shared utility function
+  const availableCategories = getAvailableCategories(budgets)
 
   // Check if the selected category already exists in any budget
   const handleCategoryChange = (newCategory: string) => {
     const normalizedNewCategory = newCategory.toLowerCase().trim()
-    const isDuplicate = existingBudgetCategories.includes(normalizedNewCategory)
+    const isDuplicate = budgets.some(
+      (budget) => budget.category.toLowerCase().trim() === normalizedNewCategory
+    )
 
     if (isDuplicate) {
       setError(
@@ -64,19 +67,19 @@ export function AddBudgetModal({
     }
   }
 
-  // Filter available categories to exclude ones that already have budgets
-  const availableCategories = BUDGET_CATEGORIES.filter((cat) => {
-    const normalizedCatName = cat.name.toLowerCase().trim()
-    return !existingBudgetCategories.includes(normalizedCatName)
-  })
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    if (!category || !amount || !theme) {
+      setError('Please fill in all fields')
+      return
+    }
+
     // Final validation check before submitting
     const normalizedSelectedCategory = category.toLowerCase().trim()
-    const isDuplicate = existingBudgetCategories.includes(
-      normalizedSelectedCategory
+    const isDuplicate = budgets.some(
+      (budget) =>
+        budget.category.toLowerCase().trim() === normalizedSelectedCategory
     )
 
     if (isDuplicate) {
@@ -90,16 +93,16 @@ export function AddBudgetModal({
       await createBudget.mutateAsync({
         category,
         maxAmount: parseFloat(amount),
-        theme: getThemeForCategory(category),
+        theme,
       })
       onClose()
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message)
       } else {
-        setError('Failed to add budget')
+        setError('Failed to create budget')
       }
-      console.error('Failed to add budget:', error)
+      console.error('Failed to create budget:', error)
     }
   }
 
@@ -115,49 +118,95 @@ export function AddBudgetModal({
               {error}
             </div>
           )}
+
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Budget Category</label>
-            {availableCategories.length === 0 ? (
-              <div className='text-amber-600 text-sm p-3 bg-amber-50 rounded-md'>
-                All budget categories are already in use.
-              </div>
-            ) : (
-              <Select
-                value={category}
-                onValueChange={handleCategoryChange}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder='Select a category' />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableCategories.map((cat) => (
-                    <SelectItem key={cat.name} value={cat.name}>
-                      <div className='flex items-center gap-2'>
-                        <div
-                          className='w-2 h-2 rounded-full'
-                          style={{ backgroundColor: cat.theme }}
-                        />
-                        {cat.name}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            <Select
+              value={category}
+              onValueChange={handleCategoryChange}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder='Select a category'>
+                  {category && (
+                    <div className='flex items-center gap-2'>
+                      <div
+                        className='w-2 h-2 rounded-full'
+                        style={{ backgroundColor: theme }}
+                      />
+                      {category}
+                    </div>
+                  )}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {availableCategories.map((cat) => (
+                  <SelectItem key={cat.name} value={cat.name}>
+                    <div className='flex items-center gap-2'>
+                      <div
+                        className='w-2 h-2 rounded-full'
+                        style={{ backgroundColor: cat.theme }}
+                      />
+                      {cat.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Maximum Amount</label>
-            <Input
-              type='number'
-              placeholder='Enter amount'
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              min='0'
-              step='0.01'
-              required
-            />
+            <label className='text-sm font-medium'>Maximum Spend</label>
+            <div className='relative'>
+              <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+                <span className='text-gray-500'>£</span>
+              </div>
+              <Input
+                type='number'
+                placeholder='e.g. 2000'
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                min='0'
+                step='0.01'
+                required
+                className='pl-7'
+              />
+            </div>
+          </div>
+
+          <div className='space-y-2'>
+            <label className='text-sm font-medium'>Theme</label>
+            <Select value={theme} onValueChange={setTheme} required>
+              <SelectTrigger>
+                <SelectValue>
+                  {theme && (
+                    <div className='flex items-center gap-2'>
+                      <div
+                        className='w-2 h-2 rounded-full'
+                        style={{ backgroundColor: theme }}
+                      />
+                      <span>
+                        {THEME_COLORS.find((color) => color.value === theme)
+                          ?.name || 'Custom'}
+                      </span>
+                    </div>
+                  )}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {THEME_COLORS.map((color) => (
+                  <SelectItem key={color.name} value={color.value}>
+                    <div className='flex items-center gap-2'>
+                      <div
+                        className='w-2 h-2 rounded-full'
+                        style={{ backgroundColor: color.value }}
+                      />
+                      {color.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <Button
@@ -165,12 +214,13 @@ export function AddBudgetModal({
             className='w-full bg-black text-white hover:bg-black/90'
             disabled={
               createBudget.isPending ||
-              availableCategories.length === 0 ||
+              !!error ||
               !category ||
-              !!error
+              !amount ||
+              !theme
             }
           >
-            {createBudget.isPending ? 'Adding...' : 'Add Budget'}
+            {createBudget.isPending ? 'Creating...' : 'Add Budget'}
           </Button>
         </form>
       </DialogContent>

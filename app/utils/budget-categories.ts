@@ -3,6 +3,17 @@ export interface BudgetCategory {
   theme: string
 }
 
+// Predefined color options for budget themes
+export const THEME_COLORS = [
+  { name: 'Green', value: '#277C78' },
+  { name: 'Yellow', value: '#F2CDAC' },
+  { name: 'Cyan', value: '#82C9D7' },
+  { name: 'Navy', value: '#626070' },
+  { name: 'Red', value: '#C94736' },
+  { name: 'Purple', value: '#826CB0' },
+  { name: 'Turquoise', value: '#597C7C' },
+]
+
 // Vibrant color palette that works well with white and gray backgrounds
 export const BUDGET_CATEGORIES: BudgetCategory[] = [
   { name: 'Housing', theme: '#4361EE' }, // Vibrant blue
@@ -15,12 +26,15 @@ export const BUDGET_CATEGORIES: BudgetCategory[] = [
   { name: 'Personal Care', theme: '#3A86FF' }, // Royal blue
 ]
 
+// Define categories that should never be available for budgets
+export const EXCLUDED_BUDGET_CATEGORIES = ['Income']
+
 // Function to get theme color by category name
 export function getThemeForCategory(categoryName: string): string {
   const category = BUDGET_CATEGORIES.find(
     (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
   )
-  return category?.theme || '#4361EE' // Default color if not found
+  return category?.theme || THEME_COLORS[0].value // Default to first theme color if not found
 }
 
 // Get available categories that aren't used in existing budgets
@@ -48,6 +62,15 @@ export function getAvailableCategories(
 
   return BUDGET_CATEGORIES.filter((cat) => {
     const normalizedCatName = cat.name.toLowerCase().trim()
+
+    // Skip excluded categories
+    if (
+      EXCLUDED_BUDGET_CATEGORIES.map((c) => c.toLowerCase()).includes(
+        normalizedCatName
+      )
+    ) {
+      return false
+    }
 
     // For edit mode: always include the current budget's category
     if (

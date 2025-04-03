@@ -4,6 +4,7 @@ import { ChartTooltipContent } from '~/components/ui/charts'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { Budget } from '~/types/finance.types'
 import { transformBudgetsToChart } from '~/transformers/budgetTransformer'
+import { useMemo } from 'react'
 
 interface BudgetPieChartProps {
   budgets: Budget[]
@@ -24,15 +25,7 @@ export function BudgetPieChart({
     return null
   }
 
-  const {
-    chartData: allChartData,
-    formattedTotal,
-    total,
-  } = transformBudgetsToChart(budgets)
-
-  // Take all categories or just top 4 based on prop
-  const chartData = showAllCategories ? allChartData : allChartData.slice(0, 4)
-
+  // Define formatCurrency function
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
@@ -42,17 +35,34 @@ export function BudgetPieChart({
     }).format(value)
   }
 
-  // Calculate spent amount from actual transactions
-  const totalSpent = budgets.reduce((total, budget) => {
-    const spentAmount =
-      budget.transactions?.reduce(
-        (sum, transaction) => sum + Math.abs(transaction.amount),
-        0
-      ) ?? 0
-    return total + spentAmount
-  }, 0)
+  const {
+    chartData: allChartData,
+    formattedTotal,
+    total,
+  } = useMemo(() => transformBudgetsToChart(budgets), [budgets])
 
-  const formattedSpentAmount = formatCurrency(totalSpent)
+  // Take all categories or just top 4 based on prop
+  const chartData = useMemo(
+    () => (showAllCategories ? allChartData : allChartData.slice(0, 4)),
+    [allChartData, showAllCategories]
+  )
+
+  // Calculate spent amount with useMemo
+  const { totalSpent, formattedSpentAmount } = useMemo(() => {
+    const spent = budgets.reduce((total, budget) => {
+      const spentAmount =
+        budget.transactions?.reduce(
+          (sum, transaction) => sum + Math.abs(transaction.amount),
+          0
+        ) ?? 0
+      return total + spentAmount
+    }, 0)
+
+    return {
+      totalSpent: spent,
+      formattedSpentAmount: formatCurrency(spent),
+    }
+  }, [budgets])
 
   // Chart dimensions based on size prop
   const dimensions = {
@@ -107,6 +117,9 @@ export function BudgetPieChart({
               stroke='none'
               startAngle={90}
               endAngle={-270}
+              animationBegin={0}
+              animationDuration={500}
+              animationEasing='ease-out'
             >
               {chartData.map((entry, index) => (
                 <Cell key={`cell-outer-${index}`} fill={entry.fill} />

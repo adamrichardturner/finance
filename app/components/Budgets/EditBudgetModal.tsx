@@ -14,6 +14,7 @@ import { useBudgetMutations } from '~/hooks/use-budget-mutations'
 import { useBudgets } from '~/hooks/use-budgets'
 import {
   BUDGET_CATEGORIES,
+  THEME_COLORS,
   getThemeForCategory,
   getAvailableCategories,
 } from '~/utils/budget-categories'
@@ -35,6 +36,7 @@ export function EditBudgetModal({
   const { updateBudget } = useBudgetMutations()
   const [category, setCategory] = useState<string>('')
   const [amount, setAmount] = useState('')
+  const [theme, setTheme] = useState(THEME_COLORS[0].value)
   const [originalCategory, setOriginalCategory] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
 
@@ -47,6 +49,7 @@ export function EditBudgetModal({
         setCategory(currentBudget.category)
         setOriginalCategory(currentBudget.category)
         setAmount(currentBudget.maximum)
+        setTheme(currentBudget.theme)
       }
     }
   }, [isOpen, budgetId, budgets])
@@ -133,7 +136,7 @@ export function EditBudgetModal({
         budgetId,
         category,
         maxAmount: parseFloat(amount),
-        theme: getThemeForCategory(category),
+        theme,
       })
       onClose()
     } catch (error) {
@@ -166,7 +169,17 @@ export function EditBudgetModal({
               required
             >
               <SelectTrigger>
-                <SelectValue placeholder='Select a category' />
+                <SelectValue placeholder='Select a category'>
+                  {category && (
+                    <div className='flex items-center gap-2'>
+                      <div
+                        className='w-2 h-2 rounded-full'
+                        style={{ backgroundColor: theme }}
+                      />
+                      {category}
+                    </div>
+                  )}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {availableCategories.map((cat) => (
@@ -185,16 +198,57 @@ export function EditBudgetModal({
           </div>
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Maximum Amount</label>
-            <Input
-              type='number'
-              placeholder='Enter amount'
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              min='0'
-              step='0.01'
-              required
-            />
+            <label className='text-sm font-medium'>Maximum Spend</label>
+            <div className='relative'>
+              <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+                <span className='text-gray-500'>£</span>
+              </div>
+              <Input
+                type='number'
+                placeholder='e.g. 2000'
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                min='0'
+                step='0.01'
+                required
+                className='pl-7'
+              />
+            </div>
+          </div>
+
+          <div className='space-y-2'>
+            <label className='text-sm font-medium'>Theme</label>
+            <Select value={theme} onValueChange={setTheme} required>
+              <SelectTrigger>
+                <SelectValue>
+                  {theme && (
+                    <div className='flex items-center gap-2'>
+                      <div
+                        className='w-2 h-2 rounded-full'
+                        style={{ backgroundColor: theme }}
+                      />
+                      <span>
+                        {THEME_COLORS.find((color) => color.value === theme)
+                          ?.name || 'Custom'}
+                      </span>
+                    </div>
+                  )}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {THEME_COLORS.map((color) => (
+                  <SelectItem key={color.name} value={color.value}>
+                    <div className='flex items-center gap-2'>
+                      <div
+                        className='w-2 h-2 rounded-full'
+                        style={{ backgroundColor: color.value }}
+                      />
+                      {color.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <Button
