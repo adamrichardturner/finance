@@ -31,7 +31,6 @@ export function Budgets({ budgets, actionData }: BudgetsProps) {
     isOpen: false,
   })
 
-  // Use callbacks for modal handlers to prevent recreating functions on each render
   const handleOpenAddModal = useCallback(() => setAddModalOpen(true), [])
   const handleCloseAddModal = useCallback(() => setAddModalOpen(false), [])
 
@@ -51,12 +50,10 @@ export function Budgets({ budgets, actionData }: BudgetsProps) {
     setDeleteModal({ isOpen: false })
   }, [])
 
-  // Memoize the budget chart to prevent unnecessary re-renders
   const memoizedBudgetChart = useMemo(() => {
     return <BudgetChart budgets={budgets} />
   }, [budgets])
 
-  // Memoize the budget cards to prevent unnecessary re-renders
   const memoizedBudgetCards = useMemo(() => {
     if (budgets.length === 0) {
       return (

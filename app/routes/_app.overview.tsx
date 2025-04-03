@@ -6,7 +6,6 @@ import { AppTransaction } from '~/utils/transform-data'
 import { requireUserId } from '~/services/auth/session.server'
 import { getBudgets } from '~/models/budget.server'
 import { getFinancialData } from '~/services/finance/finance.service'
-import { useMemo } from 'react'
 
 export const meta: MetaFunction = () => {
   return [
@@ -16,16 +15,13 @@ export const meta: MetaFunction = () => {
 }
 
 function transformToAppTransaction(transaction: Transaction): AppTransaction {
-  // Process avatar path to handle relative paths correctly
   const processAvatarPath = (path?: string): string | undefined => {
     if (!path) {
-      // Default fallback icons based on transaction type
       return transaction.amount > 0
         ? '/assets/icons/salary.svg'
         : '/assets/icons/expense.svg'
     }
 
-    // If path starts with "./", remove it to make it relative to the public folder
     if (path.startsWith('./')) {
       return path.substring(2)
     }
@@ -52,13 +48,10 @@ function transformToAppTransaction(transaction: Transaction): AppTransaction {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = String(await requireUserId(request))
 
-  // Get budget data
   const budgets = await getBudgets(userId)
 
-  // Get financial data (using getFinancialData to ensure we have the bills property)
   const financialData = await getFinancialData()
 
-  // Transform bills to AppTransaction format for components
   const billsTransactions = financialData.bills
     ? financialData.bills.map((bill: Bill) => ({
         id: bill.id.toString(),
@@ -74,10 +67,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       }))
     : []
 
-  // Calculate main account balance and total pots balance
   const mainAccountBalance = Number(financialData.balance?.current || 0)
 
-  // Define potsBalance in the loader scope
   let potsBalance = 0
   try {
     if (financialData?.pots && financialData.pots.length > 0) {
@@ -92,14 +83,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     console.error('Error calculating pots balance:', err)
   }
 
-  // Calculate total income from current month
   let income = 0
   try {
     if (financialData?.transactions && financialData.transactions.length > 0) {
-      // Remove month filtering for demo purposes
       const positiveTransactions = financialData.transactions.filter(
         (transaction) => {
-          // Make sure amount is a number and is positive
           const amount = Number(transaction.amount)
           return !isNaN(amount) && amount > 0
         }
@@ -114,14 +102,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     console.error('Error calculating income:', err)
   }
 
-  // Calculate total expenses from current month
   let expenses = 0
   try {
     if (financialData?.transactions && financialData.transactions.length > 0) {
-      // Remove month filtering for demo purposes
       const negativeTransactions = financialData.transactions.filter(
         (transaction) => {
-          // Make sure amount is a number and is negative
           const amount = Number(transaction.amount)
           return !isNaN(amount) && amount < 0
         }
@@ -136,7 +121,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     console.error('Error calculating expenses:', err)
   }
 
-  // For demo, use the values from balance if calculations are NaN
   if (isNaN(income) && financialData.balance?.income) {
     income = Number(financialData.balance.income)
   }
@@ -145,10 +129,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     expenses = Number(financialData.balance.expenses)
   }
 
-  // The total balance is simply the main account balance
   const totalBalance = mainAccountBalance
 
-  // Get transactions and transform them to AppTransaction format
   const appTransactions =
     financialData?.transactions?.map(transformToAppTransaction) || []
 

@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Pot } from '~/types/finance.types'
 
-// Function to fetch pots data (if we had a separate API)
 async function fetchPots(): Promise<Pot[]> {
   const response = await fetch('/api/pots')
 
@@ -12,7 +11,6 @@ async function fetchPots(): Promise<Pot[]> {
   return response.json()
 }
 
-// Function to update a pot
 async function updatePot(pot: Pot): Promise<Pot> {
   const response = await fetch(`/api/pots/${pot.id}`, {
     method: 'PUT',
@@ -39,7 +37,6 @@ interface UsePotsOptions {
 export function usePots({ pots, useLiveFetching = false }: UsePotsOptions) {
   const queryClient = useQueryClient()
 
-  // For real-time fetch if needed
   const { data: fetchedPots } = useQuery({
     queryKey: ['pots'],
     queryFn: fetchPots,
@@ -47,11 +44,9 @@ export function usePots({ pots, useLiveFetching = false }: UsePotsOptions) {
     initialData: pots,
   })
 
-  // For updating a pot
   const mutation = useMutation({
     mutationFn: updatePot,
     onSuccess: () => {
-      // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ['pots'] })
     },
   })

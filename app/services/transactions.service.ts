@@ -1,7 +1,6 @@
 import { Transaction } from '~/types/finance.types'
 import { AppTransaction } from '~/utils/transform-data'
 
-// Sample transactions for demo
 const SAMPLE_TRANSACTIONS: Transaction[] = [
   {
     id: 1,
@@ -95,7 +94,6 @@ const SAMPLE_TRANSACTIONS: Transaction[] = [
   },
 ]
 
-// Transform Transaction to AppTransaction
 function transformToAppTransaction(transaction: Transaction): AppTransaction {
   return {
     id:
@@ -114,8 +112,6 @@ function transformToAppTransaction(transaction: Transaction): AppTransaction {
 
 export async function getTransactions(): Promise<AppTransaction[]> {
   try {
-    // In a real app, this would be an API call
-    // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500))
 
     return SAMPLE_TRANSACTIONS.map(transformToAppTransaction)

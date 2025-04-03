@@ -8,13 +8,7 @@ interface PillProps {
   subtitle?: string
 }
 
-const Pill: React.FC<PillProps> = ({
-  title,
-  amount,
-  icon,
-  isTotal,
-  subtitle,
-}) => {
+const Pill: React.FC<PillProps> = ({ title, amount, icon, isTotal }) => {
   return (
     <Card
       className={`max-h-[120px] ${isTotal ? 'bg-[#201F24] text-white' : 'bg-white'} shadow-none outline-none border-0`}

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { SidebarProvider, useSidebar } from '~/components/ui/sidebar'
+import { SidebarProvider } from '~/components/ui/sidebar'
 import { AppSidebar } from '../Sidebar'
 
 interface AppLayoutProps {

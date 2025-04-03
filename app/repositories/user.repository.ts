@@ -6,12 +6,10 @@ import {
   UserWithPassword,
 } from '~/types/auth.types'
 
-// Import environment variables from server
 import { getDemoUserEnv } from '~/utils/env.server'
 
 const { demoUserId: DEMO_USER_ID, demoUserPasswordHash } = getDemoUserEnv()
 
-// Create a demo user object
 export const DEMO_USER: User = {
   id: DEMO_USER_ID,
   email: 'demo@example.com',
@@ -23,7 +21,6 @@ export const DEMO_USER: User = {
   is_demo: true,
 }
 
-// Create a demo user with password for authentication
 export const DEMO_USER_WITH_PASSWORD: UserWithPassword = {
   ...DEMO_USER,
   password_hash: demoUserPasswordHash,
@@ -36,9 +33,6 @@ export const DEMO_USER_WITH_PASSWORD: UserWithPassword = {
   last_ip_address: undefined,
 }
 
-/**
- * Check if a given ID matches the demo user ID
- */
 function isMatchingDemoUserId(id: string | number): boolean {
   if (typeof DEMO_USER_ID === 'number' && typeof id === 'string') {
     return DEMO_USER_ID === parseInt(id, 10)
@@ -52,7 +46,6 @@ function isMatchingDemoUserId(id: string | number): boolean {
 }
 
 export async function findUserById(id: string | number): Promise<User | null> {
-  // Return the demo user if the ID matches
   if (isMatchingDemoUserId(id)) {
     return DEMO_USER
   }
@@ -79,7 +72,6 @@ export async function findUserById(id: string | number): Promise<User | null> {
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
-  // Return the demo user if the email matches
   if (email.toLowerCase() === DEMO_USER.email.toLowerCase()) {
     return DEMO_USER
   }
@@ -108,7 +100,6 @@ export async function findUserByEmail(email: string): Promise<User | null> {
 export async function findUserWithPasswordByEmail(
   email: string
 ): Promise<UserWithPassword | null> {
-  // Return the demo user with password if the email matches
   if (email.toLowerCase() === DEMO_USER.email.toLowerCase()) {
     return DEMO_USER_WITH_PASSWORD
   }
@@ -159,9 +150,7 @@ export async function updateUser(
   id: string | number,
   data: Partial<UserWithPassword>
 ): Promise<User> {
-  // For demo user, just return the updated user without hitting the database
   if (isMatchingDemoUserId(id)) {
-    // Create an updated version of the demo user
     const updatedDemoUser = {
       ...DEMO_USER,
       ...data,
@@ -196,13 +185,11 @@ export async function updateLoginAttempt(
   success: boolean,
   data: Partial<LoginAttempt>
 ): Promise<void> {
-  // For demo user, don't update login attempts
   if (isMatchingDemoUserId(userId)) {
     return
   }
 
   try {
-    // Update the user's failed login attempts if the login failed
     if (!success) {
       await db.transaction(async (trx) => {
         const user = await trx<UserWithPassword>('users')
@@ -218,16 +205,14 @@ export async function updateLoginAttempt(
           failed_login_attempts: failedAttempts,
         }
 
-        // Lock the account after 5 failed attempts
         if (failedAttempts >= 5) {
           const lockoutUntil = new Date()
-          lockoutUntil.setMinutes(lockoutUntil.getMinutes() + 15) // 15-minute lockout
+          lockoutUntil.setMinutes(lockoutUntil.getMinutes() + 15)
           updates.lockout_until = lockoutUntil
         }
 
         await trx<UserWithPassword>('users').where('id', userId).update(updates)
 
-        // Record the login attempt
         await trx<LoginAttempt>('login_history').insert({
           user_id: userId,
           ip_address: data.ip_address,
@@ -241,7 +226,6 @@ export async function updateLoginAttempt(
       return
     }
 
-    // If login was successful, reset failed attempts and record the login
     await db.transaction(async (trx) => {
       await trx<UserWithPassword>('users')
         .where('id', userId)
@@ -269,7 +253,6 @@ export async function createRefreshToken(
   data: Omit<RefreshToken, 'id' | 'created_at' | 'updated_at'>
 ): Promise<RefreshToken> {
   try {
-    // For demo user, return a mock refresh token
     if (data.user_id === DEMO_USER_ID) {
       return {
         id: 'demo-refresh-token',
@@ -296,13 +279,12 @@ export async function createRefreshToken(
 export async function findRefreshToken(
   token: string
 ): Promise<RefreshToken | null> {
-  // Mock handling for demo user refresh token
   if (token.startsWith('demo-')) {
     return {
       id: 'demo-refresh-token',
       user_id: DEMO_USER_ID,
       token,
-      expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days from now
+      expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
       is_revoked: false,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -322,7 +304,6 @@ export async function findRefreshToken(
 }
 
 export async function revokeRefreshToken(token: string): Promise<void> {
-  // Don't need to do anything for demo tokens
   if (token.startsWith('demo-')) {
     return
   }
@@ -339,7 +320,6 @@ export async function revokeRefreshToken(token: string): Promise<void> {
 export async function revokeAllUserRefreshTokens(
   userId: string
 ): Promise<void> {
-  // Don't need to do anything for demo user
   if (isMatchingDemoUserId(userId)) {
     return
   }

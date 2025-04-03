@@ -25,7 +25,6 @@ export function useBudgetMutations() {
 
   const createBudget = {
     mutateAsync: async (data: CreateBudgetParams) => {
-      // Client-side validation for duplicate categories
       if (existingBudgets) {
         const normalizedNewCategory = data.category.toLowerCase().trim()
         const isDuplicate = existingBudgets.some(
@@ -58,14 +57,12 @@ export function useBudgetMutations() {
 
   const updateBudget = {
     mutateAsync: async (data: UpdateBudgetParams) => {
-      // Client-side validation for duplicate categories
       if (existingBudgets) {
         const normalizedNewCategory = data.category.toLowerCase().trim()
         const currentBudget = existingBudgets.find(
           (b) => String(b.id) === data.budgetId
         )
 
-        // Only check for duplicates if changing to a different category
         if (
           currentBudget &&
           normalizedNewCategory !== currentBudget.category.toLowerCase().trim()

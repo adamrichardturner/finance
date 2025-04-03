@@ -34,7 +34,6 @@ export function EditPotModal({
 
   const { updatePot } = usePotMutations()
 
-  // Load pot data when potId changes or modal opens
   useEffect(() => {
     if (isOpen && potId && pots) {
       const currentPot = pots.find((p) => String(p.id) === potId)
@@ -47,7 +46,6 @@ export function EditPotModal({
     }
   }, [isOpen, potId, pots])
 
-  // Reset form and close modal
   const handleClose = () => {
     setError(null)
     onClose()

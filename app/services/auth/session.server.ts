@@ -4,20 +4,16 @@ import * as userRepository from '~/repositories/user.repository'
 import { User } from '~/types/auth.types'
 import { getDemoUserEnv } from '~/utils/env.server'
 
-// Create session storage
 const sessionStorage = createCookieSessionStorage({
   cookie: authCookie,
 })
 
-// Get demo user ID from environment
 const { demoUserId: DEMO_USER_ID } = getDemoUserEnv()
 
-// Get the user session from a request
 export async function getUserSession(request: Request) {
   return sessionStorage.getSession(request.headers.get('Cookie'))
 }
 
-// Get the current user ID from the session
 export async function getUserId(
   request: Request
 ): Promise<string | number | null> {
@@ -31,7 +27,6 @@ export async function getUserId(
   return userId
 }
 
-// Get the current authenticated user
 export async function getUser(request: Request) {
   const userId = await getUserId(request)
 
@@ -43,7 +38,6 @@ export async function getUser(request: Request) {
   return user
 }
 
-// Require a user to be authenticated
 export async function requireUserId(
   request: Request,
   redirectTo: string = new URL(request.url).pathname
@@ -58,11 +52,9 @@ export async function requireUserId(
   return userId
 }
 
-// Create a new session for a user
 export async function createUserSession({
-  request,
   userId,
-  expirationSeconds = 60 * 60 * 24 * 7, // 7 days
+  expirationSeconds = 60 * 60 * 24 * 7,
   remember = false,
   redirectTo,
 }: {
@@ -85,34 +77,30 @@ export async function createUserSession({
   return redirect(redirectTo, {
     headers: {
       'Set-Cookie': await sessionStorage.commitSession(session, {
-        maxAge: remember ? expirationSeconds : undefined, // Persist if remember is true
+        maxAge: remember ? expirationSeconds : undefined,
       }),
     },
   })
 }
 
-// Generate a refresh token cookie
 export async function createRefreshTokenCookie(
   token: string,
   remember: boolean = false
 ) {
   const cookieOptions = {
-    maxAge: remember ? 60 * 60 * 24 * 30 : undefined, // 30 days if remember me is checked
+    maxAge: remember ? 60 * 60 * 24 * 30 : undefined,
   }
 
   return refreshTokenCookie.serialize(token, cookieOptions)
 }
 
-// Logout and destroy the session
 export async function logout(request: Request, userId?: string) {
   const session = await getUserSession(request)
 
-  // If we have the userId, revoke all refresh tokens
   if (userId) {
     await userRepository.revokeAllUserRefreshTokens(userId)
   }
 
-  // Clear both the auth cookie and refresh token cookie
   return redirect('/login', {
     headers: [
       ['Set-Cookie', await sessionStorage.destroySession(session)],
@@ -121,7 +109,6 @@ export async function logout(request: Request, userId?: string) {
   })
 }
 
-// Check if the current session has expired
 export async function isSessionExpired(request: Request): Promise<boolean> {
   const session = await getUserSession(request)
   const expiresAt = session.get('expiresAt')
@@ -140,38 +127,26 @@ interface ProfileUpdateData {
   full_name: string
 }
 
-/**
- * Updates a user's profile information
- */
 export async function updateUserProfile(
   userId: string,
   data: ProfileUpdateData
 ): Promise<User> {
-  // In a real application, this would update the user in the database
-  // For now, we'll simulate this by returning a mock updated user
   const user = await getUserById(userId)
 
   if (!user) {
     throw new Error('User not found')
   }
 
-  // Update the user with the new data
   const updatedUser = {
     ...user,
     ...data,
     updated_at: new Date().toISOString(),
   }
 
-  // Here you would normally save this to the database
-  // For demo purposes, we're just returning the updated user
   return updatedUser
 }
 
-/**
- * Login as a demo user without credentials
- */
 export async function loginDemoUser(request: Request): Promise<Response> {
-  // Create a session for the demo user
   return createUserSession({
     request,
     userId: DEMO_USER_ID,
@@ -180,9 +155,6 @@ export async function loginDemoUser(request: Request): Promise<Response> {
   })
 }
 
-/**
- * Retrieves a user by their ID
- */
 export async function getUserById(
   userId: string | number
 ): Promise<User | null> {
@@ -190,6 +162,5 @@ export async function getUserById(
     return null
   }
 
-  // Get user from repository
   return userRepository.findUserById(String(userId))
 }

@@ -25,7 +25,6 @@ export function BudgetPieChart({
     return null
   }
 
-  // Define formatCurrency function
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
@@ -35,20 +34,17 @@ export function BudgetPieChart({
     }).format(value)
   }
 
-  const {
-    chartData: allChartData,
-    formattedTotal,
-    total,
-  } = useMemo(() => transformBudgetsToChart(budgets), [budgets])
+  const { chartData: allChartData, formattedTotal } = useMemo(
+    () => transformBudgetsToChart(budgets),
+    [budgets]
+  )
 
-  // Take all categories or just top 4 based on prop
   const chartData = useMemo(
     () => (showAllCategories ? allChartData : allChartData.slice(0, 4)),
     [allChartData, showAllCategories]
   )
 
-  // Calculate spent amount with useMemo
-  const { totalSpent, formattedSpentAmount } = useMemo(() => {
+  const { formattedSpentAmount } = useMemo(() => {
     const spent = budgets.reduce((total, budget) => {
       const spentAmount =
         budget.transactions?.reduce(
@@ -64,7 +60,6 @@ export function BudgetPieChart({
     }
   }, [budgets])
 
-  // Chart dimensions based on size prop
   const dimensions = {
     sm: {
       containerSize: 'w-[220px] h-[220px]',
@@ -78,7 +73,6 @@ export function BudgetPieChart({
     },
   }[chartSize]
 
-  // Budget items component that can be reused in different layouts
   const BudgetItems = () => (
     <>
       {chartData.map((category, index) => (
@@ -132,7 +126,7 @@ export function BudgetPieChart({
           </PieChart>
         </ResponsiveContainer>
 
-        {/* Center text showing spent and limit */}
+        {}
         <div className='absolute inset-0 flex flex-col items-center justify-center text-center'>
           <h3 className='text-[32px] font-bold leading-8'>
             {formattedSpentAmount}
@@ -164,20 +158,20 @@ export function BudgetPieChart({
         </div>
       </CardHeader>
 
-      {/* Responsive layout container */}
+      {}
       <div className='flex flex-col sm:flex-row gap-4'>
-        {/* Chart section - centered on small screens */}
+        {}
         <div className='flex justify-center sm:justify-start'>
           <ChartContent />
         </div>
 
-        {/* Larger screens: Budget items to the right of the chart */}
+        {}
         <div className='hidden sm:flex flex-1 flex-col justify-center gap-4 pl-4'>
           <BudgetItems />
         </div>
       </div>
 
-      {/* Small screens: Budget items in a 2-column grid below the chart */}
+      {}
       <div className='sm:hidden grid grid-cols-2 gap-4 mt-4'>
         <BudgetItems />
       </div>

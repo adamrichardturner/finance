@@ -17,7 +17,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect('/overview')
   }
 
-  // Redirect unauthenticated users to login page
   return redirect('/login')
 }
 
@@ -61,8 +60,6 @@ export default function Index() {
           </div>
         </div>
       </div>
-
-      {/* Features section */}
       <div className='bg-gray-50 py-24 sm:py-32 dark:bg-gray-800'>
         <div className='mx-auto max-w-7xl px-6 lg:px-8'>
           <div className='mx-auto max-w-2xl lg:text-center'>

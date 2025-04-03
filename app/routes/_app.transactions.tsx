@@ -14,7 +14,7 @@ export default function TransactionsPage() {
     <div className='w-full mb-12 sm:my-[0px]'>
       <style>
         {`
-          /* Hide scrollbar appearance only */
+          
           #scrollable-transactions::-webkit-scrollbar {
             display: none;
             width: 0;

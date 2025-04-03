@@ -28,20 +28,16 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
     }).format(Math.abs(amount))
   }
 
-  // Check if a bill is overdue
   const isOverdue = (bill: AppTransaction): boolean => {
-    // Use the explicit isOverdue property if available
     if (bill.isOverdue !== undefined) {
       return bill.isOverdue
     }
 
-    // Otherwise use the date to determine if it's overdue
     const today = new Date()
-    today.setHours(0, 0, 0, 0) // Set to start of day for fair comparison
+    today.setHours(0, 0, 0, 0)
     return new Date(bill.date) < today
   }
 
-  // Check if a bill is paid
   const isPaid = (bill: AppTransaction): boolean => {
     if (bill.isPaid !== undefined) {
       return bill.isPaid
@@ -49,15 +45,11 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
     return false
   }
 
-  // Calculate summary data from actual bills data
   const summaryData = useMemo(() => {
-    // Filter bills that are paid
     const paidBillsList = bills.filter((bill) => isPaid(bill))
 
-    // Filter bills that are not paid
     const upcomingBillsList = bills.filter((bill) => !isPaid(bill))
 
-    // Bills due within the next 5 days are considered "due soon"
     const today = new Date()
     const fiveDaysFromNow = new Date(today)
     fiveDaysFromNow.setDate(today.getDate() + 5)
@@ -66,7 +58,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
       (bill) => !isOverdue(bill) && new Date(bill.date) <= fiveDaysFromNow
     )
 
-    // Calculate total amounts
     const paidBillsAmount = paidBillsList.reduce(
       (total, bill) => total + Math.abs(bill.amount),
       0
@@ -98,7 +89,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
     }
   }, [bills])
 
-  // Format the due day with the appropriate suffix
   const formatDueDay = (day: number): string => {
     if (day >= 11 && day <= 13) {
       return `${day}th`
@@ -131,7 +121,7 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
         </div>
       </CardHeader>
       <div className='grid grid-cols-1 gap-4 mt-2'>
-        {/* Paid Bills */}
+        {}
         <div className='flex items-center justify-between p-4 rounded-lg bg-[#F8F4F0] border-l-4 border-blue-400 transition-colors duration-200 hover:bg-[#f9f9f9]'>
           <div className='flex flex-col'>
             <span className='font-[400] text-[16px] text-gray-900'>
@@ -143,7 +133,7 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
           </span>
         </div>
 
-        {/* Total Upcoming */}
+        {}
         <div className='flex items-center justify-between p-4 rounded-lg bg-[#F8F4F0] border-l-4 border-orange-400 transition-colors duration-200 hover:bg-[#f9f9f9]'>
           <div className='flex flex-col'>
             <span className='font-[400] text-[16px] text-gray-900'>
@@ -155,7 +145,7 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
           </span>
         </div>
 
-        {/* Due Soon */}
+        {}
         <div className='flex items-center justify-between p-4 rounded-lg bg-[#F8F4F0] border-l-4 border-green-400 transition-colors duration-200 hover:bg-[#f9f9f9]'>
           <div className='flex flex-col'>
             <span className='font-[400] text-[16px] text-gray-900'>

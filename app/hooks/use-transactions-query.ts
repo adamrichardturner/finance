@@ -4,7 +4,6 @@ import { AppTransaction } from '~/utils/transform-data'
 import { Transaction } from '~/types/finance.types'
 import { processAvatarPath } from '~/utils/avatar-utils'
 
-// Transform Transaction to AppTransaction
 function transformToAppTransaction(transaction: Transaction): AppTransaction {
   return {
     id:
@@ -25,7 +24,6 @@ function transformToAppTransaction(transaction: Transaction): AppTransaction {
   }
 }
 
-// Get data from JSON file as fallback
 const fetchTransactionsFromJson = async () => {
   try {
     const response = await fetch('/data.json')
@@ -40,7 +38,6 @@ const fetchTransactionsFromJson = async () => {
   }
 }
 
-// Get data directly from API endpoint
 const fetchTransactionsDirectly = async () => {
   try {
     const response = await fetch('/api/financial-data')
@@ -51,39 +48,36 @@ const fetchTransactionsDirectly = async () => {
     return data.transactions || []
   } catch (err) {
     console.error('Error fetching transactions directly:', err)
-    // Return empty array instead of throwing
+
     return []
   }
 }
 
 export function useTransactionsQuery() {
-  const { financialData, loading, error } = useFinancialData()
+  const { financialData } = useFinancialData()
 
   return useQuery({
     queryKey: ['transactions'],
     queryFn: async () => {
-      // Use transactions from financial data if available
       if (financialData?.transactions?.length > 0) {
         return financialData.transactions.map(transformToAppTransaction)
       }
 
-      // Try fetching from API
       const apiData = await fetchTransactionsDirectly()
       if (apiData && apiData.length > 0) {
         return apiData.map(transformToAppTransaction)
       }
 
-      // Fallback to JSON file
       const jsonData = await fetchTransactionsFromJson()
       return jsonData.map(transformToAppTransaction)
     },
-    // Always run this query, don't wait for loading state
+
     enabled: true,
-    // Cache for 5 minutes
+
     staleTime: 5 * 60 * 1000,
-    // Don't refetch on window focus
+
     refetchOnWindowFocus: false,
-    // Add retry options
+
     retry: 2,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
   })

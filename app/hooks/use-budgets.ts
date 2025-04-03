@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { Budget } from '~/types/finance.types'
-import { useLoaderData } from '@remix-run/react'
 
 export function useBudgets() {
   return useQuery({

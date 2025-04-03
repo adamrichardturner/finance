@@ -9,15 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
-import { useFinancialData } from '~/hooks/use-financial-data'
 import { useBudgetMutations } from '~/hooks/use-budget-mutations'
-import { useBudgets } from '~/hooks/use-budgets'
-import {
-  BUDGET_CATEGORIES,
-  THEME_COLORS,
-  getThemeForCategory,
-  getAvailableCategories,
-} from '~/utils/budget-categories'
+import { THEME_COLORS, getAvailableCategories } from '~/utils/budget-categories'
 import { Budget } from '~/types/finance.types'
 
 interface EditBudgetModalProps {
@@ -40,7 +33,6 @@ export function EditBudgetModal({
   const [originalCategory, setOriginalCategory] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
 
-  // Load budget data when budgetId changes or modal opens
   useEffect(() => {
     if (isOpen && budgetId && budgets) {
       const currentBudget = budgets.find((b) => String(b.id) === budgetId)
@@ -54,16 +46,13 @@ export function EditBudgetModal({
     }
   }, [isOpen, budgetId, budgets])
 
-  // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
       setError(null)
     }
   }, [isOpen])
 
-  // Handle category change with validation
   const handleCategoryChange = (newCategory: string) => {
-    // Always allow selecting the original category
     if (
       newCategory.toLowerCase().trim() === originalCategory.toLowerCase().trim()
     ) {
@@ -72,7 +61,6 @@ export function EditBudgetModal({
       return
     }
 
-    // Check if the new category is already used by another budget
     if (budgets) {
       const normalizedNewCategory = newCategory.toLowerCase().trim()
 
@@ -86,7 +74,6 @@ export function EditBudgetModal({
         setError(
           `A budget for "${newCategory}" already exists. Please select a different category.`
         )
-        // Don't update the category if it's a duplicate
       } else {
         setCategory(newCategory)
         setError(null)
@@ -96,7 +83,6 @@ export function EditBudgetModal({
     }
   }
 
-  // Get available categories using the shared utility function
   const availableCategories = getAvailableCategories(
     budgets,
     budgetId,
@@ -110,7 +96,6 @@ export function EditBudgetModal({
       return
     }
 
-    // Final check for duplicate category
     if (
       category.toLowerCase().trim() !== originalCategory.toLowerCase().trim() &&
       budgets

@@ -2,9 +2,6 @@ import { createCookie } from '@remix-run/node'
 import * as userRepository from '~/repositories/user.repository'
 import { User } from '~/types/auth.types'
 
-/**
- * Create a secure cookie for the session
- */
 export const authCookie = createCookie('auth', {
   httpOnly: true,
   path: '/',
@@ -13,9 +10,6 @@ export const authCookie = createCookie('auth', {
   secrets: [process.env.SESSION_SECRET || 'default-dev-secret'],
 })
 
-/**
- * Create a secure cookie for refresh tokens
- */
 export const refreshTokenCookie = createCookie('refresh_token', {
   httpOnly: true,
   path: '/',
@@ -24,25 +18,19 @@ export const refreshTokenCookie = createCookie('refresh_token', {
   secrets: [process.env.SESSION_SECRET || 'default-dev-secret'],
 })
 
-/**
- * Generate a secure token
- */
 function generateSecureToken(length = 32): string {
   return Array.from({ length }, () =>
     Math.floor(Math.random() * 36).toString(36)
   ).join('')
 }
 
-/**
- * Create a refresh token for a user
- */
 export async function createUserRefreshToken(
   userId: string | number,
   deviceInfo?: string
 ): Promise<string> {
   const token = generateSecureToken(40)
   const expiresAt = new Date()
-  expiresAt.setDate(expiresAt.getDate() + 30) // 30 days from now
+  expiresAt.setDate(expiresAt.getDate() + 30)
 
   await userRepository.createRefreshToken({
     user_id: userId,
@@ -55,9 +43,6 @@ export async function createUserRefreshToken(
   return token
 }
 
-/**
- * Verify and use a refresh token
- */
 export async function useRefreshToken(token: string): Promise<User | null> {
   const refreshToken = await userRepository.findRefreshToken(token)
 
@@ -65,13 +50,11 @@ export async function useRefreshToken(token: string): Promise<User | null> {
     return null
   }
 
-  // Check if token is expired
   if (new Date(refreshToken.expires_at) < new Date()) {
     await userRepository.revokeRefreshToken(token)
     return null
   }
 
-  // Get user data
   const user = await userRepository.findUserById(refreshToken.user_id)
 
   if (!user) {
@@ -79,7 +62,6 @@ export async function useRefreshToken(token: string): Promise<User | null> {
     return null
   }
 
-  // Revoke the used token (single-use)
   await userRepository.revokeRefreshToken(token)
 
   return user

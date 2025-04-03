@@ -22,13 +22,11 @@ interface DeleteBudgetParams {
 }
 
 export async function getBudgets(userId: string): Promise<Budget[]> {
-  // First get all budgets
   const budgets = await db('budgets')
     .where({ user_id: userId })
     .orderBy('created_at', 'desc')
     .select('*')
 
-  // Get all transactions for these budget categories
   const transactions = await db('transactions')
     .where({ user_id: userId })
     .whereIn(
@@ -38,7 +36,6 @@ export async function getBudgets(userId: string): Promise<Budget[]> {
     .orderBy('date', 'desc')
     .select('*')
 
-  // Group transactions by category
   const transactionsByCategory = transactions.reduce(
     (acc, transaction) => {
       if (!acc[transaction.category]) {
@@ -50,7 +47,6 @@ export async function getBudgets(userId: string): Promise<Budget[]> {
     {} as Record<string, any[]>
   )
 
-  // Map budgets with their transactions
   return budgets.map((budget) => ({
     id: budget.id,
     user_id: budget.user_id,
@@ -67,7 +63,6 @@ export async function createBudget({
   maxAmount,
   theme,
 }: CreateBudgetParams): Promise<Budget> {
-  // Check if a budget with the same category already exists for this user
   const existingBudget = await db('budgets')
     .where({
       user_id: userId,
@@ -105,7 +100,6 @@ export async function updateBudget({
   maxAmount,
   theme,
 }: UpdateBudgetParams): Promise<Budget> {
-  // Get the current budget data
   const currentBudget = await db('budgets')
     .where({ id, user_id: userId })
     .first()
@@ -114,15 +108,13 @@ export async function updateBudget({
     throw new Error('Budget not found')
   }
 
-  // Only check for duplicate categories if the category is being changed
   if (category !== currentBudget.category) {
-    // Check if another budget with the same category already exists for this user
     const existingBudget = await db('budgets')
       .where({
         user_id: userId,
         category,
       })
-      .whereNot({ id }) // Exclude the current budget
+      .whereNot({ id })
       .first()
 
     if (existingBudget) {

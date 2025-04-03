@@ -114,7 +114,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
           </div>
         </div>
 
-        {/* Only show the Latest Spending section if there are transactions */}
+        {}
         {budget.transactions && budget.transactions.length > 0 && (
           <div
             className='bg-[#F8F4F0] mt-6 p-6 rounded-lg space-y-4 cursor-pointer'
@@ -138,7 +138,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
               </span>
             </div>
             <div className='mt-2'>
-              {budget.transactions.slice(0, 3).map((transaction, index) => (
+              {budget.transactions.slice(0, 3).map((transaction) => (
                 <div
                   key={transaction.id}
                   className='flex items-center justify-between cursor-pointer hover:bg-white/60 transition-colors duration-200 py-3 px-2'

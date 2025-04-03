@@ -10,13 +10,7 @@ import {
 } from '../ui/dropdown-menu'
 import { Pot } from '~/types/finance.types'
 import { usePotMutations } from '~/hooks/use-pot-mutations'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '../ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
 
 interface PotCardProps {
@@ -26,16 +20,13 @@ interface PotCardProps {
 }
 
 export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
-  // State for money operations dialogs
   const [addMoneyOpen, setAddMoneyOpen] = useState(false)
   const [withdrawOpen, setWithdrawOpen] = useState(false)
   const [amount, setAmount] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  // Use the pot mutations hook
   const { addMoney, withdraw } = usePotMutations()
 
-  // Calculate percentage with proper boundary checks
   const progressPercentage = useMemo(() => {
     if (pot.target <= 0) {
       return 0
@@ -45,7 +36,6 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
     return Math.min(100, Math.max(0, percentage))
   }, [pot.total, pot.target])
 
-  // Format currency for display
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
@@ -55,7 +45,6 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
     }).format(amount)
   }
 
-  // Handle adding money to pot
   const handleAddMoney = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -79,7 +68,6 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
     }
   }
 
-  // Handle withdrawing money from pot
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -110,7 +98,6 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
     }
   }
 
-  // Reset state when closing dialogs
   const closeAddMoneyDialog = () => {
     setAddMoneyOpen(false)
     setAmount('')
@@ -167,7 +154,7 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
               </div>
             </div>
 
-            {/* Progress bar */}
+            {}
             <div className='w-full bg-gray-100 rounded-full h-2'>
               <div
                 className='h-2 rounded-full'
@@ -215,7 +202,7 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
         </CardContent>
       </Card>
 
-      {/* Add Money Dialog */}
+      {}
       <Dialog open={addMoneyOpen} onOpenChange={closeAddMoneyDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
@@ -240,7 +227,7 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
                 {formatCurrency(pot.total + (Number(amount) || 0))}
               </div>
 
-              {/* Progress bar */}
+              {}
               <div className='w-full bg-gray-100 rounded-full h-2 mt-4'>
                 <div
                   className='h-2 rounded-full'
@@ -290,7 +277,7 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Withdraw Dialog */}
+      {}
       <Dialog open={withdrawOpen} onOpenChange={closeWithdrawDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
@@ -314,7 +301,7 @@ export function PotCard({ pot, onEdit, onDelete }: PotCardProps) {
                 {formatCurrency(Math.max(0, pot.total - (Number(amount) || 0)))}
               </div>
 
-              {/* Progress bar */}
+              {}
               <div className='w-full bg-gray-100 rounded-full h-2 mt-4'>
                 <div
                   className='h-2 rounded-full'

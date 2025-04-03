@@ -41,8 +41,6 @@ export function useTransactions(): UseTransactionsReturn {
   const [sortBy, setSortBy] = useState('latest')
   const [category, setCategory] = useState('all')
 
-  // Create a debounced search handler
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(
     debounce((value: string) => {
       setDebouncedSearchQuery(value)
@@ -50,12 +48,10 @@ export function useTransactions(): UseTransactionsReturn {
     []
   )
 
-  // Update search query with debounce
   useEffect(() => {
     debouncedSearch(searchQuery)
   }, [searchQuery, debouncedSearch])
 
-  // Check for URL query parameters when component mounts
   useEffect(() => {
     const params = new URLSearchParams(location.search)
     const categoryParam = params.get('category')
@@ -70,7 +66,6 @@ export function useTransactions(): UseTransactionsReturn {
     }
   }, [location.search])
 
-  // Helper function to format currency
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
@@ -78,34 +73,28 @@ export function useTransactions(): UseTransactionsReturn {
     }).format(Math.abs(amount))
   }
 
-  // Helper function to check if a transaction date is over a month old
   const isOverAMonthOld = (dateString: string): boolean => {
     const date = new Date(dateString)
     const oneMonthAgo = subMonths(new Date(), 1)
     return date < oneMonthAgo
   }
 
-  // Helper function to format transaction dates
   const formatTransactionDate = (dateString: string): string => {
     const date = new Date(dateString)
 
-    // Format dates over a month old in GB format (dd/mm/yyyy)
     if (isOverAMonthOld(dateString)) {
       return format(date, 'dd/MM/yyyy')
     }
 
-    // For recent dates, show relative time (e.g., "2 days ago")
     return formatDistanceToNow(date, { addSuffix: true })
   }
 
-  // Helper function for rendering transaction avatars using the shared utility
   const renderTransactionAvatar = (
     transaction: AppTransaction
   ): JSX.Element => {
     return renderAvatar(transaction.description, transaction.avatar, 40)
   }
 
-  // Filter and sort transactions
   const filteredTransactions = useMemo(() => {
     if (!transactions) {
       return []
@@ -115,10 +104,8 @@ export function useTransactions(): UseTransactionsReturn {
       return []
     }
 
-    // Filter transactions using lodash filter
     let filtered = transactions
 
-    // Apply search query filter with debounced value
     if (debouncedSearchQuery) {
       const query = debouncedSearchQuery.toLowerCase()
       filtered = filter(filtered, (tx) => {
@@ -129,7 +116,6 @@ export function useTransactions(): UseTransactionsReturn {
       })
     }
 
-    // Apply category filter
     if (category !== 'all') {
       filtered = filter(
         filtered,
@@ -139,7 +125,6 @@ export function useTransactions(): UseTransactionsReturn {
 
     switch (sortBy) {
       case 'latest':
-        // For dates, we need to convert to timestamp for proper sorting
         return orderBy(
           filtered,
           [(tx: AppTransaction) => new Date(tx.date).getTime()],
@@ -156,27 +141,15 @@ export function useTransactions(): UseTransactionsReturn {
       case 'z-a':
         return orderBy(filtered, ['description'], ['desc'])
       case 'highest':
-        // For highest, we need to handle mixed signs correctly
         return orderBy(
           filtered,
-          [
-            // First sort by sign to prioritize positive values
-            (tx: AppTransaction) => (tx.amount >= 0 ? 1 : 0),
-            // Then sort by amount value
-            'amount',
-          ],
+          [(tx: AppTransaction) => (tx.amount >= 0 ? 1 : 0), 'amount'],
           ['desc', 'desc']
         )
       case 'lowest':
-        // For lowest, we prioritize negative values and sort them by magnitude
         return orderBy(
           filtered,
-          [
-            // First sort by sign to prioritize negative values
-            (tx: AppTransaction) => (tx.amount < 0 ? 0 : 1),
-            // Then sort by amount
-            'amount',
-          ],
+          [(tx: AppTransaction) => (tx.amount < 0 ? 0 : 1), 'amount'],
           ['asc', 'asc']
         )
       default:
@@ -184,34 +157,27 @@ export function useTransactions(): UseTransactionsReturn {
     }
   }, [transactions, debouncedSearchQuery, category, sortBy])
 
-  // Get the filtered count for proper hasMore evaluation
   const filteredCount = filteredTransactions.length
 
-  // Get visible transactions for current page
   const visibleTransactions = useMemo(() => {
     return filteredTransactions.slice(0, page * 15)
   }, [filteredTransactions, page])
 
-  // Get unique categories for filter dropdown
   const categories = useMemo<string[]>(() => {
     if (!transactions) return []
 
-    // First, map transactions to capitalized category names
     const allCategories = transactions.map(
       (tx: AppTransaction) =>
         tx.category.charAt(0).toUpperCase() + tx.category.slice(1).toLowerCase()
     )
 
-    // Then create a unique set by filtering
     const uniqueCategories: string[] = allCategories.filter(
       (category: string, index: number, self: string[]) =>
         self.indexOf(category) === index
     )
 
-    // Sort categories alphabetically
     uniqueCategories.sort((a, b) => a.localeCompare(b))
 
-    // Add 'All Transactions' at the beginning
     return ['All Transactions', ...uniqueCategories]
   }, [transactions])
 
@@ -221,14 +187,12 @@ export function useTransactions(): UseTransactionsReturn {
     }
   }, [visibleTransactions.length, filteredTransactions.length])
 
-  // Add a handleCategoryClick function
   const handleCategoryClick = (categoryName: string) => {
     navigate(
       `/transactions?category=${encodeURIComponent(categoryName.toLowerCase())}`
     )
   }
 
-  // Add a new handler function for recipient/sender clicks
   const handleSenderClick = (senderName: string) => {
     navigate(
       `/transactions?search=${encodeURIComponent(senderName.toLowerCase())}`

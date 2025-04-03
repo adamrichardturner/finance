@@ -31,14 +31,12 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
     return dueDate > now && dueDate <= fiveDaysFromNow
   }
 
-  // Check if date is over a month old
   const isOverAMonthOld = (dateString: string): boolean => {
     const date = new Date(dateString)
     const oneMonthAgo = subMonths(new Date(), 1)
     return date < oneMonthAgo
   }
 
-  // Format the due day with the appropriate suffix (1st, 2nd, 3rd, etc.)
   const formatDueDay = (day: number): string => {
     if (day >= 11 && day <= 13) {
       return `${day}th`
@@ -56,44 +54,35 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
     }
   }
 
-  // Get due day from transaction, either from dueDay field or from date
   const getDueDay = (bill: AppTransaction): number => {
     if (bill.dueDay) return bill.dueDay
     return new Date(bill.date).getDate()
   }
 
-  // For demo purposes, consider bills with dates in the past as paid unless explicitly marked as unpaid
   const isPaid = (bill: AppTransaction): boolean => {
-    // If isPaid is explicitly defined, always respect that value
     if (bill.isPaid !== undefined) {
       return bill.isPaid
     }
 
-    // If it's explicitly marked as overdue, it's not paid
     if (bill.isOverdue === true) {
       return false
     }
 
-    // Otherwise fall back to date-based logic
     return (
       isOverAMonthOld(bill.date) ||
       (isOverdue(bill.date) && Math.random() > 0.3)
     )
   }
 
-  // Check if a bill is overdue
   const checkOverdue = (bill: AppTransaction): boolean => {
-    // If explicitly marked as overdue, respect that value
     if (bill.isOverdue !== undefined) {
       return bill.isOverdue
     }
 
-    // If it's paid, it can't be overdue
     if (isPaid(bill)) {
       return false
     }
 
-    // Otherwise, check date
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const billDate = new Date(bill.date)
@@ -136,7 +125,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                         <p className='font-medium text-[14px]'>
                           {bill.description}
                         </p>
-                        {/* Show due date under description on small screens */}
+                        {}
                         <div className='sm:hidden flex items-center mt-1'>
                           {isOverAMonthOld(bill.date) ? (
                             <p

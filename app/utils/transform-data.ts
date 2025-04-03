@@ -14,9 +14,6 @@ export interface AppTransaction {
   isOverdue?: boolean
 }
 
-/**
- * Transform transaction data from the database format to our application format
- */
 export function transformDbTransaction(
   transaction: DbTransaction
 ): AppTransaction {

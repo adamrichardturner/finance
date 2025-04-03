@@ -21,10 +21,8 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
     return null
   }
 
-  // Filter out pot transfers to focus on actual spending/income transactions
   const filteredTransactions = useMemo(() => {
     return transactions.filter((tx) => {
-      // Skip transactions related to pots (transfers between pots and main account)
       const isPotTransaction =
         tx.description.toLowerCase().includes('pot') ||
         tx.category.toLowerCase().includes('pot') ||
@@ -43,7 +41,6 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
     }).format(amount)
   }
 
-  // Check if date is over a month old
   const isOverAMonthOld = (date: Date): boolean => {
     const oneMonthAgo = subMonths(new Date(), 1)
     return !isAfter(date, oneMonthAgo)
@@ -54,22 +51,18 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
       const date =
         typeof dateString === 'string' ? new Date(dateString) : dateString
 
-      // Format dates over a month old in GB format (dd/mm/yyyy)
       if (isOverAMonthOld(date)) {
         return format(date, 'dd/MM/yyyy')
       }
 
-      // For recent dates, show relative time
       return formatDistanceToNow(date, { addSuffix: true })
     } catch (error) {
       return 'Invalid date'
     }
   }
 
-  // Take only first 4 transactions to display
   const displayTransactions = filteredTransactions.slice(0, 4)
 
-  // Calculate the actual remaining count (not including pot transfers)
   const remainingCount = filteredTransactions.length - 4
 
   return (

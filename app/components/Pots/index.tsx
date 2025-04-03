@@ -30,7 +30,6 @@ export function Pots({ pots, actionData }: PotsProps) {
     isOpen: false,
   })
 
-  // Use callbacks for modal handlers to prevent recreating functions on each render
   const handleOpenAddModal = useCallback(() => setAddModalOpen(true), [])
   const handleCloseAddModal = useCallback(() => setAddModalOpen(false), [])
 
@@ -50,7 +49,6 @@ export function Pots({ pots, actionData }: PotsProps) {
     setDeleteModal({ isOpen: false })
   }, [])
 
-  // Memoize the pot cards to prevent unnecessary re-renders
   const memoizedPotCards = useMemo(() => {
     if (pots.length === 0) {
       return (

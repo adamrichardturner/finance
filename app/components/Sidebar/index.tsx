@@ -12,7 +12,6 @@ import {
   useSidebar,
 } from '~/components/ui/sidebar'
 
-// Add custom styles to the head
 const CUSTOM_STYLES = `
   .filter-active-icon {
     filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%);
@@ -42,7 +41,7 @@ const CUSTOM_STYLES = `
     filter: invert(27%) sepia(44%) saturate(489%) hue-rotate(127deg) brightness(92%) contrast(90%) !important;
   }
 `
-// Add styles to document head
+
 if (typeof document !== 'undefined') {
   const style = document.createElement('style')
   style.innerHTML = CUSTOM_STYLES
@@ -89,7 +88,6 @@ const MENU_ITEMS: MenuItem[] = [
   },
 ]
 
-// Mobile TabBar for small screens (xs only)
 function MobileTabBar() {
   const location = useLocation()
 
@@ -110,7 +108,6 @@ function MobileTabBar() {
     )
   }
 
-  // Use all menu items including Pots
   return (
     <div className='sm:hidden fixed bottom-0 pt-2 left-0 pl-2 right-0 bg-[#201F24] h-[74px] flex justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
       {MENU_ITEMS.map((item) => {
@@ -154,7 +151,6 @@ function MobileTabBar() {
   )
 }
 
-// Medium screens TabBar (sm to md)
 function TabBar() {
   const location = useLocation()
 
@@ -226,14 +222,12 @@ function TabBar() {
   )
 }
 
-// Menu item text animations
 const textFadeVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
   exit: { opacity: 0 },
 }
 
-// Logo animations
 const logoFadeVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },

@@ -1,4 +1,4 @@
-import { Card, CardTitle, CardContent, CardHeader } from '~/components/ui/card'
+import { Card, CardTitle, CardHeader } from '~/components/ui/card'
 import Pointer from '/assets/icons/Pointer.svg?url'
 import PiggyBank from '/assets/icons/PiggyBank.svg?url'
 import { Pot } from '~/types/finance.types'

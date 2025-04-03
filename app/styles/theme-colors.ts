@@ -1,86 +1,75 @@
-/**
- * Finance App Theme Colors
- * This file contains all the color definitions from the style guide.
- */
-
-// Beige palette
 export const BEIGE = {
-  100: '#D8D4C9', // Light Beige
-  500: '#9B9081', // Beige
+  100: '#D8D4C9',
+  500: '#9B9081',
 }
 
-// Gray palette
 export const GRAY = {
-  100: '#F1F1F2', // Lightest Gray
-  300: '#DADADA', // Light Gray
-  500: '#5E5E63', // Medium Gray
-  900: '#1D1D1F', // Dark Gray (almost black)
+  100: '#F1F1F2',
+  300: '#DADADA',
+  500: '#5E5E63',
+  900: '#1D1D1F',
 }
 
-// Secondary colors
 export const GREEN = {
-  500: '#427C76', // Green
+  500: '#427C76',
 }
 
 export const YELLOW = {
-  500: '#F2C89C', // Yellow/Cream
+  500: '#F2C89C',
 }
 
 export const CYAN = {
-  500: '#A8CDD7', // Cyan/Light Blue
+  500: '#A8CDD7',
 }
 
 export const NAVY = {
-  500: '#45465D', // Navy Blue
+  500: '#45465D',
 }
 
 export const RED = {
-  500: '#DC6746', // Red/Orange-Red
+  500: '#DC6746',
 }
 
 export const PURPLE = {
-  300: '#AA93BA', // Light Purple
-  500: '#8D7CBE', // Purple
+  300: '#AA93BA',
+  500: '#8D7CBE',
 }
 
-// Extended color palette
 export const TURQUOISE = {
-  500: '#5B857C', // Turquoise
+  500: '#5B857C',
 }
 
 export const BROWN = {
-  500: '#9E826F', // Brown
+  500: '#9E826F',
 }
 
 export const MAGENTA = {
-  500: '#B3456F', // Magenta/Deep Pink
+  500: '#B3456F',
 }
 
 export const BLUE = {
-  500: '#5B6A83', // Blue
+  500: '#5B6A83',
 }
 
 export const NAVY_GRAY = {
-  500: '#5E646C', // Navy Gray
+  500: '#5E646C',
 }
 
 export const ARMY_GREEN = {
-  500: '#777349', // Army Green
+  500: '#777349',
 }
 
 export const GOLD = {
-  500: '#CEC25D', // Gold
+  500: '#CEC25D',
 }
 
 export const ORANGE = {
-  500: '#DD8C45', // Orange
+  500: '#DD8C45',
 }
 
-// Basic colors
 export const WHITE = '#FFFFFF'
 export const BLACK = '#000000'
 
-// Semantic color mapping for charts
 export const CHART_COLORS = [
   GREEN[500],
   PURPLE[500],
@@ -89,16 +78,14 @@ export const CHART_COLORS = [
   RED[500],
 ]
 
-// Theme color groups
 export const THEME = {
-  // Dark theme colors
   dark: {
     background: GRAY[900],
     foreground: WHITE,
     muted: GRAY[500],
     accent: PURPLE[500],
   },
-  // Light theme colors
+
   light: {
     background: WHITE,
     foreground: GRAY[900],

@@ -2,7 +2,6 @@ import { data, LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node'
 import { getFinancialData } from '~/services/finance/finance.service'
 import db from '~/lib/db.server'
 
-// Get a specific pot
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   try {
     const { id } = params
@@ -34,7 +33,6 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   }
 }
 
-// Update a pot
 export const action = async ({ params, request }: ActionFunctionArgs) => {
   try {
     const { id } = params
@@ -49,7 +47,6 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 
     const potData = await request.json()
 
-    // Update pot in database
     const updatedPot = await db('pots')
       .where({ id: Number(id) })
       .update(potData)

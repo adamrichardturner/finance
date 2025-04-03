@@ -15,7 +15,6 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
     return null
   }
 
-  // Filter out Income budgets
   const expenseBudgets = budgets.filter(
     (budget) =>
       !EXCLUDED_BUDGET_CATEGORIES.map((cat) => cat.toLowerCase()).includes(

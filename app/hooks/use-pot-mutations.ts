@@ -1,6 +1,5 @@
 import { useFetcher } from '@remix-run/react'
 import { Pot } from '~/types/finance.types'
-import { useQueryClient, useMutation } from '@tanstack/react-query'
 
 interface CreatePotParams {
   name: string
@@ -26,7 +25,6 @@ interface AddMoneyParams {
   amount: number
 }
 
-// Define response types
 interface PotResponse {
   pot: Pot
   error?: string
@@ -40,7 +38,6 @@ interface DeleteResponse {
 export const usePotMutations = () => {
   const fetcher = useFetcher()
 
-  // Create a new pot
   const createPot = {
     mutateAsync: async (data: CreatePotParams) => {
       const formData = new FormData()
@@ -59,7 +56,6 @@ export const usePotMutations = () => {
     isPending: fetcher.state === 'submitting',
   }
 
-  // Update an existing pot
   const updatePot = {
     mutateAsync: async (data: UpdatePotParams) => {
       const formData = new FormData()
@@ -79,7 +75,6 @@ export const usePotMutations = () => {
     isPending: fetcher.state === 'submitting',
   }
 
-  // Delete a pot
   const deletePot = {
     mutateAsync: async (data: DeletePotParams) => {
       const formData = new FormData()
@@ -96,14 +91,12 @@ export const usePotMutations = () => {
     isPending: fetcher.state === 'submitting',
   }
 
-  // Add money to a pot
   const addMoney = {
     mutateAsync: async (data: AddMoneyParams) => {
       const formData = new FormData()
       formData.append('intent', 'add-money')
       formData.append('potId', data.potId)
 
-      // Send the amount directly as a string
       formData.append('amount', String(data.amount))
 
       const result = await fetcher.submit(formData, {
@@ -116,14 +109,12 @@ export const usePotMutations = () => {
     isPending: fetcher.state === 'submitting',
   }
 
-  // Withdraw money from a pot
   const withdraw = {
     mutateAsync: async (data: AddMoneyParams) => {
       const formData = new FormData()
       formData.append('intent', 'withdraw')
       formData.append('potId', data.potId)
 
-      // Send the amount directly as a string
       formData.append('amount', String(data.amount))
 
       const result = await fetcher.submit(formData, {

@@ -11,7 +11,6 @@ export function BudgetChart({ budgets }: BudgetChartProps) {
     return null
   }
 
-  // Filter out Income budgets
   const expenseBudgets = budgets.filter(
     (budget) =>
       !EXCLUDED_BUDGET_CATEGORIES.map((cat) => cat.toLowerCase()).includes(

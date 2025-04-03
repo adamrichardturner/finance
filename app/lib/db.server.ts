@@ -1,10 +1,8 @@
 import { type Knex } from 'knex'
 import knexPkg from 'knex'
 
-// Handle both ESM and CJS module formats
 const knex = knexPkg.default || knexPkg
 
-// Define the direct connection config
 const connectionConfig = {
   client: 'pg',
   connection: {
@@ -25,15 +23,13 @@ const connectionConfig = {
   },
 }
 
-// Initialize database connection immediately
 let dbInstance: Knex
 
 try {
   dbInstance = knex(connectionConfig)
-  console.log('Database connection initialized')
 } catch (error) {
-  console.error('Failed to initialize database:', error)
-  throw new Error('Database connection could not be established')
+  console.error('Failed to initialize database connection:', error)
+  process.exit(1)
 }
 
 export default dbInstance

@@ -9,9 +9,9 @@ import { AppTransaction } from '~/utils/transform-data'
 import { useNavigate } from '@remix-run/react'
 
 interface OverviewProps {
-  balance: number // Main account balance
-  potsBalance: number // Total in savings pots
-  totalBalance: number // Combined total (balance + potsBalance)
+  balance: number
+  potsBalance: number
+  totalBalance: number
   income: number
   expenses: number
   pots: Pot[]
@@ -23,7 +23,7 @@ interface OverviewProps {
 const Overview: React.FC<OverviewProps> = ({
   balance,
   potsBalance,
-  totalBalance,
+
   income,
   expenses,
   pots,
@@ -47,7 +47,6 @@ const Overview: React.FC<OverviewProps> = ({
     }).format(amount)
   }
 
-  // Get recurringBills for the RecurringBills component
   const recurringBills = bills.filter((bill) => bill.amount < 0)
 
   return (

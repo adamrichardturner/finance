@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { FinancialData } from '~/types/finance.types'
 
-// Initial empty financial data structure
 const initialFinancialData: FinancialData = {
   balance: {
     current: 0,
@@ -14,7 +13,6 @@ const initialFinancialData: FinancialData = {
   bills: [],
 }
 
-// Fetch financial data function
 async function fetchFinancialData(): Promise<FinancialData> {
   const response = await fetch('/api/financial-data')
 
@@ -26,18 +24,15 @@ async function fetchFinancialData(): Promise<FinancialData> {
   return data
 }
 
-/**
- * Custom hook to fetch and manage financial data using React Query
- */
 export function useFinancialData() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['financialData'],
     queryFn: fetchFinancialData,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-    // Provide placeholder data when no data is available
+
     placeholderData: initialFinancialData,
-    // Use a better retry strategy for network issues
+
     retry: 3,
     retryDelay: (attempt: number) =>
       Math.min(attempt > 1 ? 2 ** attempt * 1000 : 1000, 30 * 1000),

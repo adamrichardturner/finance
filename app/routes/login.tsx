@@ -14,7 +14,6 @@ type ActionData = {
   }
 }
 
-// Get demo user ID from environment
 const { demoUserId: DEMO_USER_ID } = getDemoUserEnv()
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -43,7 +42,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    // Create demo user session - use DEMO_USER_ID directly
     return createUserSession({
       request,
       userId: DEMO_USER_ID,
@@ -88,8 +86,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-
-      {/* Right column - Login form */}
       <div className='w-full md:w-[1/2] flex items-center justify-center p-8'>
         <div className='w-full max-w-md bg-white rounded-lg p-8'>
           <div className='text-center mb-10'>

@@ -26,7 +26,6 @@ export function AddPotModal({ isOpen, onClose }: AddPotModalProps) {
 
   const { createPot } = usePotMutations()
 
-  // Reset form when modal closes
   const handleClose = () => {
     setName('')
     setTarget('')

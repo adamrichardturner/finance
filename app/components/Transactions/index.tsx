@@ -32,10 +32,9 @@ import { getThemeForCategory } from '~/utils/budget-categories'
 import { AppTransaction } from '~/utils/transform-data'
 import Pointer from '/assets/icons/Pointer.svg?url'
 
-// Animation variants
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
+  visible: () => ({
     opacity: 1,
     y: 0,
     transition: {
@@ -63,13 +62,12 @@ export function Transactions() {
     loadMore,
     formatCurrency,
     formatTransactionDate,
-    isOverAMonthOld,
+
     renderTransactionAvatar,
     handleCategoryClick,
     handleSenderClick,
   } = useTransactions()
 
-  // Handle loading state
   if (isLoading) {
     return (
       <Card className='w-full'>
@@ -117,7 +115,6 @@ export function Transactions() {
     )
   }
 
-  // Handle error state
   if (error || !transactions) {
     return (
       <Card className='w-full'>
@@ -190,9 +187,9 @@ export function Transactions() {
         )}
       </CardHeader>
       <CardContent>
-        {/* Filters section */}
+        {}
         <div className='mb-6 flex flex-row items-center justify-between'>
-          {/* Search input - always visible */}
+          {}
           <div className='relative sm:w-[121px] md:w-[200px] lg:w-[320px] pr-4 flex items-center h-full'>
             <Search className='absolute left-[12px] h-4 w-4 text-gray-500' />
             <Input
@@ -212,7 +209,7 @@ export function Transactions() {
             )}
           </div>
 
-          {/* Desktop & Tablet filter controls - hidden on mobile */}
+          {}
           <div className='hidden sm:flex items-center space-x-4'>
             <div className='relative'>
               <label className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'>
@@ -256,9 +253,9 @@ export function Transactions() {
             </div>
           </div>
 
-          {/* Mobile filter icons - visible only on mobile */}
+          {}
           <div className='flex sm:hidden space-x-2 ml-2'>
-            {/* Sort Sheet */}
+            {}
             <Sheet>
               <SheetTrigger asChild>
                 <Button
@@ -300,7 +297,7 @@ export function Transactions() {
               </SheetContent>
             </Sheet>
 
-            {/* Filter Sheet */}
+            {}
             <Sheet>
               <SheetTrigger asChild>
                 <Button
@@ -350,7 +347,7 @@ export function Transactions() {
           </div>
         </div>
 
-        {/* Transactions table with infinite scroll */}
+        {}
         <div
           id='scrollable-transactions'
           className='overflow-auto hide-scrollbar'
@@ -363,7 +360,7 @@ export function Transactions() {
         >
           <style>
             {`
-              /* Hide all scrollbars within transactions component */
+              
               #scrollable-transactions::-webkit-scrollbar,
               .infinite-scroll-component::-webkit-scrollbar,
               .infinite-scroll-component__outerdiv::-webkit-scrollbar,
@@ -385,7 +382,7 @@ export function Transactions() {
                 -ms-overflow-style: none !important;
               }
               
-              /* Additional fix for InfiniteScroll component */
+              
               .infinite-scroll-component {
                 overflow: auto !important;
                 overflow-y: auto !important;
@@ -423,7 +420,7 @@ export function Transactions() {
               >
                 {visibleTransactions.length > 0 ? (
                   <>
-                    {/* Desktop & Tablet View */}
+                    {}
                     <div className='hidden sm:block hide-scrollbar'>
                       <Table className='hide-scrollbar'>
                         <TableHeader className='sticky top-0 bg-card z-10'>
@@ -444,7 +441,7 @@ export function Transactions() {
                         </TableHeader>
                         <TableBody>
                           {visibleTransactions.map(
-                            (transaction: AppTransaction, index: number) => (
+                            (transaction: AppTransaction) => (
                               <tr
                                 key={transaction.id}
                                 className='transition-colors duration-200 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-[#f9f9f9]'
@@ -494,7 +491,7 @@ export function Transactions() {
                               </tr>
                             )
                           )}
-                          {/* Add padding row to ensure smooth scrolling */}
+                          {}
                           <tr className='h-8'>
                             <td colSpan={4}></td>
                           </tr>
@@ -502,7 +499,7 @@ export function Transactions() {
                       </Table>
                     </div>
 
-                    {/* Mobile View */}
+                    {}
                     <div className='sm:hidden mb-10'>
                       {visibleTransactions.map(
                         (transaction: AppTransaction, index: number) => (

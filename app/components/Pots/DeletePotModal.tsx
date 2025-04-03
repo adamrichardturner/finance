@@ -22,13 +22,11 @@ export function DeletePotModal({
 
   const { deletePot } = usePotMutations()
 
-  // Reset state when modal closes
   const handleClose = () => {
     setError(null)
     onClose()
   }
 
-  // Set pot name for confirmation message
   useEffect(() => {
     if (isOpen && potId && pots.length > 0) {
       const currentPot = pots.find((p) => String(p.id) === potId)

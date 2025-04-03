@@ -27,7 +27,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request)
 
   try {
-    // Ensure userId is a string
     const pots = await getPots(userId.toString())
     return data({ pots })
   } catch (error) {
@@ -130,13 +129,11 @@ export async function action({ request }: ActionFunctionArgs) {
       return data({ error: 'Invalid form data' }, { status: 400 })
     }
 
-    // Parse the amount from the input field
     const parsedAmount = parseFloat(amount.replace(/[^0-9.-]+/g, ''))
     if (isNaN(parsedAmount)) {
       return data({ error: 'Invalid amount' }, { status: 400 })
     }
 
-    // Ensure amount is positive
     const finalAmount = Math.abs(parsedAmount)
 
     try {
@@ -163,10 +160,8 @@ export default function PotsRoute() {
   const actionData = useActionData<typeof action>()
   const revalidator = useRevalidator()
 
-  // Revalidate data when action is successful
   useEffect(() => {
     if (actionData && 'success' in actionData && actionData.success === true) {
-      // Revalidate the data to refresh the UI with the latest changes
       revalidator.revalidate()
     }
   }, [actionData, revalidator])

@@ -27,7 +27,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const userId = String(await requireUserId(request))
   const budgets = await getBudgets(userId)
 
-  // Filter out any 'Income' budgets
   const filteredBudgets = budgets.filter(
     (budget) => budget.category.toLowerCase() !== 'income'
   )
@@ -49,7 +48,6 @@ export async function action({ request }: ActionFunctionArgs) {
       return json({ error: 'Invalid form data' }, { status: 400 })
     }
 
-    // Prevent 'Income' from being used as a budget category
     if (category.toLowerCase() === 'income') {
       return json(
         { error: 'Income cannot be used as a budget category' },
@@ -57,7 +55,6 @@ export async function action({ request }: ActionFunctionArgs) {
       )
     }
 
-    // If theme wasn't provided, get it from the category
     const themeColor =
       typeof theme === 'string' && theme ? theme : getThemeForCategory(category)
 
@@ -70,7 +67,6 @@ export async function action({ request }: ActionFunctionArgs) {
       })
       return json({ budget })
     } catch (error) {
-      // Check for duplicate category error
       if (error instanceof Error && error.message.includes('already exists')) {
         return json({ error: error.message }, { status: 400 })
       }
@@ -93,7 +89,6 @@ export async function action({ request }: ActionFunctionArgs) {
       return json({ error: 'Invalid form data' }, { status: 400 })
     }
 
-    // Prevent 'Income' from being used as a budget category
     if (category.toLowerCase() === 'income') {
       return json(
         { error: 'Income cannot be used as a budget category' },
@@ -111,7 +106,6 @@ export async function action({ request }: ActionFunctionArgs) {
       })
       return json({ budget })
     } catch (error) {
-      // Check for duplicate category error
       if (error instanceof Error && error.message.includes('already exists')) {
         return json({ error: error.message }, { status: 400 })
       } else if (

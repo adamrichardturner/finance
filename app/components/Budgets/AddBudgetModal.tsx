@@ -10,13 +10,7 @@ import {
   SelectValue,
 } from '../ui/select'
 import { useBudgetMutations } from '~/hooks/use-budget-mutations'
-import { useBudgets } from '~/hooks/use-budgets'
-import {
-  BUDGET_CATEGORIES,
-  THEME_COLORS,
-  getThemeForCategory,
-  getAvailableCategories,
-} from '~/utils/budget-categories'
+import { THEME_COLORS, getAvailableCategories } from '~/utils/budget-categories'
 import { Budget } from '~/types/finance.types'
 
 interface AddBudgetModalProps {
@@ -36,7 +30,6 @@ export function AddBudgetModal({
   const [error, setError] = useState<string | null>(null)
   const { createBudget } = useBudgetMutations()
 
-  // Reset form when opening/closing modal
   useEffect(() => {
     if (!isOpen) {
       setCategory('')
@@ -46,10 +39,8 @@ export function AddBudgetModal({
     }
   }, [isOpen])
 
-  // Get available categories using the shared utility function
   const availableCategories = getAvailableCategories(budgets)
 
-  // Check if the selected category already exists in any budget
   const handleCategoryChange = (newCategory: string) => {
     const normalizedNewCategory = newCategory.toLowerCase().trim()
     const isDuplicate = budgets.some(
@@ -60,7 +51,6 @@ export function AddBudgetModal({
       setError(
         `A budget for "${newCategory}" already exists. Please select a different category.`
       )
-      // Don't update the category if it's a duplicate
     } else {
       setCategory(newCategory)
       setError(null)
@@ -75,7 +65,6 @@ export function AddBudgetModal({
       return
     }
 
-    // Final validation check before submitting
     const normalizedSelectedCategory = category.toLowerCase().trim()
     const isDuplicate = budgets.some(
       (budget) =>
