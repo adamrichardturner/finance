@@ -10,7 +10,7 @@ services:
         condition: service_healthy
     environment:
       - PORT=6000
-      - NODE_ENV=${NODE_ENV:-production}
+      - NODE_ENV=production
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=postgres

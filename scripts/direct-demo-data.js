@@ -13,8 +13,20 @@ const __dirname = dirname(__filename)
 // Make sure we're in the project root
 process.chdir(resolve(__dirname, '..'))
 
-// Load environment variables from .env file
-config({ path: resolve(__dirname, '.env') })
+// Load environment variables based on NODE_ENV
+const NODE_ENV = process.env.NODE_ENV || 'development'
+console.log(`Demo data using environment: ${NODE_ENV}`)
+
+// Try to load from environment-specific file first
+config({ path: resolve(process.cwd(), `.env.${NODE_ENV}`) })
+
+// Fallback to .env if needed
+if (!process.env.DEMO_USER_ID || !process.env.DEMO_PASSWORD_HASH) {
+  console.log(
+    `No user variables found in .env.${NODE_ENV}, falling back to .env`
+  )
+  config({ path: resolve(__dirname, '../.env') })
+}
 
 // Get environment variables
 const DEMO_USER_ID_RAW = process.env.DEMO_USER_ID

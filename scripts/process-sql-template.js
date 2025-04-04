@@ -7,8 +7,19 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
 
-// Load environment variables
-dotenv.config()
+// Load environment variables based on NODE_ENV
+const NODE_ENV = process.env.NODE_ENV || 'development'
+console.log(`Using environment: ${NODE_ENV}`)
+
+dotenv.config({
+  path: path.resolve(process.cwd(), `.env.${NODE_ENV}`),
+})
+
+// Fallback to .env if environment-specific file doesn't exist
+if (Object.keys(process.env).length === 0) {
+  console.log(`No variables found in .env.${NODE_ENV}, falling back to .env`)
+  dotenv.config()
+}
 
 // Get the directory name
 const __dirname = path.dirname(fileURLToPath(import.meta.url))

@@ -5,8 +5,21 @@ import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import dotenv from 'dotenv'
 
-// Load environment variables
-dotenv.config()
+// Load environment variables based on NODE_ENV
+const NODE_ENV = process.env.NODE_ENV || 'development'
+console.log(`Seed using environment: ${NODE_ENV}`)
+
+dotenv.config({
+  path: path.resolve(process.cwd(), `.env.${NODE_ENV}`),
+})
+
+// Fallback to .env if environment-specific file doesn't exist
+if (!process.env.DEMO_USER_ID || !process.env.DEMO_PASSWORD_HASH) {
+  console.log(
+    `No user variables found in .env.${NODE_ENV}, falling back to .env`
+  )
+  dotenv.config()
+}
 
 const DEMO_USER_ID = process.env.DEMO_USER_ID
 const DEMO_PASSWORD_HASH = process.env.DEMO_PASSWORD_HASH
