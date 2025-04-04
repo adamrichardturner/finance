@@ -62,7 +62,6 @@ export function Transactions() {
     loadMore,
     formatCurrency,
     formatTransactionDate,
-
     renderTransactionAvatar,
     handleCategoryClick,
     handleSenderClick,
@@ -306,7 +305,7 @@ export function Transactions() {
                   {categories.map(
                     (cat: string) =>
                       cat !== 'All Transactions' && (
-                        <SelectItem key={cat} value={cat.toLowerCase()}>
+                        <SelectItem key={cat} value={cat}>
                           {cat}
                         </SelectItem>
                       )

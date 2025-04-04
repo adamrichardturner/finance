@@ -194,9 +194,7 @@ export function useTransactions(): UseTransactionsReturn {
   }
 
   const handleSenderClick = (senderName: string) => {
-    navigate(
-      `/transactions?search=${encodeURIComponent(senderName.toLowerCase())}`
-    )
+    navigate(`/transactions?search=${encodeURIComponent(senderName)}`)
     setSearchQuery(senderName)
   }
 

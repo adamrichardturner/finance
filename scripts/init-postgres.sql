@@ -1,8 +1,6 @@
 -- Use a prepared statement approach with a template that can be filled by environment variables
 -- This file will be processed by a shell script that replaces placeholders before execution
 
--- Don't drop the database if it exists (this causes issues in Docker)
--- Instead, only create the database if it doesn't exist
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_database WHERE datname = '${DB_NAME}') THEN
