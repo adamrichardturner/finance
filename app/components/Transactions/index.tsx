@@ -70,45 +70,93 @@ export function Transactions() {
 
   if (isLoading) {
     return (
-      <Card className='w-full'>
-        <CardHeader>
-          <CardTitle>Transactions</CardTitle>
-        </CardHeader>
-        <CardContent className='p-0'>
-          <div className='rounded-md border'>
+      <Card className='w-full shadow-none border-none outline-none py-8'>
+        <CardContent className='px-8'>
+          {/* Search and filters skeleton */}
+          <div className='mb-6 flex flex-row items-center justify-between'>
+            <div className='relative w-full lg:w-[320px] pr-4 flex items-center h-full'>
+              <div className='w-full h-[46px] bg-gray-200 rounded-md animate-pulse'></div>
+            </div>
+            <div className='hidden sm:flex items-center space-x-4'>
+              <div className='w-[160px] h-[46px] bg-gray-200 rounded-md animate-pulse'></div>
+              <div className='w-[180px] h-[46px] bg-gray-200 rounded-md animate-pulse'></div>
+            </div>
+            <div className='flex sm:hidden space-x-2 ml-2'>
+              <div className='h-[46px] w-[46px] bg-gray-200 rounded-md animate-pulse'></div>
+              <div className='h-[46px] w-[46px] bg-gray-200 rounded-md animate-pulse'></div>
+            </div>
+          </div>
+
+          {/* Desktop transactions skeleton */}
+          <div className='hidden sm:block rounded-md'>
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className='w-[240px]'>
+              <TableHeader className='sticky top-0 bg-card z-10'>
+                <TableRow className='border-b border-gray-200 hover:bg-transparent'>
+                  <TableHead className='w-[40%] text-[12px]'>
                     Recipient / Sender
                   </TableHead>
-                  <TableHead className='w-[180px]'>Category</TableHead>
-                  <TableHead className='w-[180px]'>Transaction Date</TableHead>
-                  <TableHead className='text-right'>Amount</TableHead>
+                  <TableHead className='w-[15%] text-left text-[12px]'>
+                    Category
+                  </TableHead>
+                  <TableHead className='w-[15%] text-left text-[12px]'>
+                    Transaction Date
+                  </TableHead>
+                  <TableHead className='w-[30%] text-right text-[12px]'>
+                    Amount
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <TableRow key={index} className='animate-pulse'>
-                    <TableCell>
-                      <div className='flex items-center gap-3'>
-                        <div className='h-8 w-8 rounded-full bg-gray-200' />
-                        <div className='h-4 w-32 bg-gray-200 rounded' />
+                {Array.from({ length: 10 }).map((_, index) => (
+                  <TableRow
+                    key={index}
+                    className='border-b border-gray-100 last:border-0'
+                  >
+                    <TableCell className='flex items-center gap-3 min-h-[56px]'>
+                      <div className='h-10 w-10 rounded-full bg-gray-200 animate-pulse' />
+                      <div className='h-4 w-32 bg-gray-200 rounded animate-pulse' />
+                    </TableCell>
+                    <TableCell className='text-left'>
+                      <div className='flex items-center gap-2'>
+                        <div className='h-2 w-2 rounded-full bg-gray-200 animate-pulse' />
+                        <div className='h-4 w-20 bg-gray-200 rounded animate-pulse' />
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className='h-4 w-20 bg-gray-200 rounded' />
-                    </TableCell>
-                    <TableCell>
-                      <div className='h-4 w-24 bg-gray-200 rounded' />
+                      <div className='h-4 w-24 bg-gray-200 rounded animate-pulse' />
                     </TableCell>
                     <TableCell className='text-right'>
-                      <div className='h-4 w-16 bg-gray-200 rounded ml-auto' />
+                      <div className='h-4 w-20 bg-gray-200 rounded ml-auto animate-pulse' />
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile transactions skeleton */}
+          <div className='sm:hidden'>
+            {Array.from({ length: 10 }).map((_, index) => (
+              <div
+                key={index}
+                className='flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0 mb-1'
+              >
+                <div className='flex items-start gap-3 flex-1'>
+                  <div className='h-10 w-10 rounded-full bg-gray-200 animate-pulse' />
+                  <div className='flex flex-col gap-2'>
+                    <div className='h-4 w-32 bg-gray-200 rounded animate-pulse' />
+                    <div className='flex items-center gap-1 mt-1'>
+                      <div className='h-2 w-2 rounded-full bg-gray-200 animate-pulse' />
+                      <div className='h-3 w-20 bg-gray-200 rounded animate-pulse' />
+                    </div>
+                  </div>
+                </div>
+                <div className='flex flex-col items-end gap-2'>
+                  <div className='h-4 w-20 bg-gray-200 rounded animate-pulse' />
+                  <div className='h-3 w-16 bg-gray-200 rounded animate-pulse' />
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -117,11 +165,11 @@ export function Transactions() {
 
   if (error || !transactions) {
     return (
-      <Card className='w-full'>
+      <Card className='w-full py-8'>
         <CardHeader>
           <CardTitle>Transactions</CardTitle>
         </CardHeader>
-        <CardContent className='p-4'>
+        <CardContent className='px-8'>
           <div className='flex flex-col justify-center items-center py-8 gap-4'>
             <div className='text-red-500 rounded-full bg-red-100 p-3'>
               <svg
@@ -155,14 +203,13 @@ export function Transactions() {
   }
 
   return (
-    <Card className='w-full shadow-none'>
-      <CardHeader className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-        <CardTitle>
-          {category !== 'all' ? (
+    <Card className='w-full shadow-none py-8'>
+      {category !== 'all' ? (
+        <CardHeader className='flex flex-col sm:flex-row sm:items-center sm:justify-between pt-0'>
+          <CardTitle>
             <div className='flex flex-col'>
               <span className='text-2xl'>
-                {category.charAt(0).toUpperCase() + category.slice(1)}{' '}
-                Transactions
+                {category.charAt(0).toUpperCase() + category.slice(1)}
               </span>
               <span className='text-[12px] pt-1.5 text-gray-500 font-normal'>
                 Showing {visibleTransactions.length} transaction
@@ -170,30 +217,28 @@ export function Transactions() {
                 {filteredCount > 0 && ` of ${filteredCount}`}
               </span>
             </div>
-          ) : (
-            'Transactions'
-          )}
-        </CardTitle>
-        {category !== 'all' && (
-          <span
-            className='mt-2 sm:mt-0 text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex items-center'
-            onClick={() => setCategory('all')}
-          >
-            View all transactions
-            <span className='ml-2'>
-              <img src={Pointer} alt='Pointer Icon' className='h-2 w-2' />
+          </CardTitle>
+          {category !== 'all' && (
+            <span
+              className='mt-2 sm:mt-0 text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex items-center'
+              onClick={() => setCategory('all')}
+            >
+              View all transactions
+              <span className='ml-2'>
+                <img src={Pointer} alt='Pointer Icon' className='h-2 w-2' />
+              </span>
             </span>
-          </span>
-        )}
-      </CardHeader>
-      <CardContent>
+          )}
+        </CardHeader>
+      ) : null}
+      <CardContent className='px-8'>
         <div className='mb-6 flex flex-row items-center justify-between'>
           <div className='relative w-full lg:w-[320px] pr-4 flex items-center h-full'>
             <Search className='absolute left-[12px] h-4 w-4 text-gray-500' />
             <Input
               type='text'
               placeholder='Search'
-              className='pl-8 pr-8 border border-gray-100 placeholder:text-[12px] hover:shadow-lg transition-shadow duration-200 placeholder:text-xs sm:placeholder:text-sm shadow-md'
+              className='pl-8 pr-8 border border-gray-100 placeholder:text-[14px] hover:shadow-lg transition-shadow duration-200 shadow-md'
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
@@ -228,7 +273,7 @@ export function Transactions() {
                   setSearchQuery('')
                 }}
               >
-                <SelectTrigger className='w-[160px] border border-gray-100 text-[12px] text-color-grey-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
+                <SelectTrigger className='w-[160px] border border-gray-100 text-[14px] text-color-grey-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                   <SelectValue placeholder='Sort by' />
                 </SelectTrigger>
                 <SelectContent className='min-w-[160px]'>
@@ -253,7 +298,7 @@ export function Transactions() {
                   setSearchQuery('')
                 }}
               >
-                <SelectTrigger className='w-[180px] border text-[12px] border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
+                <SelectTrigger className='w-[180px] border text-[14px] border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
                   <SelectValue placeholder='Category' />
                 </SelectTrigger>
                 <SelectContent className='min-w-[180px] max-h-[300px] overflow-y-auto'>
