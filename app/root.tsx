@@ -23,7 +23,8 @@ export const meta: MetaFunction = () => {
     { name: 'description', content: description },
     {
       name: 'viewport',
-      content: 'width=device-width, initial-scale=1, maximum-scale=1',
+      content:
+        'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
     },
 
     { property: 'og:type', content: 'website' },
@@ -96,6 +97,12 @@ const globalStyles = `
 
   body {
     font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+  
+  /* Prevent zooming on focus for all form elements */
+  input, select, textarea, button {
+    font-size: 14px !important;
+    max-height: 100%; /* For select elements */
   }
 `
 
