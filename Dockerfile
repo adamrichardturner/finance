@@ -33,12 +33,13 @@ WORKDIR /app
 # Copy built files and production dependencies from the builder stage
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/knexfile.js ./knexfile.js
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/server.js ./server.js
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/app/lib ./app/lib
-COPY --from=builder /app/knexfile.ts ./knexfile.ts
+COPY --from=builder /app/db ./db
 
 # Set production port (default port will be set by server.js based on NODE_ENV)
 ENV NODE_ENV=production
@@ -49,4 +50,4 @@ ENV DOCKER_ENV=true
 EXPOSE 6001 6000
 
 # Start the app
-CMD ["npm", "run", "prod:docker"]
+CMD ["npm", "run", "start"]

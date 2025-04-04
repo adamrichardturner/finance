@@ -23,6 +23,10 @@ services:
       - DEMO_USER_ID=${DEMO_USER_ID}
       - DEMO_PASSWORD_HASH=${DEMO_PASSWORD_HASH}
     volumes:
+      - ./app:/app/app
+      - ./db:/app/db
+      - ./public:/app/public
+      - ./scripts:/app/scripts
       - /app/node_modules
       - ./app/lib/data.json:/app/public/data.json
       - ./scripts/docker-entrypoint-prod.sh:/docker-entrypoint.sh

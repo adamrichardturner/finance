@@ -23,11 +23,12 @@ const buildConnectionFromEnv = () => {
       database: DB_NAME,
     }
   }
-  const defaultPort = DB_PORT || '5432'
-  return (
-    DATABASE_URL ||
-    `postgres://postgres:postgres@localhost:${defaultPort}/finance`
-  )
+  if (!DATABASE_URL) {
+    throw new Error(
+      'Database connection information is missing. Please check your environment variables.'
+    )
+  }
+  return DATABASE_URL
 }
 
 export default {
@@ -36,11 +37,11 @@ export default {
     connection: buildConnectionFromEnv(),
     migrations: {
       directory: './db/migrations',
-      extension: 'js',
+      extension: 'ts',
     },
     seeds: {
       directory: './db/seeds',
-      extension: 'js',
+      extension: 'ts',
     },
   },
   production: {
@@ -48,11 +49,9 @@ export default {
     connection: buildConnectionFromEnv(),
     migrations: {
       directory: './db/migrations',
-      extension: 'js',
     },
     seeds: {
       directory: './db/seeds',
-      extension: 'js',
     },
     pool: {
       min: 2,
