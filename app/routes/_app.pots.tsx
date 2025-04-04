@@ -15,7 +15,6 @@ import {
   updatePotBalance,
   getFinancialData,
 } from '~/services/finance/finance.service'
-import { useEffect } from 'react'
 
 export const meta: MetaFunction = () => {
   return [
@@ -25,18 +24,25 @@ export const meta: MetaFunction = () => {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request)
+  const userId = String(await requireUserId(request))
 
   try {
-    const pots = await getPots(userId.toString())
+    const pots = await getPots(userId)
+    // Get financial data to get budgets for colors
     const financialData = await getFinancialData()
     const currentBalance = Number(financialData.balance?.current || 0)
+    const budgets = financialData.budgets || []
 
-    return data({ pots, currentBalance })
+    return data({ pots, currentBalance, budgets })
   } catch (error) {
     console.error('Error fetching pots:', error)
     return data(
-      { pots: [], currentBalance: 0, error: 'Failed to fetch pots' },
+      {
+        pots: [],
+        currentBalance: 0,
+        budgets: [],
+        error: 'Failed to fetch pots',
+      },
       { status: 500 }
     )
   }
@@ -172,6 +178,7 @@ export default function PotsRoute() {
         pots={loaderData.pots}
         actionData={actionData}
         currentBalance={loaderData.currentBalance}
+        budgets={loaderData.budgets}
       />
     </div>
   )

@@ -31,6 +31,7 @@ interface EditPotModalProps {
   potId?: string
   onClose: () => void
   pots: Pot[]
+  usedColors?: string[]
 }
 
 export function EditPotModal({
@@ -38,6 +39,7 @@ export function EditPotModal({
   potId,
   onClose,
   pots,
+  usedColors = [],
 }: EditPotModalProps) {
   const [formState, setFormState] = useState<FormState>({
     original: {
@@ -61,6 +63,14 @@ export function EditPotModal({
   const hasChanges = useMemo(() => {
     return !isEqual(formState.original, formState.current)
   }, [formState])
+
+  // Combine pot colors with other used colors, excluding current pot
+  const allUsedColors = useMemo(() => {
+    const otherPotColors = pots
+      .filter((pot) => String(pot.id) !== potId)
+      .map((pot) => pot.theme)
+    return [...otherPotColors, ...usedColors]
+  }, [pots, potId, usedColors])
 
   useEffect(() => {
     if (isOpen && potId && pots) {
@@ -217,6 +227,7 @@ export function EditPotModal({
               value={formState.current.theme}
               onValueChange={handleThemeChange}
               required
+              usedColors={allUsedColors}
             />
           </div>
 

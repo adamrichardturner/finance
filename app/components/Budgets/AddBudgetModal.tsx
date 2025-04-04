@@ -30,6 +30,7 @@ interface AddBudgetModalProps {
   isOpen: boolean
   onClose: () => void
   budgets: Budget[]
+  usedColors?: string[] // Colors already used by pots
 }
 
 export function AddBudgetModal({
@@ -55,6 +56,12 @@ export function AddBudgetModal({
   const hasChanges = useMemo(() => {
     return !isEqual(formState.original, formState.current)
   }, [formState])
+
+  // Extract used colors from existing budgets
+  const usedColors = useMemo(() => {
+    if (!budgets) return []
+    return budgets.map((budget) => budget.theme)
+  }, [budgets])
 
   const resetForm = () => {
     setFormState({
@@ -230,6 +237,7 @@ export function AddBudgetModal({
               value={formState.current.theme}
               onValueChange={handleThemeChange}
               required
+              usedColors={usedColors}
             />
           </div>
 

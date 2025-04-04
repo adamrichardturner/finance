@@ -4,7 +4,7 @@ import { PotCard } from './PotCard'
 import { AddPotModal } from './AddPotModal'
 import { EditPotModal } from './EditPotModal'
 import { DeletePotModal } from './DeletePotModal'
-import { Pot } from '~/types/finance.types'
+import { Pot, Budget } from '~/types/finance.types'
 import PageTitle from '../PageTitle'
 
 interface PotModalState {
@@ -16,9 +16,15 @@ interface PotsProps {
   pots: Pot[]
   actionData?: any
   currentBalance?: number
+  budgets?: Budget[]
 }
 
-export function Pots({ pots, actionData, currentBalance = 0 }: PotsProps) {
+export function Pots({
+  pots,
+  actionData,
+  currentBalance = 0,
+  budgets = [],
+}: PotsProps) {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editModal, setEditModal] = useState<PotModalState>({
     isOpen: false,
@@ -45,6 +51,10 @@ export function Pots({ pots, actionData, currentBalance = 0 }: PotsProps) {
   const handleCloseDeleteModal = useCallback(() => {
     setDeleteModal({ isOpen: false })
   }, [])
+
+  const budgetColors = useMemo(() => {
+    return budgets.map((budget) => budget.theme)
+  }, [budgets])
 
   const memoizedPotCards = useMemo(() => {
     if (pots.length === 0) {
@@ -110,13 +120,19 @@ export function Pots({ pots, actionData, currentBalance = 0 }: PotsProps) {
 
       {memoizedPotCards}
 
-      <AddPotModal isOpen={addModalOpen} onClose={handleCloseAddModal} />
+      <AddPotModal
+        isOpen={addModalOpen}
+        onClose={handleCloseAddModal}
+        pots={pots}
+        usedColors={budgetColors}
+      />
 
       <EditPotModal
         isOpen={editModal.isOpen}
         potId={editModal.potId}
         onClose={handleCloseEditModal}
         pots={pots}
+        usedColors={budgetColors}
       />
 
       <DeletePotModal

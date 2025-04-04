@@ -6,6 +6,7 @@ import { usePotMutations } from '~/hooks/use-pot-mutations'
 import { THEME_COLORS } from '~/utils/budget-categories'
 import { ColorSelect } from '~/components/ui/color-select'
 import isEqual from 'lodash/isEqual'
+import { Pot } from '~/types/finance.types'
 
 interface PotFormValues {
   name: string
@@ -21,9 +22,16 @@ interface FormState {
 interface AddPotModalProps {
   isOpen: boolean
   onClose: () => void
+  pots?: Pot[]
+  usedColors?: string[]
 }
 
-export function AddPotModal({ isOpen, onClose }: AddPotModalProps) {
+export function AddPotModal({
+  isOpen,
+  onClose,
+  pots = [],
+  usedColors = [],
+}: AddPotModalProps) {
   const initialValues: PotFormValues = {
     name: '',
     target: '',
@@ -39,6 +47,12 @@ export function AddPotModal({ isOpen, onClose }: AddPotModalProps) {
   const maxNameLength = 30
 
   const { createPot } = usePotMutations()
+
+  // Combine pot colors with other used colors
+  const allUsedColors = useMemo(() => {
+    const potColors = pots.map((pot) => pot.theme)
+    return [...potColors, ...usedColors]
+  }, [pots, usedColors])
 
   // Check if any fields have been modified from their initial state
   const hasChanges = useMemo(() => {
@@ -175,6 +189,7 @@ export function AddPotModal({ isOpen, onClose }: AddPotModalProps) {
               value={formState.current.theme}
               onValueChange={handleThemeChange}
               required
+              usedColors={allUsedColors}
             />
           </div>
 

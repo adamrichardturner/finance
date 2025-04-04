@@ -5,7 +5,7 @@ import { AddBudgetModal } from './AddBudgetModal'
 import { EditBudgetModal } from './EditBudgetModal'
 import { DeleteBudgetModal } from './DeleteBudgetModal'
 import { BudgetChart } from './BudgetChart'
-import { Budget } from '~/types/finance.types'
+import { Budget, Pot } from '~/types/finance.types'
 import PageTitle from '../PageTitle'
 
 interface BudgetModalState {
@@ -15,6 +15,7 @@ interface BudgetModalState {
 
 interface BudgetsProps {
   budgets: Budget[]
+  pots?: Pot[]
   actionData?: {
     error?: string
     budget?: any
@@ -22,7 +23,7 @@ interface BudgetsProps {
   }
 }
 
-export function Budgets({ budgets, actionData }: BudgetsProps) {
+export function Budgets({ budgets, pots = [], actionData }: BudgetsProps) {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editModal, setEditModal] = useState<BudgetModalState>({
     isOpen: false,
@@ -73,6 +74,10 @@ export function Budgets({ budgets, actionData }: BudgetsProps) {
     ))
   }, [budgets, handleOpenEditModal, handleOpenDeleteModal])
 
+  const potColors = useMemo(() => {
+    return pots.map((pot) => pot.theme)
+  }, [pots])
+
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
@@ -105,6 +110,7 @@ export function Budgets({ budgets, actionData }: BudgetsProps) {
         budgets={budgets}
         isOpen={addModalOpen}
         onClose={handleCloseAddModal}
+        usedColors={potColors}
       />
 
       <EditBudgetModal
@@ -112,6 +118,7 @@ export function Budgets({ budgets, actionData }: BudgetsProps) {
         budgetId={editModal.budgetId}
         onClose={handleCloseEditModal}
         budgets={budgets}
+        usedColors={potColors}
       />
 
       <DeleteBudgetModal

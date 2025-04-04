@@ -31,6 +31,7 @@ interface EditBudgetModalProps {
   budgetId?: string
   onClose: () => void
   budgets: Budget[]
+  usedColors?: string[] // Colors already used by pots
 }
 
 export function EditBudgetModal({
@@ -59,6 +60,14 @@ export function EditBudgetModal({
   const hasChanges = useMemo(() => {
     return !isEqual(formState.original, formState.current)
   }, [formState])
+
+  // Extract used colors from existing budgets (excluding current budget)
+  const usedColors = useMemo(() => {
+    if (!budgets) return []
+    return budgets
+      .filter((budget) => String(budget.id) !== budgetId)
+      .map((budget) => budget.theme)
+  }, [budgets, budgetId])
 
   useEffect(() => {
     if (isOpen && budgetId && budgets) {
@@ -270,6 +279,7 @@ export function EditBudgetModal({
               value={formState.current.theme}
               onValueChange={handleThemeChange}
               required
+              usedColors={usedColors}
             />
           </div>
 

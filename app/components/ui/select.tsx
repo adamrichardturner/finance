@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as SelectPrimitive from '@radix-ui/react-select'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react'
 
 import { cn } from '~/lib/utils'
 
@@ -123,20 +123,7 @@ const SelectItem = React.forwardRef<
   >
     <span className='absolute right-2 flex h-3.5 w-3.5 items-center justify-center'>
       <SelectPrimitive.ItemIndicator>
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          width='16'
-          height='16'
-          viewBox='0 0 24 24'
-          fill='none'
-          stroke='currentColor'
-          strokeWidth='2'
-          strokeLinecap='round'
-          strokeLinejoin='round'
-          className='h-4 w-4'
-        >
-          <polyline points='20 6 9 17 4 12' />
-        </svg>
+        <CheckCircle2 className='h-4 w-4 text-green-500' />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
