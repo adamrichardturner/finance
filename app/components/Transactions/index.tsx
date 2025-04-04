@@ -550,8 +550,12 @@ export function Transactions() {
                                 <TableCell
                                   className={`text-right font-bold ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
                                 >
-                                  {transaction.amount >= 0 ? '+' : '-'}
-                                  {formatCurrency(Math.abs(transaction.amount))}
+                                  <span className='whitespace-nowrap'>
+                                    {transaction.amount >= 0 ? '+' : '-'}
+                                    {formatCurrency(
+                                      Math.abs(transaction.amount)
+                                    )}
+                                  </span>
                                 </TableCell>
                               </tr>
                             )
@@ -608,8 +612,10 @@ export function Transactions() {
                               <span
                                 className={`font-bold text-sm ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
                               >
-                                {transaction.amount >= 0 ? '+' : '-'}
-                                {formatCurrency(Math.abs(transaction.amount))}
+                                <span className='whitespace-nowrap'>
+                                  {transaction.amount >= 0 ? '+' : '-'}
+                                  {formatCurrency(Math.abs(transaction.amount))}
+                                </span>
                               </span>
                               <span className='text-xs text-gray-500 font-normal text-center'>
                                 {formatTransactionDate(transaction.date)}
