@@ -12,15 +12,15 @@ services:
       - FE_PORT=${FE_PORT:-5173}
       - PORT=5173
       - NODE_ENV=development
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USER=${DB_USER:?DB_USER is required}
+      - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required}
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=${DB_NAME}
+      - DB_NAME=${DB_NAME:?DB_NAME is required}
       - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
-      - SESSION_SECRET=${SESSION_SECRET}
-      - DEMO_USER_ID=${DEMO_USER_ID}
-      - DEMO_PASSWORD_HASH=${DEMO_PASSWORD_HASH}
+      - SESSION_SECRET=${SESSION_SECRET:?SESSION_SECRET is required}
+      - DEMO_USER_ID=${DEMO_USER_ID:?DEMO_USER_ID is required}
+      - DEMO_PASSWORD_HASH=${DEMO_PASSWORD_HASH:?DEMO_PASSWORD_HASH is required}
     volumes:
       - ./:/app
       - /app/node_modules
@@ -33,9 +33,9 @@ services:
     ports:
       - '6432:5432'
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER:?DB_USER is required}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required}
+      - POSTGRES_DB=${DB_NAME:?DB_NAME is required}
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./scripts/init-postgres-processed.sql:/docker-entrypoint-initdb.d/init-postgres.sql
