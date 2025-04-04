@@ -20,6 +20,18 @@ const outputPath = path.join(__dirname, 'init-postgres-processed.sql')
 
 console.log('Processing SQL template...')
 
+// Check for required environment variables
+const requiredVars = ['DB_NAME', 'DB_USER', 'DB_PASSWORD']
+const missingVars = requiredVars.filter((varName) => !process.env[varName])
+
+if (missingVars.length > 0) {
+  console.error(
+    `ERROR: Missing required environment variables: ${missingVars.join(', ')}`
+  )
+  console.error('Please set these variables in your .env file')
+  process.exit(1)
+}
+
 // Read the template file
 let template = fs.readFileSync(templatePath, 'utf8')
 
