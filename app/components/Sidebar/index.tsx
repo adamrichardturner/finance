@@ -126,7 +126,7 @@ function MobileTabBar() {
   }
 
   return (
-    <div className='sm:hidden fixed bottom-0 pt-2 left-0 pl-2 right-0 bg-[#201F24] h-[74px] flex justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
+    <div className='sm:hidden fixed bottom-0 pt-4 left-0 pl-2 right-0 bg-[#201F24] h-[74px] flex justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
       {MENU_ITEMS.map((item) => {
         const enabled = isEnabled(item.name)
 
@@ -136,7 +136,7 @@ function MobileTabBar() {
             to={item.path}
             className={`flex flex-col items-center justify-center h-full flex-1 ${
               isActive(item.path)
-                ? 'rounded-t-lg border-b-4 border-[#277C78] bg-[#F8F4F0] py-[8px] px-0 pb-[12px] gap-[4px]'
+                ? 'rounded-t-lg border-b-4 border-[#277C78] bg-[#F8F4F0] py-[8px] px-0 pb-[0px] gap-[4px]'
                 : 'py-3'
             }`}
           >
@@ -189,7 +189,7 @@ function TabBar() {
   }
 
   return (
-    <div className='hidden sm:flex md:hidden fixed bottom-0 left-0 right-0 bg-[#201F24] h-[72px] justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
+    <div className='hidden sm:flex md:hidden fixed pt-4 bottom-0 left-0 right-0 bg-[#201F24] h-[72px] justify-around items-center z-50 rounded-tl-lg rounded-tr-lg'>
       {MENU_ITEMS.map((item) => {
         const enabled = isEnabled(item.name)
 
@@ -199,7 +199,7 @@ function TabBar() {
             to={item.path}
             className={`flex flex-col items-center justify-center h-full flex-1 ${
               isActive(item.path)
-                ? 'rounded-t-lg border-b-4 border-[#277C78] bg-[#F8F4F0] py-[8px] px-0 pb-[12px] gap-[4px]'
+                ? 'rounded-t-lg border-b-4 border-[#277C78] bg-[#F8F4F0] py-[8px] px-0 pb-[0px] gap-[4px]'
                 : 'py-3 gap-1'
             }`}
           >
