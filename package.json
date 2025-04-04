@@ -61,7 +61,6 @@
     "remix": "^2.16.4",
     "remix-auth": "^4.1.0",
     "remix-auth-form": "^3.0.0",
-    "remix-utils": "^8.5.0",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2"

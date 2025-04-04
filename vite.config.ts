@@ -53,7 +53,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ['remix-utils/client-only'],
+      external: [],
     },
   },
   esbuild: {

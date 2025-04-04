@@ -1,6 +1,6 @@
 import { Link, useLocation } from '@remix-run/react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ClientOnly } from 'remix-utils/client-only'
+import { ClientOnly } from '~/components/ClientOnly'
 import {
   Sidebar,
   SidebarContent as SidebarContentSection,

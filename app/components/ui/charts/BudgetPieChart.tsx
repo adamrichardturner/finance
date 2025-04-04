@@ -4,6 +4,7 @@ import { ChartTooltipContent } from '~/components/ui/charts'
 import { Budget } from '~/types/finance.types'
 import { transformBudgetsToChart } from '~/transformers/budgetTransformer'
 import { useMemo, useState, useEffect } from 'react'
+import { ClientOnly } from '~/components/ClientOnly'
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('en-GB', {
@@ -161,10 +162,15 @@ export function BudgetPieChart({
   const ChartWrapper = () => (
     <div className='flex justify-center'>
       <div className={`relative flex-shrink-0 ${dimensions.containerSize}`}>
-        {/* Only run on client */}
-        {typeof window !== 'undefined' && (
-          <ChartContent chartData={chartData} dimensions={dimensions} />
-        )}
+        <ClientOnly
+          fallback={
+            <div className='w-full h-full flex items-center justify-center'>
+              Loading chart...
+            </div>
+          }
+        >
+          {() => <ChartContent chartData={chartData} dimensions={dimensions} />}
+        </ClientOnly>
 
         <div className='absolute inset-0 flex flex-col items-center justify-center text-center'>
           <h3 className='text-[32px] font-bold leading-8'>
