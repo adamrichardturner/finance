@@ -14,15 +14,15 @@ echo "PostgreSQL is ready!"
 
 # Run migrations
 echo "Running database migrations..."
-npm run db:migrate
+npm run db:migrate:prod
 
 # Run all seed files using direct script (bypassing Knex CLI)
 echo "Running all seed files..."
-node --loader ts-node/esm scripts/run-direct-seeds.js
+NODE_ENV=production node --loader ts-node/esm scripts/run-direct-seeds.js
 
 # Ensure demo data exists
 echo "Ensuring demo data exists..."
-npm run db:ensure-demo
+npm run db:ensure-demo:prod
 
 # Start production server
 echo "Starting production server..."

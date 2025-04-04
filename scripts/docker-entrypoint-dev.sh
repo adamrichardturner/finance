@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Ensure NODE_ENV is set to development 
+export NODE_ENV=development
+
 # Wait for PostgreSQL to be ready
 echo "Waiting for PostgreSQL to be ready..."
 until pg_isready -h postgres -U ${DB_USER:-finance} -d ${DB_NAME:-finance}; do
