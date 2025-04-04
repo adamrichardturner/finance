@@ -13,6 +13,14 @@ export const THEME_COLORS = [
   { name: 'Red', value: '#C94736' },
   { name: 'Purple', value: '#826CB0' },
   { name: 'Turquoise', value: '#597C7C' },
+  { name: 'Brown', value: '#9B6B43' },
+  { name: 'Magenta', value: '#7C2742' },
+  { name: 'Blue', value: '#4A90E2' },
+  { name: 'Navy Grey', value: '#8091A5' },
+  { name: 'Army Green', value: '#667D5C' },
+  { name: 'Pink', value: '#E07A97' },
+  { name: 'Gold', value: '#D4AF37' },
+  { name: 'Orange', value: '#F5A623' },
 ]
 
 export const BUDGET_CATEGORIES: BudgetCategory[] = [

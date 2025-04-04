@@ -18,6 +18,7 @@ const formatCurrency = (value: number) => {
 const ChartContent = ({
   chartData,
   dimensions,
+  onChartLoaded,
 }: {
   chartData: ChartDataItem[]
   dimensions: {
@@ -25,6 +26,7 @@ const ChartContent = ({
     outerRadius: number
     innerRadius: number
   }
+  onChartLoaded: () => void
 }) => {
   const [RechartsComponents, setRechartsComponents] =
     useState<RechartsModule | null>(null)
@@ -35,12 +37,13 @@ const ChartContent = ({
       .then((module) => {
         setRechartsComponents(module as unknown as RechartsModule)
         setLoading(false)
+        onChartLoaded()
       })
       .catch((error) => {
         console.error('Failed to load Recharts:', error)
         setLoading(false)
       })
-  }, [])
+  }, [onChartLoaded])
 
   if (loading || !RechartsComponents) {
     return (
@@ -48,7 +51,7 @@ const ChartContent = ({
         <img
           src={`/assets/icons/LoadingAnimation.svg?t=${Date.now()}`}
           alt='Loading chart'
-          className='w-16 h-16'
+          className='w-16 h-16 absolute'
         />
       </div>
     )
@@ -99,6 +102,8 @@ export function BudgetPieChart({
   chartSize = 'sm',
   showHeader = true,
 }: BudgetPieChartProps) {
+  const [isChartLoaded, setIsChartLoaded] = useState(false)
+
   if (!budgets || budgets.length === 0) {
     return null
   }
@@ -177,17 +182,25 @@ export function BudgetPieChart({
             </div>
           }
         >
-          {() => <ChartContent chartData={chartData} dimensions={dimensions} />}
+          {() => (
+            <ChartContent
+              chartData={chartData}
+              dimensions={dimensions}
+              onChartLoaded={() => setIsChartLoaded(true)}
+            />
+          )}
         </ClientOnly>
 
-        <div className='absolute inset-0 flex flex-col items-center justify-center text-center'>
-          <h3 className='text-[32px] font-bold leading-8'>
-            {formattedSpentAmount}
-          </h3>
-          <p className='text-[14px] text-[#696868]'>
-            of {formattedTotal} limit
-          </p>
-        </div>
+        {isChartLoaded && (
+          <div className='absolute inset-0 flex flex-col items-center justify-center text-center'>
+            <h3 className='text-[32px] font-bold leading-8'>
+              {formattedSpentAmount}
+            </h3>
+            <p className='text-[14px] text-[#696868]'>
+              of {formattedTotal} limit
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

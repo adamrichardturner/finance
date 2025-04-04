@@ -2,15 +2,9 @@ import { useState, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select'
 import { usePotMutations } from '~/hooks/use-pot-mutations'
 import { THEME_COLORS } from '~/utils/budget-categories'
+import { ColorSelect } from '~/components/ui/color-select'
 import isEqual from 'lodash/isEqual'
 
 interface PotFormValues {
@@ -177,42 +171,11 @@ export function AddPotModal({ isOpen, onClose }: AddPotModalProps) {
 
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Theme</label>
-            <Select
+            <ColorSelect
               value={formState.current.theme}
               onValueChange={handleThemeChange}
               required
-            >
-              <SelectTrigger>
-                <SelectValue>
-                  {formState.current.theme && (
-                    <div className='flex items-center gap-2'>
-                      <div
-                        className='w-2 h-2 rounded-full'
-                        style={{ backgroundColor: formState.current.theme }}
-                      />
-                      <span>
-                        {THEME_COLORS.find(
-                          (color) => color.value === formState.current.theme
-                        )?.name || 'Select theme'}
-                      </span>
-                    </div>
-                  )}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {THEME_COLORS.map((color) => (
-                  <SelectItem key={color.name} value={color.value}>
-                    <div className='flex items-center gap-2'>
-                      <div
-                        className='w-2 h-2 rounded-full'
-                        style={{ backgroundColor: color.value }}
-                      />
-                      {color.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
 
           <Button

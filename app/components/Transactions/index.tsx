@@ -188,7 +188,7 @@ export function Transactions() {
       </CardHeader>
       <CardContent>
         <div className='mb-6 flex flex-row items-center justify-between'>
-          <div className='relative sm:w-[121px] md:w-[200px] lg:w-[320px] pr-4 flex items-center h-full'>
+          <div className='relative w-full lg:w-[320px] pr-4 flex items-center h-full'>
             <Search className='absolute left-[12px] h-4 w-4 text-gray-500' />
             <Input
               type='text'
@@ -276,7 +276,7 @@ export function Transactions() {
                 <Button
                   variant='outline'
                   size='icon'
-                  className='border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'
+                  className='border border-gray-100 h-[46px] w-[46px] hover:shadow-lg transition-shadow duration-200 shadow-md'
                 >
                   <ArrowUpDown className='h-4 w-4' />
                 </Button>
@@ -320,7 +320,7 @@ export function Transactions() {
                 <Button
                   variant='outline'
                   size='icon'
-                  className='border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'
+                  className='border border-gray-100 h-[46px] w-[46px] hover:shadow-lg transition-shadow duration-200 shadow-md'
                 >
                   <Filter className='h-4 w-4' />
                 </Button>

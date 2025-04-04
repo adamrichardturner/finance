@@ -13,6 +13,7 @@ import { useBudgetMutations } from '~/hooks/use-budget-mutations'
 import { THEME_COLORS, getAvailableCategories } from '~/utils/budget-categories'
 import { Budget } from '~/types/finance.types'
 import isEqual from 'lodash/isEqual'
+import { ColorSelect } from '~/components/ui/color-select'
 
 interface BudgetFormValues {
   category: string
@@ -225,42 +226,11 @@ export function AddBudgetModal({
 
           <div className='space-y-2'>
             <label className='text-sm font-medium'>Theme</label>
-            <Select
+            <ColorSelect
               value={formState.current.theme}
               onValueChange={handleThemeChange}
               required
-            >
-              <SelectTrigger>
-                <SelectValue>
-                  {formState.current.theme && (
-                    <div className='flex items-center gap-2'>
-                      <div
-                        className='w-2 h-2 rounded-full'
-                        style={{ backgroundColor: formState.current.theme }}
-                      />
-                      <span>
-                        {THEME_COLORS.find(
-                          (color) => color.value === formState.current.theme
-                        )?.name || 'Custom'}
-                      </span>
-                    </div>
-                  )}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {THEME_COLORS.map((color) => (
-                  <SelectItem key={color.name} value={color.value}>
-                    <div className='flex items-center gap-2'>
-                      <div
-                        className='w-2 h-2 rounded-full'
-                        style={{ backgroundColor: color.value }}
-                      />
-                      {color.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
 
           <Button
