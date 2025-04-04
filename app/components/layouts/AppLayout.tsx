@@ -9,7 +9,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className='flex min-h-screen w-full'>
       <ClientSidebarWrapper />
-      <div className='flex flex-col flex-1 w-full min-h-screen pl-4 md:pl-10'>
+      <div className='flex flex-col flex-1 w-full min-h-screen px-4 md:px-10'>
         <main className='flex-1 w-full h-full pb-[106px] pt-[16px] sm:pt-[40px] max-w-[1200px]'>
           {children}
         </main>

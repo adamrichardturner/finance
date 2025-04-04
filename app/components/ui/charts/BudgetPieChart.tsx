@@ -45,7 +45,11 @@ const ChartContent = ({
   if (loading || !RechartsComponents) {
     return (
       <div className='w-full h-full flex items-center justify-center'>
-        Loading chart...
+        <img
+          src={`/assets/icons/LoadingAnimation.svg?t=${Date.now()}`}
+          alt='Loading chart'
+          className='w-16 h-16'
+        />
       </div>
     )
   }
@@ -165,7 +169,11 @@ export function BudgetPieChart({
         <ClientOnly
           fallback={
             <div className='w-full h-full flex items-center justify-center'>
-              Loading chart...
+              <img
+                src={`/assets/icons/LoadingAnimation.svg?t=${Date.now()}`}
+                alt='Loading chart'
+                className='w-16 h-16'
+              />
             </div>
           }
         >
