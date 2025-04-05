@@ -6,7 +6,7 @@ import {
 } from '@remix-run/node'
 import { Pots } from '~/components/Pots'
 import { requireUserId } from '~/services/auth/session.server'
-import { useActionData, useLoaderData, useRevalidator } from '@remix-run/react'
+import { useActionData, useLoaderData } from '@remix-run/react'
 import {
   getPots,
   createPot,

@@ -7,7 +7,6 @@ import {
   UpdatePotParams as CommandUpdatePotParams,
   DeletePotParams,
   MoneyTransactionParams,
-  PotCommandResult,
 } from '~/commands/pots'
 
 /**
@@ -29,7 +28,7 @@ export const usePotMutations = () => {
           action: string
         }
       ) => {
-        return fetcher.submit(formData, options)
+        return fetcher.submit(formData, options) as unknown as Promise<unknown>
       },
       [fetcher]
     )

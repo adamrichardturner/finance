@@ -30,7 +30,7 @@ import { Button } from '~/components/ui/button'
 import { useTransactions } from '~/hooks/use-transactions/index'
 import { getThemeForCategory } from '~/utils/budget-categories'
 import { AppTransaction } from '~/utils/transform-data'
-import Pointer from '/assets/icons/Pointer.svg?url'
+import Pointer from '../../assets/icons/Pointer.svg?url'
 import { SortOption } from '~/strategies/transactions'
 
 const itemVariants = {
@@ -222,6 +222,13 @@ export function Transactions() {
             <span
               className='mt-2 sm:mt-0 text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex items-center'
               onClick={() => setCategory('all')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setCategory('all')
+                }
+              }}
+              tabIndex={0}
+              role='button'
             >
               View all transactions
               <span className='ml-2'>
@@ -255,6 +262,14 @@ export function Transactions() {
               <div
                 className='absolute right-8 top-1/2 -translate-y-1/2 cursor-pointer'
                 onClick={() => setSearchQuery('')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    setSearchQuery('')
+                  }
+                }}
+                tabIndex={0}
+                role='button'
+                aria-label='Clear search'
               >
                 <X className='h-4 w-4 text-gray-500 hover:text-gray-800 transition-colors' />
               </div>
@@ -263,7 +278,10 @@ export function Transactions() {
 
           <div className='hidden sm:flex items-center space-x-4'>
             <div className='relative'>
-              <label className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'>
+              <label
+                htmlFor='sort-transactions'
+                className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'
+              >
                 Sort by
               </label>
               <Select
@@ -273,7 +291,10 @@ export function Transactions() {
                   setSearchQuery('')
                 }}
               >
-                <SelectTrigger className='w-[160px] border border-gray-100 text-[14px] text-color-grey-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
+                <SelectTrigger
+                  id='sort-transactions'
+                  className='w-[160px] border border-gray-100 text-[14px] text-color-grey-100 hover:shadow-lg transition-shadow duration-200 shadow-md'
+                >
                   <SelectValue placeholder='Sort by' />
                 </SelectTrigger>
                 <SelectContent className='min-w-[160px]'>
@@ -288,7 +309,10 @@ export function Transactions() {
             </div>
 
             <div className='relative'>
-              <label className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'>
+              <label
+                htmlFor='category-filter'
+                className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'
+              >
                 Category
               </label>
               <Select
@@ -298,7 +322,10 @@ export function Transactions() {
                   setSearchQuery('')
                 }}
               >
-                <SelectTrigger className='w-[180px] border text-[14px] border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
+                <SelectTrigger
+                  id='category-filter'
+                  className='w-[180px] border text-[14px] border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'
+                >
                   <SelectValue placeholder='Category' />
                 </SelectTrigger>
                 <SelectContent className='min-w-[180px] max-h-[300px] overflow-y-auto'>
@@ -519,6 +546,16 @@ export function Transactions() {
                                       e.stopPropagation()
                                       handleSenderClick(transaction.description)
                                     }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter' || e.key === ' ') {
+                                        e.stopPropagation()
+                                        handleSenderClick(
+                                          transaction.description
+                                        )
+                                      }
+                                    }}
+                                    tabIndex={0}
+                                    role='button'
                                   >
                                     {transaction.description}
                                   </span>
@@ -530,6 +567,16 @@ export function Transactions() {
                                       e.stopPropagation()
                                       handleCategoryClick(transaction.category)
                                     }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter' || e.key === ' ') {
+                                        e.stopPropagation()
+                                        handleCategoryClick(
+                                          transaction.category
+                                        )
+                                      }
+                                    }}
+                                    tabIndex={0}
+                                    role='button'
                                   >
                                     <div
                                       className='h-2 w-2 rounded-full flex-shrink-0 text-[12px]'
@@ -586,6 +633,14 @@ export function Transactions() {
                                     e.stopPropagation()
                                     handleSenderClick(transaction.description)
                                   }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.stopPropagation()
+                                      handleSenderClick(transaction.description)
+                                    }
+                                  }}
+                                  tabIndex={0}
+                                  role='button'
                                 >
                                   {transaction.description}
                                 </span>
@@ -595,6 +650,14 @@ export function Transactions() {
                                     e.stopPropagation()
                                     handleCategoryClick(transaction.category)
                                   }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.stopPropagation()
+                                      handleCategoryClick(transaction.category)
+                                    }
+                                  }}
+                                  tabIndex={0}
+                                  role='button'
                                 >
                                   <div
                                     className='h-2 w-2 rounded-full flex-shrink-0'

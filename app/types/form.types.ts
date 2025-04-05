@@ -4,5 +4,5 @@
 export interface FormActionData {
   error?: string
   success?: boolean
-  [key: string]: any
+  [key: string]: unknown
 }

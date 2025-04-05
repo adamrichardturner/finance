@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { useFinancialData } from '../use-overview/use-financial-data'
-import { AppTransaction } from '~/utils/transform-data'
 import { Transaction } from '~/types/finance.types'
 import { useFactories } from '~/factories'
 

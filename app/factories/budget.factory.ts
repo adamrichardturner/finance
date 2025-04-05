@@ -65,17 +65,20 @@ export class BudgetFactory
   /**
    * Create a Budget from a raw database object
    */
-  fromRaw(raw: any): Budget {
+  fromRaw(raw: unknown): Budget {
     if (!raw) {
       throw new Error('Cannot create budget from null or undefined')
     }
 
+    const rawData = raw as Record<string, unknown>
     const transactions: Transaction[] = []
 
     // Transform transactions if they exist
-    if (raw.transactions && Array.isArray(raw.transactions)) {
-      raw.transactions.forEach((tx: any) => {
+    if (rawData.transactions && Array.isArray(rawData.transactions)) {
+      for (const tx of rawData.transactions) {
+        // Convert to AppTransaction first, then to Transaction
         const appTx = this.transactionFactory.fromRaw(tx)
+
         // Convert AppTransaction back to Transaction format
         transactions.push({
           id: parseInt(appTx.id) || undefined,
@@ -89,18 +92,18 @@ export class BudgetFactory
           isPaid: appTx.isPaid,
           isOverdue: appTx.isOverdue,
         })
-      })
+      }
     }
 
     return {
-      id: raw.id,
-      category: raw.category,
-      maximum: raw.maximum.toString(),
-      theme: raw.theme,
-      user_id: raw.user_id,
+      id: Number(rawData.id),
+      category: String(rawData.category),
+      maximum: String(rawData.maximum),
+      theme: String(rawData.theme),
+      user_id: String(rawData.user_id),
       transactions,
-      created_at: raw.created_at,
-      updated_at: raw.updated_at,
+      created_at: rawData.created_at as string | undefined,
+      updated_at: rawData.updated_at as string | undefined,
     }
   }
 

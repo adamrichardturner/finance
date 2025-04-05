@@ -18,7 +18,7 @@ interface BudgetsProps {
   pots?: Pot[]
   actionData?: {
     error?: string
-    budget?: any
+    budget?: Budget
     success?: boolean
   }
 }

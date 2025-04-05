@@ -57,8 +57,8 @@ export function DeletePotModal({
           <DialogTitle>Delete Pot</DialogTitle>
         </DialogHeader>
         <div className='text-sm text-gray-600 mt-1 mb-4'>
-          Are you sure you want to delete "{potName}"? This action cannot be
-          undone.
+          Are you sure you want to delete &quot;{potName}&quot;? This action
+          cannot be undone.
         </div>
 
         {error && (

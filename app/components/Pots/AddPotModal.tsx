@@ -149,8 +149,10 @@ export function AddPotModal({
           )}
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Pot Name</label>
-            <div className='relative'>
+            <label id='pot-name-label' className='text-sm font-medium'>
+              Pot Name
+            </label>
+            <div aria-labelledby='pot-name-label' className='relative'>
               <Input
                 type='text'
                 placeholder='e.g. New Laptop'
@@ -165,8 +167,10 @@ export function AddPotModal({
           </div>
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Target</label>
-            <div className='relative'>
+            <label id='pot-target-label' className='text-sm font-medium'>
+              Target
+            </label>
+            <div aria-labelledby='pot-target-label' className='relative'>
               <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
                 <span className='text-gray-500'>£</span>
               </div>
@@ -184,13 +188,17 @@ export function AddPotModal({
           </div>
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Theme</label>
-            <ColorSelect
-              value={formState.current.theme}
-              onValueChange={handleThemeChange}
-              required
-              usedColors={allUsedColors}
-            />
+            <label id='pot-theme-label' className='text-sm font-medium'>
+              Theme
+            </label>
+            <div aria-labelledby='pot-theme-label'>
+              <ColorSelect
+                value={formState.current.theme}
+                onValueChange={handleThemeChange}
+                required
+                usedColors={allUsedColors}
+              />
+            </div>
           </div>
 
           <Button

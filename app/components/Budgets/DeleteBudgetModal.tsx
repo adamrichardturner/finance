@@ -59,8 +59,9 @@ export function DeleteBudgetModal({
           <DialogTitle>Delete Budget</DialogTitle>
         </DialogHeader>
         <div className='text-sm text-gray-600 mt-1 mb-4'>
-          Are you sure you want to delete "{budgetName}"? This action cannot be
-          undone and all the associated data will be permanently removed.
+          Are you sure you want to delete &quot;{budgetName}&quot;? This action
+          cannot be undone and all the associated data will be permanently
+          removed.
         </div>
 
         {error && (

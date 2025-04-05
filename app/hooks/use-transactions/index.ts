@@ -7,8 +7,10 @@ import { useTransactionNavigation } from './use-transaction-navigation'
 import { useTransactionGrouping } from './use-transaction-grouping'
 import { AppTransaction } from '~/utils/transform-data'
 import { useEffect } from 'react'
-import { SortOption } from '~/strategies/transactions'
-import { TransactionFilterStrategy } from '~/strategies/transactions'
+import {
+  SortOption,
+  TransactionFilterStrategy,
+} from '~/strategies/transactions'
 
 export interface UseTransactionsResult {
   // Data and loading state

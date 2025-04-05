@@ -2,13 +2,6 @@ import { useState, useEffect, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select'
 import { Pot } from '~/types/finance.types'
 import { THEME_COLORS } from '~/utils/budget-categories'
 import { usePotMutations } from '~/hooks/use-pots/use-pot-mutations'
@@ -182,8 +175,10 @@ export function EditPotModal({
           )}
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Pot Name</label>
-            <div className='relative'>
+            <label id='edit-pot-name-label' className='text-sm font-medium'>
+              Pot Name
+            </label>
+            <div aria-labelledby='edit-pot-name-label' className='relative'>
               <Input
                 type='text'
                 placeholder='e.g. Concert Ticket'
@@ -198,8 +193,10 @@ export function EditPotModal({
           </div>
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Target</label>
-            <div className='relative'>
+            <label id='edit-pot-target-label' className='text-sm font-medium'>
+              Target
+            </label>
+            <div aria-labelledby='edit-pot-target-label' className='relative'>
               <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
                 <span className='text-gray-500'>£</span>
               </div>
@@ -222,13 +219,17 @@ export function EditPotModal({
           </div>
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Theme</label>
-            <ColorSelect
-              value={formState.current.theme}
-              onValueChange={handleThemeChange}
-              required
-              usedColors={allUsedColors}
-            />
+            <label id='edit-pot-theme-label' className='text-sm font-medium'>
+              Theme
+            </label>
+            <div aria-labelledby='edit-pot-theme-label'>
+              <ColorSelect
+                value={formState.current.theme}
+                onValueChange={handleThemeChange}
+                required
+                usedColors={allUsedColors}
+              />
+            </div>
           </div>
 
           <Button

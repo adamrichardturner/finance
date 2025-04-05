@@ -39,7 +39,7 @@ export type SubmitFunction = (
     method: 'get' | 'post' | 'put' | 'patch' | 'delete'
     action: string
   }
-) => any
+) => Promise<unknown>
 
 /**
  * Base abstract pot command with common validation and submission logic

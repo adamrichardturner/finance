@@ -12,6 +12,16 @@ import {
   SubmitFunction,
 } from './pot-commands'
 
+// Define a Command history record type
+interface CommandHistoryRecord {
+  command: string
+  params:
+    | CreatePotParams
+    | UpdatePotParams
+    | DeletePotParams
+    | MoneyTransactionParams
+}
+
 /**
  * PotCommandExecutor provides a unified interface for executing pot commands
  * while maintaining execution state and history
@@ -22,7 +32,7 @@ export class PotCommandExecutor {
   private deleteCommand: DeletePotCommand
   private addMoneyCommand: AddMoneyCommand
   private withdrawCommand: WithdrawMoneyCommand
-  private commandHistory: Array<{ command: string; params: any }> = []
+  private commandHistory: CommandHistoryRecord[] = []
   private isExecuting = false
 
   constructor(submitFn: SubmitFunction) {
@@ -123,7 +133,7 @@ export class PotCommandExecutor {
   /**
    * Get command history for debugging or undo functionality
    */
-  getCommandHistory(): Array<{ command: string; params: any }> {
+  getCommandHistory(): CommandHistoryRecord[] {
     return [...this.commandHistory]
   }
 

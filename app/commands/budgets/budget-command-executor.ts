@@ -10,6 +10,12 @@ import {
 } from './budget-commands'
 import { Budget } from '~/types/finance.types'
 
+// Define a Command history record type
+interface CommandHistoryRecord {
+  command: string
+  params: CreateBudgetParams | UpdateBudgetParams | DeleteBudgetParams
+}
+
 /**
  * BudgetCommandExecutor provides a unified interface for executing budget commands
  * while maintaining execution state and history
@@ -18,7 +24,7 @@ export class BudgetCommandExecutor {
   private createCommand: CreateBudgetCommand
   private updateCommand: UpdateBudgetCommand
   private deleteCommand: DeleteBudgetCommand
-  private commandHistory: Array<{ command: string; params: any }> = []
+  private commandHistory: CommandHistoryRecord[] = []
   private isExecuting = false
 
   constructor(submitFn: SubmitFunction) {
@@ -91,7 +97,7 @@ export class BudgetCommandExecutor {
   /**
    * Get command history for debugging or undo functionality
    */
-  getCommandHistory(): Array<{ command: string; params: any }> {
+  getCommandHistory(): CommandHistoryRecord[] {
     return [...this.commandHistory]
   }
 

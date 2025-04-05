@@ -191,10 +191,11 @@ export function EditBudgetModal({
     try {
       console.log('Updating budget with theme:', formState.current.theme)
       await updateBudget.mutateAsync({
-        budgetId,
+        id: parseInt(budgetId),
         category: formState.current.category,
         maxAmount: parseFloat(formState.current.amount),
         theme: formState.current.theme,
+        userId: 'temp', // Will be replaced by the session user ID on the server
       })
       onClose()
     } catch (error) {
@@ -219,13 +220,18 @@ export function EditBudgetModal({
             </div>
           )}
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Budget Category</label>
+            <label
+              htmlFor='edit-budget-category'
+              className='text-sm font-medium'
+            >
+              Budget Category
+            </label>
             <Select
               value={formState.current.category}
               onValueChange={handleCategoryChange}
               required
             >
-              <SelectTrigger>
+              <SelectTrigger id='edit-budget-category'>
                 <SelectValue placeholder='Select a category'>
                   {formState.current.category && (
                     <div className='flex items-center gap-2'>
@@ -255,12 +261,15 @@ export function EditBudgetModal({
           </div>
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Maximum Spend</label>
+            <label htmlFor='edit-max-spend' className='text-sm font-medium'>
+              Maximum Spend
+            </label>
             <div className='relative'>
               <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
                 <span className='text-gray-500'>£</span>
               </div>
               <Input
+                id='edit-max-spend'
                 type='number'
                 placeholder='e.g. 2000'
                 value={formState.current.amount}
@@ -274,13 +283,18 @@ export function EditBudgetModal({
           </div>
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Theme</label>
-            <ColorSelect
-              value={formState.current.theme}
-              onValueChange={handleThemeChange}
-              required
-              usedColors={usedColors}
-            />
+            <label id='edit-theme-label' className='text-sm font-medium'>
+              Theme
+            </label>
+            <div aria-labelledby='edit-theme-label'>
+              <ColorSelect
+                value={formState.current.theme}
+                onValueChange={handleThemeChange}
+                required
+                usedColors={usedColors}
+                allowCurrentColor
+              />
+            </div>
           </div>
 
           <Button

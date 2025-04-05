@@ -1,5 +1,9 @@
 import { data, useActionData, useLoaderData } from '@remix-run/react'
-import { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+import {
+  LoaderFunctionArgs,
+  MetaFunction,
+  ActionFunctionArgs,
+} from '@remix-run/node'
 import { requireUserId } from '~/services/auth/session.server'
 import { Budgets } from '~/components/Budgets'
 import {
@@ -8,7 +12,6 @@ import {
   createBudget,
   updateBudget,
 } from '~/models/budget.server'
-import { ActionFunctionArgs } from '@remix-run/node'
 import { Budget, Pot } from '~/types/finance.types'
 import { getThemeForCategory } from '~/utils/budget-categories'
 import { getPots } from '~/services/finance/finance.service'

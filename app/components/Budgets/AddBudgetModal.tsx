@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
@@ -146,8 +146,8 @@ export function AddBudgetModal({
 
     // Use the factory for additional validation
     try {
-      // Create a temporary budget object for validation
-      const budgetToValidate = budgetFactory.create({
+      // Validate using factory without storing the result
+      budgetFactory.create({
         category: formState.current.category,
         maxAmount: parseFloat(formState.current.amount),
         theme: formState.current.theme,
@@ -202,13 +202,15 @@ export function AddBudgetModal({
           )}
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Budget Category</label>
+            <label htmlFor='budget-category' className='text-sm font-medium'>
+              Budget Category
+            </label>
             <Select
               value={formState.current.category}
               onValueChange={handleCategoryChange}
               required
             >
-              <SelectTrigger>
+              <SelectTrigger id='budget-category'>
                 <SelectValue placeholder='Select a category'>
                   {formState.current.category && (
                     <div className='flex items-center gap-2'>
@@ -238,12 +240,15 @@ export function AddBudgetModal({
           </div>
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Maximum Spend</label>
+            <label htmlFor='max-spend' className='text-sm font-medium'>
+              Maximum Spend
+            </label>
             <div className='relative'>
               <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
                 <span className='text-gray-500'>£</span>
               </div>
               <Input
+                id='max-spend'
                 type='number'
                 placeholder='e.g. 2000'
                 value={formState.current.amount}
@@ -257,13 +262,17 @@ export function AddBudgetModal({
           </div>
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Theme</label>
-            <ColorSelect
-              value={formState.current.theme}
-              onValueChange={handleThemeChange}
-              required
-              usedColors={usedColors}
-            />
+            <label id='add-budget-theme-label' className='text-sm font-medium'>
+              Theme
+            </label>
+            <div aria-labelledby='add-budget-theme-label'>
+              <ColorSelect
+                value={formState.current.theme}
+                onValueChange={handleThemeChange}
+                required
+                usedColors={usedColors}
+              />
+            </div>
           </div>
 
           <Button

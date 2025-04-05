@@ -59,19 +59,21 @@ export class PotFactory
   /**
    * Create a Pot from a raw database object
    */
-  fromRaw(raw: any): Pot {
+  fromRaw(raw: unknown): Pot {
     if (!raw) {
       throw new Error('Cannot create pot from null or undefined')
     }
 
+    const rawData = raw as Record<string, unknown>
+
     return {
-      id: raw.id,
-      name: raw.name,
-      target: parseFloat(raw.target),
-      total: parseFloat(raw.total || 0),
-      theme: raw.theme,
-      created_at: raw.created_at,
-      updated_at: raw.updated_at,
+      id: Number(rawData.id),
+      name: String(rawData.name),
+      target: parseFloat(String(rawData.target)),
+      total: parseFloat(String(rawData.total || '0')),
+      theme: String(rawData.theme),
+      created_at: rawData.created_at as string | undefined,
+      updated_at: rawData.updated_at as string | undefined,
     }
   }
 
@@ -123,26 +125,29 @@ export class PotFactory
       return null
     } else {
       // It's CreatePotParams
-      if (!params.name || !params.name.trim()) {
+      const createParams = params as CreatePotParams
+
+      if (!createParams.name || !createParams.name.trim()) {
         return 'Name is required'
       }
 
-      if (params.name.length > this.MAX_NAME_LENGTH) {
+      if (createParams.name.length > this.MAX_NAME_LENGTH) {
         return `Name must be no more than ${this.MAX_NAME_LENGTH} characters`
       }
 
-      if (typeof params.target !== 'number' || params.target <= 0) {
+      if (typeof createParams.target !== 'number' || createParams.target <= 0) {
         return 'Target amount must be a positive number'
       }
 
       if (
-        params.initialAmount !== undefined &&
-        (typeof params.initialAmount !== 'number' || params.initialAmount < 0)
+        createParams.initialAmount !== undefined &&
+        (typeof createParams.initialAmount !== 'number' ||
+          createParams.initialAmount < 0)
       ) {
         return 'Initial amount cannot be negative'
       }
 
-      if (!params.theme) {
+      if (!createParams.theme) {
         return 'Theme is required'
       }
 

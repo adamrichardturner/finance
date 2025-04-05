@@ -14,7 +14,11 @@ interface PotModalState {
 
 interface PotsProps {
   pots: Pot[]
-  actionData?: any
+  actionData?: {
+    error?: string
+    pot?: Pot
+    success?: boolean
+  }
   currentBalance?: number
   budgets?: Budget[]
 }

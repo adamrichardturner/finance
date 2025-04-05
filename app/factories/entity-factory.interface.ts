@@ -14,7 +14,7 @@ export interface EntityFactory<
   /**
    * Create an entity from raw/API data
    */
-  fromRaw(raw: any): TEntity
+  fromRaw(raw: unknown): TEntity
 
   /**
    * Update an existing entity

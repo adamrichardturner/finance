@@ -1,5 +1,5 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import Pointer from '/assets/icons/Pointer.svg?url'
+import Pointer from '../../../assets/icons/Pointer.svg?url'
 import { ChartTooltipContent } from '~/components/ui/charts'
 import { Budget } from '~/types/finance.types'
 import { transformBudgetsToChart } from '~/transformers/budgetTransformer'
@@ -104,21 +104,27 @@ export function BudgetPieChart({
 }: BudgetPieChartProps) {
   const [isChartLoaded, setIsChartLoaded] = useState(false)
 
-  if (!budgets || budgets.length === 0) {
-    return null
-  }
+  const chartDataMemo = useMemo(() => {
+    if (!budgets || budgets.length === 0) {
+      return { allChartData: [], formattedTotal: '£0' }
+    }
+    return transformBudgetsToChart(budgets)
+  }, [budgets])
 
-  const { chartData: allChartData, formattedTotal } = useMemo(
-    () => transformBudgetsToChart(budgets),
-    [budgets]
-  )
+  const { chartData: allChartData, formattedTotal } = chartDataMemo
 
-  const chartData = useMemo(
-    () => (showAllCategories ? allChartData : allChartData.slice(0, 4)),
-    [allChartData, showAllCategories]
-  )
+  const chartData = useMemo(() => {
+    if (!allChartData || allChartData.length === 0) {
+      return []
+    }
+    return showAllCategories ? allChartData : allChartData.slice(0, 4)
+  }, [allChartData, showAllCategories])
 
-  const { formattedSpentAmount } = useMemo(() => {
+  const spentAmountMemo = useMemo(() => {
+    if (!budgets || budgets.length === 0) {
+      return { totalSpent: 0, formattedSpentAmount: '£0' }
+    }
+
     const spent = budgets.reduce((total, budget) => {
       const spentAmount =
         budget.transactions?.reduce(
@@ -133,6 +139,12 @@ export function BudgetPieChart({
       formattedSpentAmount: formatCurrency(spent),
     }
   }, [budgets])
+
+  const { formattedSpentAmount } = spentAmountMemo
+
+  if (!budgets || budgets.length === 0) {
+    return null
+  }
 
   const dimensions = {
     sm: {
@@ -213,7 +225,18 @@ export function BudgetPieChart({
     <Card className='p-[32px] flex flex-col gap-4 shadow-none'>
       <CardHeader className='flex p-0 flex-row justify-between items-center w-full'>
         <CardTitle className='text-[20px]'>{title}</CardTitle>
-        <div className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex flex-row gap-1 items-center'>
+        <div
+          className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex flex-row gap-1 items-center'
+          role='button'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              // Navigate to budgets page or handle click
+              window.location.href = '/budgets'
+            }
+          }}
+          onClick={() => (window.location.href = '/budgets')}
+        >
           See Details
           <span className='flex items-center'>
             <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2 ml-2`} />

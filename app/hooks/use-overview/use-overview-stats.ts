@@ -25,7 +25,7 @@ export function useOverviewStats({
   financialData,
 }: UseOverviewStatsProps): UseOverviewStatsResult {
   return useMemo(() => {
-    const { transactions, bills, budgets } = financialData
+    const { transactions, bills } = financialData
 
     // Calculate total income
     const income = transactions

@@ -239,7 +239,7 @@ export function PotCard({
       <Dialog open={addMoneyOpen} onOpenChange={closeAddMoneyDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Add to '{pot.name}'</DialogTitle>
+            <DialogTitle>Add to &apos;{pot.name}&apos;</DialogTitle>
           </DialogHeader>
           <div className='space-y-6 py-4'>
             <p className='text-sm text-gray-500'>
@@ -255,8 +255,14 @@ export function PotCard({
             )}
 
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>New Amount</label>
-              <div className='text-3xl font-bold' key={newAddTotal}>
+              <label htmlFor='add-new-amount' className='text-sm font-medium'>
+                New Amount
+              </label>
+              <div
+                id='add-new-amount'
+                className='text-3xl font-bold'
+                key={newAddTotal}
+              >
                 {formatCurrency(newAddTotal)}
               </div>
 
@@ -278,12 +284,15 @@ export function PotCard({
             </div>
 
             <div className='space-y-2 mt-4'>
-              <label className='text-sm font-medium'>Amount to Add</label>
+              <label htmlFor='add-amount' className='text-sm font-medium'>
+                Amount to Add
+              </label>
               <div className='relative'>
                 <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
                   <span className='text-gray-500'>£</span>
                 </div>
                 <Input
+                  id='add-amount'
                   type='text'
                   inputMode='decimal'
                   placeholder='Enter amount'
@@ -320,7 +329,7 @@ export function PotCard({
       <Dialog open={withdrawOpen} onOpenChange={closeWithdrawDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Withdraw from '{pot.name}'</DialogTitle>
+            <DialogTitle>Withdraw from &apos;{pot.name}&apos;</DialogTitle>
           </DialogHeader>
           <div className='space-y-6 py-4'>
             <p className='text-sm text-gray-500'>
@@ -335,8 +344,17 @@ export function PotCard({
             )}
 
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>New Amount</label>
-              <div className='text-3xl font-bold' key={newWithdrawTotal}>
+              <label
+                htmlFor='withdraw-new-amount'
+                className='text-sm font-medium'
+              >
+                New Amount
+              </label>
+              <div
+                id='withdraw-new-amount'
+                className='text-3xl font-bold'
+                key={newWithdrawTotal}
+              >
                 {formatCurrency(newWithdrawTotal)}
               </div>
 
@@ -358,12 +376,15 @@ export function PotCard({
             </div>
 
             <div className='space-y-2 mt-4'>
-              <label className='text-sm font-medium'>Amount to Withdraw</label>
+              <label htmlFor='withdraw-amount' className='text-sm font-medium'>
+                Amount to Withdraw
+              </label>
               <div className='relative'>
                 <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
                   <span className='text-gray-500'>£</span>
                 </div>
                 <Input
+                  id='withdraw-amount'
                   type='text'
                   inputMode='decimal'
                   placeholder='Enter amount'

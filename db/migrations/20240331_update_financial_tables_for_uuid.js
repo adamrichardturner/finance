@@ -3,13 +3,13 @@
  * We've decided to keep integer IDs instead, so this is now a no-op migration.
  */
 
-export async function up(knex) {
+export async function up() {
   // No-op migration - we're keeping integer IDs
   console.log(
     'Skipping UUID conversion for financial tables - using integer IDs'
   )
 }
 
-export async function down(knex) {
+export async function down() {
   // No-op migration
 }

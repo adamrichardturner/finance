@@ -63,7 +63,7 @@ export function useTransactionFilters({
     if (urlSearchQuery && urlSearchQuery !== searchQuery) {
       setSearchQuery(urlSearchQuery)
     }
-  }, [urlSearchQuery])
+  }, [urlSearchQuery, searchQuery])
 
   // Set URL search param
   const setUrlSearchQuery = useCallback(

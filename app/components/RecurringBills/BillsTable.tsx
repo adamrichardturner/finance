@@ -3,8 +3,6 @@ import { format, subMonths } from 'date-fns'
 import { AppTransaction } from '~/utils/transform-data'
 import { renderAvatar } from '~/utils/avatar-utils'
 import { CheckCircle2, AlertCircle } from 'lucide-react'
-import InfiniteScroll from 'react-infinite-scroll-component'
-import { Loader2 } from 'lucide-react'
 
 interface BillsTableProps {
   bills: AppTransaction[]
@@ -22,15 +20,6 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
 
   const isOverdue = (date: string) => {
     return new Date(date) < new Date()
-  }
-
-  const isUpcoming = (date: string) => {
-    const dueDate = new Date(date)
-    const now = new Date()
-    const fiveDaysFromNow = new Date()
-    fiveDaysFromNow.setDate(now.getDate() + 5)
-
-    return dueDate > now && dueDate <= fiveDaysFromNow
   }
 
   const isOverAMonthOld = (dateString: string): boolean => {

@@ -6,7 +6,6 @@ import {
   UpdateBudgetParams as CommandUpdateBudgetParams,
   DeleteBudgetParams,
 } from '~/commands/budgets'
-import { useFactories } from '~/factories'
 import { useBudgetsData } from './use-budgets-data'
 
 // Interface for our local parameters with user ID
@@ -45,7 +44,6 @@ export function useBudgetMutations() {
   const fetcher = useFetcher()
   const { data: existingBudgets } = useBudgetsData()
   const [isPending, setIsPending] = useState(false)
-  const { budgets: budgetFactory } = useFactories()
 
   // Create the command executor with the submit function
   const commandExecutor = new BudgetCommandExecutor(
@@ -57,7 +55,7 @@ export function useBudgetMutations() {
           action: string
         }
       ) => {
-        return fetcher.submit(formData, options)
+        return fetcher.submit(formData, options) as unknown as Promise<unknown>
       },
       [fetcher]
     )

@@ -1,5 +1,5 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import Pointer from '/assets/icons/Pointer.svg?url'
+import Pointer from '../../../assets/icons/Pointer.svg?url'
 import { formatDistanceToNow, format, isAfter, subMonths } from 'date-fns'
 import { AppTransaction } from '~/utils/transform-data'
 import React, { useMemo } from 'react'
@@ -17,11 +17,11 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
 }) => {
   const navigate = useNavigate()
 
-  if (!transactions || transactions.length === 0) {
-    return null
-  }
-
   const filteredTransactions = useMemo(() => {
+    if (!transactions || transactions.length === 0) {
+      return []
+    }
+
     return transactions.filter((tx) => {
       const isPotTransaction =
         tx.description.toLowerCase().includes('pot') ||
@@ -31,6 +31,10 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
       return !isPotTransaction
     })
   }, [transactions])
+
+  if (!transactions || transactions.length === 0) {
+    return null
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -72,6 +76,13 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
         <div
           className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors items-center flex flex-row gap-1'
           onClick={() => navigate('/transactions')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              navigate('/transactions')
+            }
+          }}
+          tabIndex={0}
+          role='button'
         >
           View All
           <span>
@@ -89,6 +100,15 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
                 `/transactions?search=${encodeURIComponent(transaction.description)}`
               )
             }
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                navigate(
+                  `/transactions?search=${encodeURIComponent(transaction.description)}`
+                )
+              }
+            }}
+            tabIndex={0}
+            role='button'
           >
             <div className='flex items-center justify-between'>
               <div className='flex items-center'>

@@ -11,7 +11,7 @@ import { EllipsisIcon } from '../ui/icons/EllipsisIcon'
 import { Progress } from '../ui/progress'
 import { useNavigate } from '@remix-run/react'
 import { getThemeForCategory } from '~/utils/budget-categories'
-import Pointer from '/assets/icons/Pointer.svg?url'
+import Pointer from '../../../assets/icons/Pointer.svg?url'
 
 interface BudgetCardProps {
   budget: Budget
@@ -118,6 +118,13 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
           <div
             className='bg-[#F8F4F0] mt-6 p-6 rounded-lg space-y-4 cursor-pointer'
             onClick={navigateToTransactions}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                navigateToTransactions()
+              }
+            }}
+            tabIndex={0}
+            role='button'
           >
             <div className='flex items-center justify-between'>
               <h4 className='text-sm text-color-grey-900 text-[16px] font-[700]'>
@@ -129,6 +136,14 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
                   e.stopPropagation()
                   navigateToTransactions()
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation()
+                    navigateToTransactions()
+                  }
+                }}
+                tabIndex={0}
+                role='button'
               >
                 See All
                 <span className='ml-2'>
@@ -145,6 +160,14 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
                     e.stopPropagation()
                     navigateToTransaction(transaction.name)
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.stopPropagation()
+                      navigateToTransaction(transaction.name)
+                    }
+                  }}
+                  tabIndex={0}
+                  role='button'
                 >
                   <div className='flex items-center gap-3'>
                     <div className='relative h-12 w-12 rounded-full bg-gray-100 overflow-hidden'>

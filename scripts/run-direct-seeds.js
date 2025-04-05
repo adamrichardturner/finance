@@ -4,7 +4,6 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import fs from 'fs'
-import { execSync } from 'child_process'
 import dotenv from 'dotenv'
 
 // Load environment variables based on NODE_ENV

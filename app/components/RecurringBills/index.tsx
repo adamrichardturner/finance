@@ -3,7 +3,7 @@ import { Card, CardContent } from '~/components/ui/card'
 import { AppTransaction } from '~/utils/transform-data'
 import PageTitle from '~/components/PageTitle'
 import { Input } from '~/components/ui/input'
-import { Search, Receipt, X } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -22,8 +22,8 @@ import {
   SheetClose,
 } from '~/components/ui/sheet'
 import { Button } from '~/components/ui/button'
-import BillsDark from '/assets/icons/BillsDark.svg?url'
-import BillsLight from '/assets/icons/BillsLight.svg?url'
+import BillsDark from '../../assets/icons/BillsDark.svg?url'
+import BillsLight from '../../assets/icons/BillsLight.svg?url'
 import debounce from 'lodash/debounce'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -49,10 +49,11 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
   const [sortBy, setSortBy] = useState('latest')
 
   const debouncedSearch = useCallback(
-    debounce((value: string) => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    debounce(function updateDebouncedSearch(value: string) {
       setDebouncedSearchTerm(value)
     }, 200),
-    []
+    [setDebouncedSearchTerm]
   )
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,13 +151,25 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
                         setSearchTerm('')
                         setDebouncedSearchTerm('')
                       }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          setSearchTerm('')
+                          setDebouncedSearchTerm('')
+                        }
+                      }}
+                      tabIndex={0}
+                      role='button'
+                      aria-label='Clear search'
                     >
                       <X className='h-4 w-4 text-gray-500 hover:text-gray-800 transition-colors' />
                     </div>
                   )}
                 </div>
                 <div className='relative hidden min-[640px]:block'>
-                  <label className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'>
+                  <label
+                    htmlFor='sort-bills'
+                    className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'
+                  >
                     Sort by
                   </label>
                   <Select
@@ -167,7 +180,10 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
                       setDebouncedSearchTerm('')
                     }}
                   >
-                    <SelectTrigger className='w-[120px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
+                    <SelectTrigger
+                      id='sort-bills'
+                      className='w-[120px] border border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'
+                    >
                       <SelectValue placeholder='Sort by' />
                     </SelectTrigger>
                     <SelectContent>
