@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
@@ -15,6 +15,8 @@ import { Budget } from '~/types/finance.types'
 import isEqual from 'lodash/isEqual'
 import { ColorSelect } from '~/components/ui/color-select'
 import { useFactories } from '~/factories'
+import { CurrencyInput } from '~/components/ui/currency-input'
+import { formatCurrency } from '~/utils/number-formatter'
 
 interface BudgetFormValues {
   category: string
@@ -32,6 +34,7 @@ interface AddBudgetModalProps {
   onClose: () => void
   budgets: Budget[]
   usedColors?: string[] // Colors already used by pots
+  monthlyIncome?: number // Monthly income for validation
 }
 
 export function AddBudgetModal({
@@ -39,7 +42,16 @@ export function AddBudgetModal({
   onClose,
   budgets,
   usedColors: potsColors = [],
+  monthlyIncome = 0,
 }: AddBudgetModalProps) {
+  // PostgreSQL numeric limit (precision 10, scale 2)
+  const MAX_BUDGET_AMOUNT = 99999999.99
+
+  // Calculate total of existing budgets
+  const totalBudgeted = useMemo(() => {
+    return budgets.reduce((sum, budget) => sum + parseFloat(budget.maximum), 0)
+  }, [budgets])
+
   // Extract used colors from existing budgets and pots
   const allUsedColors = useMemo(() => {
     const budgetColors = budgets ? budgets.map((budget) => budget.theme) : []
@@ -48,7 +60,7 @@ export function AddBudgetModal({
   }, [budgets, potsColors])
 
   // Find the first available color that's not already used
-  const findFirstAvailableColor = (): string => {
+  const findFirstAvailableColor = useCallback((): string => {
     for (const color of THEME_COLORS) {
       if (!allUsedColors.includes(color.value)) {
         return color.value
@@ -56,7 +68,7 @@ export function AddBudgetModal({
     }
     // If all colors are used, return the first one as fallback
     return THEME_COLORS[0].value
-  }
+  }, [allUsedColors])
 
   const initialValues: BudgetFormValues = {
     category: '',
@@ -88,7 +100,7 @@ export function AddBudgetModal({
         },
       }))
     }
-  }, [allUsedColors, formState.current.theme])
+  }, [allUsedColors, formState, findFirstAvailableColor])
 
   const [error, setError] = useState<string | null>(null)
   const { createBudget } = useBudgetMutations()
@@ -98,6 +110,64 @@ export function AddBudgetModal({
   const hasChanges = useMemo(() => {
     return !isEqual(formState.original, formState.current)
   }, [formState])
+
+  // Check if current form values are valid (but don't set error messages)
+  const isFormValid = useMemo(() => {
+    // Basic form validation
+    if (
+      !formState.current.category ||
+      !formState.current.amount ||
+      !formState.current.theme
+    ) {
+      return false
+    }
+
+    // Check for duplicates
+    const normalizedSelectedCategory = formState.current.category
+      .toLowerCase()
+      .trim()
+    const isDuplicate = budgets.some(
+      (budget) =>
+        budget.category.toLowerCase().trim() === normalizedSelectedCategory
+    )
+    if (isDuplicate) {
+      return false
+    }
+
+    // Parse the amount for numeric validation
+    const amount = parseFloat(formState.current.amount)
+    if (isNaN(amount) || amount <= 0) {
+      return false
+    }
+
+    // Check if amount exceeds PostgreSQL limit
+    if (amount > MAX_BUDGET_AMOUNT) {
+      return false
+    }
+
+    // Check if amount exceeds monthly income
+    if (monthlyIncome > 0 && amount > monthlyIncome) {
+      return false
+    }
+
+    // Check if this would cause total to exceed monthly income
+    if (monthlyIncome > 0 && totalBudgeted + amount > monthlyIncome) {
+      return false
+    }
+
+    return true
+  }, [
+    formState.current,
+    budgets,
+    MAX_BUDGET_AMOUNT,
+    monthlyIncome,
+    totalBudgeted,
+  ])
+
+  // Update button's disabled state
+  const isButtonDisabled = useMemo(() => {
+    return createBudget.isPending || !hasChanges || !isFormValid
+  }, [createBudget.isPending, hasChanges, isFormValid])
 
   const resetForm = () => {
     // Reset with a fresh available color
@@ -144,14 +214,44 @@ export function AddBudgetModal({
     }
   }
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAmountChange = (value: string, numericValue: number) => {
     setFormState((prev) => ({
       ...prev,
       current: {
         ...prev.current,
-        amount: e.target.value,
+        amount: value,
       },
     }))
+
+    // Perform real-time validation
+    if (value) {
+      // Check if amount exceeds PostgreSQL limit
+      if (numericValue > MAX_BUDGET_AMOUNT) {
+        setError(
+          `Maximum amount cannot exceed ${formatCurrency(MAX_BUDGET_AMOUNT)}`
+        )
+        return
+      }
+
+      // Check if amount exceeds monthly income
+      if (monthlyIncome > 0 && numericValue > monthlyIncome) {
+        setError(
+          `Budget cannot exceed your monthly income of ${formatCurrency(monthlyIncome)}`
+        )
+        return
+      }
+
+      // Check if this would cause total to exceed monthly income
+      if (monthlyIncome > 0 && totalBudgeted + numericValue > monthlyIncome) {
+        setError(
+          `Adding this budget would exceed your monthly income. Current total: ${formatCurrency(totalBudgeted)}, Monthly income: ${formatCurrency(monthlyIncome)}`
+        )
+        return
+      }
+    }
+
+    // If we get here, clear any previous errors
+    setError(null)
   }
 
   const handleThemeChange = (value: string) => {
@@ -162,45 +262,8 @@ export function AddBudgetModal({
         theme: value,
       },
     }))
-  }
-
-  const validateForm = (): string | null => {
-    // Basic form validation
-    if (
-      !formState.current.category ||
-      !formState.current.amount ||
-      !formState.current.theme
-    ) {
-      return 'Please fill in all fields'
-    }
-
-    const normalizedSelectedCategory = formState.current.category
-      .toLowerCase()
-      .trim()
-    const isDuplicate = budgets.some(
-      (budget) =>
-        budget.category.toLowerCase().trim() === normalizedSelectedCategory
-    )
-
-    if (isDuplicate) {
-      return `A budget for "${formState.current.category}" already exists. Please select a different category.`
-    }
-
-    // Use the factory for additional validation
-    try {
-      // Validate using factory without storing the result
-      budgetFactory.create({
-        category: formState.current.category,
-        maxAmount: parseFloat(formState.current.amount),
-        theme: formState.current.theme,
-        userId: 'temporary', // Will be replaced by the server
-      })
-
-      // The factory will throw if validation fails, so if we reach here, it's valid
-      return null
-    } catch (error) {
-      return error instanceof Error ? error.message : 'Invalid budget data'
-    }
+    // Clear error when user changes the theme
+    setError(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -230,6 +293,63 @@ export function AddBudgetModal({
       const message =
         error instanceof Error ? error.message : 'Failed to create budget'
       setError(message)
+    }
+  }
+
+  const validateForm = (): string | null => {
+    // Basic form validation
+    if (
+      !formState.current.category ||
+      !formState.current.amount ||
+      !formState.current.theme
+    ) {
+      return 'Please fill in all fields'
+    }
+
+    const normalizedSelectedCategory = formState.current.category
+      .toLowerCase()
+      .trim()
+    const isDuplicate = budgets.some(
+      (budget) =>
+        budget.category.toLowerCase().trim() === normalizedSelectedCategory
+    )
+
+    if (isDuplicate) {
+      return `A budget for "${formState.current.category}" already exists. Please select a different category.`
+    }
+
+    // Parse the amount for numeric validation
+    const amount = parseFloat(formState.current.amount)
+
+    // Check if amount exceeds PostgreSQL limit
+    if (amount > MAX_BUDGET_AMOUNT) {
+      return `Maximum amount cannot exceed ${formatCurrency(MAX_BUDGET_AMOUNT)}`
+    }
+
+    // Check if amount exceeds monthly income
+    if (monthlyIncome > 0 && amount > monthlyIncome) {
+      return `Budget cannot exceed your monthly income of ${formatCurrency(monthlyIncome)}`
+    }
+
+    // Check if this would cause total to exceed monthly income
+    if (monthlyIncome > 0 && totalBudgeted + amount > monthlyIncome) {
+      return `Adding this budget would exceed your monthly income. Current total: ${formatCurrency(totalBudgeted)}, Monthly income: ${formatCurrency(monthlyIncome)}`
+    }
+
+    // Use the factory for additional validation
+    try {
+      // Validate using factory without storing the result
+      budgetFactory.create({
+        category: formState.current.category,
+        maxAmount: parseFloat(formState.current.amount),
+        theme: formState.current.theme,
+        userId: 'temporary', // Will be replaced by the server
+      })
+
+      // The factory will throw if validation fails, so if we reach here, it's valid
+      return null
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Invalid budget data'
     }
   }
 
@@ -288,22 +408,14 @@ export function AddBudgetModal({
             <label htmlFor='max-spend' className='text-sm font-medium'>
               Maximum Spend
             </label>
-            <div className='relative'>
-              <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                <span className='text-gray-500'>£</span>
-              </div>
-              <Input
-                id='max-spend'
-                type='number'
-                placeholder='e.g. 2000'
-                value={formState.current.amount}
-                onChange={handleAmountChange}
-                min='0'
-                step='0.01'
-                required
-                className='pl-7'
-              />
-            </div>
+            <CurrencyInput
+              id='max-spend'
+              placeholder='e.g. 2,000.00'
+              value={formState.current.amount}
+              onChange={handleAmountChange}
+              decimals={2}
+              required
+            />
           </div>
 
           <div className='space-y-2'>
@@ -323,14 +435,7 @@ export function AddBudgetModal({
           <Button
             type='submit'
             className='w-full bg-black text-white hover:bg-black/90'
-            disabled={
-              createBudget.isPending ||
-              !!error ||
-              !formState.current.category ||
-              !formState.current.amount ||
-              !formState.current.theme ||
-              !hasChanges
-            }
+            disabled={isButtonDisabled}
           >
             {createBudget.isPending ? 'Creating...' : 'Add Budget'}
           </Button>

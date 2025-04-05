@@ -68,11 +68,6 @@ export function useBudgetMutations() {
             }
 
             hasResolved = true
-
-            // For debugging
-            console.log('Fetcher state:', fetcher.state, 'data:', fetcher.data)
-
-            // Success case: resolve with data
             resolve(fetcher.data || { success: true })
           }
 
@@ -83,7 +78,6 @@ export function useBudgetMutations() {
             }
 
             hasResolved = true
-            console.error(errorMsg)
             resolve({ error: errorMsg, success: false })
           }
 
@@ -136,9 +130,6 @@ export function useBudgetMutations() {
           commandParams,
           existingBudgets
         )
-
-        // This logs whether we got a successful response
-        console.log('Create budget result:', result)
 
         // Check for error and throw if needed
         if (
@@ -203,9 +194,6 @@ export function useBudgetMutations() {
           existingBudgets
         )
 
-        // This logs whether we got a successful response
-        console.log('Update budget result:', result)
-
         // Check for error and throw if needed
         if (
           result &&
@@ -230,9 +218,6 @@ export function useBudgetMutations() {
       setIsPending(true)
       try {
         const result = await commandExecutor.delete(data)
-
-        // This logs whether we got a successful response
-        console.log('Delete budget result:', result)
 
         // Check for error and throw if needed
         if (

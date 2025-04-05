@@ -7,6 +7,8 @@ import { THEME_COLORS } from '~/utils/budget-categories'
 import { ColorSelect } from '~/components/ui/color-select'
 import isEqual from 'lodash/isEqual'
 import { Pot } from '~/types/finance.types'
+import { CurrencyInput } from '~/components/ui/currency-input'
+import { formatCurrency } from '~/utils/number-formatter'
 
 interface PotFormValues {
   name: string
@@ -81,12 +83,12 @@ export function AddPotModal({
     }
   }
 
-  const handleTargetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTargetChange = (value: string, numericValue: number) => {
     setFormState((prev) => ({
       ...prev,
       current: {
         ...prev.current,
-        target: e.target.value,
+        target: value,
       },
     }))
   }
@@ -170,21 +172,14 @@ export function AddPotModal({
             <label id='pot-target-label' className='text-sm font-medium'>
               Target
             </label>
-            <div aria-labelledby='pot-target-label' className='relative'>
-              <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                <span className='text-gray-500'>£</span>
-              </div>
-              <Input
-                type='number'
-                placeholder='e.g. 2000'
-                value={formState.current.target}
-                onChange={handleTargetChange}
-                min='0'
-                step='0.01'
-                required
-                className='pl-7'
-              />
-            </div>
+            <CurrencyInput
+              id='pot-target'
+              placeholder='e.g. 2,000.00'
+              value={formState.current.target}
+              onChange={handleTargetChange}
+              decimals={2}
+              required
+            />
           </div>
 
           <div className='space-y-2'>

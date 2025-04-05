@@ -87,6 +87,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const name = formData.get('name')
     const target = formData.get('target')
     const theme = formData.get('theme')
+    const addFunds = formData.get('addFunds')
 
     if (
       typeof potId !== 'string' ||
@@ -98,13 +99,26 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     try {
-      const pot = await updatePot({
+      let pot = await updatePot({
         id: parseInt(potId),
         userId,
         name,
         target: parseFloat(target),
         theme,
       })
+
+      // Handle adding funds if provided
+      if (addFunds && typeof addFunds === 'string') {
+        const amount = parseFloat(addFunds)
+        if (!isNaN(amount) && amount > 0) {
+          pot = await updatePotBalance({
+            id: parseInt(potId),
+            userId,
+            amount: amount,
+          })
+        }
+      }
+
       return data({ success: true, pot })
     } catch (error) {
       if (error instanceof Error && error.message.includes('already exists')) {

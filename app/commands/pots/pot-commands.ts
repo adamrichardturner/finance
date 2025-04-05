@@ -16,6 +16,7 @@ export interface UpdatePotParams {
   theme: string
   icon?: string
   color?: string
+  addFunds?: number
 }
 
 export interface DeletePotParams {
@@ -100,12 +101,15 @@ export class UpdatePotCommand extends PotCommand<UpdatePotParams> {
       formData.append('target', params.target.toString())
       formData.append('theme', params.theme)
 
+      // Optional parameters
       if (params.icon) {
         formData.append('icon', params.icon)
       }
-
       if (params.color) {
         formData.append('color', params.color)
+      }
+      if (params.addFunds && params.addFunds > 0) {
+        formData.append('addFunds', params.addFunds.toString())
       }
 
       return this.submitForm(formData, '/pots')

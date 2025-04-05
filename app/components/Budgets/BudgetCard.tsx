@@ -11,6 +11,7 @@ import { EllipsisIcon } from '../ui/icons/EllipsisIcon'
 import { Progress } from '../ui/progress'
 import { useNavigate } from '@remix-run/react'
 import { getThemeForCategory } from '~/utils/budget-categories'
+import { formatCurrency } from '~/utils/number-formatter'
 
 interface BudgetCardProps {
   budget: Budget
@@ -71,7 +72,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
 
       <div className='mt-2'>
         <span className='text-[14px] text-gray-500 font-normal'>
-          Maximum of £{maximum.toFixed(2)}
+          Maximum of {formatCurrency(maximum)}
         </span>
 
         <div className='mt-4 space-y-4'>
@@ -95,7 +96,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
                   Spent
                 </span>
                 <span className='text-grey-900 font-[700] text-[14px] pt-[6px]'>
-                  £{spentAmount.toFixed(2)}
+                  {formatCurrency(spentAmount)}
                 </span>
               </div>
             </div>
@@ -106,7 +107,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
                   Remaining
                 </span>
                 <span className='text-grey-900 font-[700] text-[14px] pt-[6px]'>
-                  £{remainingAmount.toFixed(2)}
+                  {formatCurrency(remainingAmount)}
                 </span>
               </div>
             </div>
@@ -219,8 +220,8 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
                         className={`text-xs font-bold text-right ${transaction.amount >= 0 ? 'text-green-600' : 'text-gray-900'}`}
                       >
                         <span className='whitespace-nowrap'>
-                          {transaction.amount >= 0 ? '+' : '-'}£
-                          {Math.abs(transaction.amount).toFixed(2)}
+                          {transaction.amount >= 0 ? '+' : ''}
+                          {formatCurrency(Math.abs(transaction.amount))}
                         </span>
                       </p>
                       <p className='text-xs text-gray-500'>

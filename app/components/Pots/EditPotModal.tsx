@@ -7,6 +7,8 @@ import { THEME_COLORS } from '~/utils/budget-categories'
 import { usePotMutations } from '~/hooks/use-pots/use-pot-mutations'
 import { ColorSelect } from '~/components/ui/color-select'
 import isEqual from 'lodash/isEqual'
+import { CurrencyInput } from '~/components/ui/currency-input'
+import { formatCurrency } from '~/utils/number-formatter'
 
 interface PotFormValues {
   name: string
@@ -48,6 +50,7 @@ export function EditPotModal({
   })
 
   const [error, setError] = useState<string | null>(null)
+  const [addFundsValue, setAddFundsValue] = useState<string>('0')
   const maxNameLength = 30
 
   const { updatePot } = usePotMutations()
@@ -102,14 +105,18 @@ export function EditPotModal({
     }
   }
 
-  const handleTargetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTargetChange = (value: string, numericValue: number) => {
     setFormState((prev) => ({
       ...prev,
       current: {
         ...prev.current,
-        target: e.target.value,
+        target: value,
       },
     }))
+  }
+
+  const handleAddFundsChange = (value: string, numericValue: number) => {
+    setAddFundsValue(value)
   }
 
   const handleThemeChange = (value: string) => {
@@ -139,11 +146,14 @@ export function EditPotModal({
     }
 
     try {
+      const parsedAddFunds = addFundsValue ? parseFloat(addFundsValue) : 0
+
       await updatePot.mutateAsync({
         potId,
         name: formState.current.name,
         target: parseFloat(formState.current.target),
         theme: formState.current.theme,
+        addFunds: parsedAddFunds > 0 ? parsedAddFunds : undefined,
       })
       handleClose()
     } catch (error) {
@@ -152,7 +162,6 @@ export function EditPotModal({
       } else {
         setError('Failed to update pot')
       }
-      console.error('Failed to update pot:', error)
     }
   }
 
@@ -193,29 +202,30 @@ export function EditPotModal({
           </div>
 
           <div className='space-y-2'>
-            <label id='edit-pot-target-label' className='text-sm font-medium'>
+            <label htmlFor='edit-pot-target' className='text-sm font-medium'>
               Target
             </label>
-            <div aria-labelledby='edit-pot-target-label' className='relative'>
-              <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                <span className='text-gray-500'>£</span>
-              </div>
-              <Input
-                type='number'
-                placeholder='e.g. 110.00'
-                value={formState.current.target}
-                onChange={handleTargetChange}
-                min='0'
-                step='0.01'
-                required
-                className='pl-7'
-              />
-            </div>
-            <div className='text-sm text-gray-600 mt-1'>
-              {formState.current.target
-                ? `New target amount: £${parseFloat(formState.current.target).toFixed(2)}`
-                : ''}
-            </div>
+            <CurrencyInput
+              id='edit-pot-target'
+              placeholder='e.g. 2,000.00'
+              value={formState.current.target}
+              onChange={handleTargetChange}
+              decimals={2}
+              required
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label htmlFor='add-funds' className='text-sm font-medium'>
+              Add Funds (Optional)
+            </label>
+            <CurrencyInput
+              id='add-funds'
+              placeholder='e.g. 100.00'
+              value={addFundsValue}
+              onChange={handleAddFundsChange}
+              decimals={2}
+            />
           </div>
 
           <div className='space-y-2'>

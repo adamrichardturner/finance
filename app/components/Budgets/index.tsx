@@ -7,6 +7,7 @@ import { DeleteBudgetModal } from './DeleteBudgetModal'
 import { BudgetChart } from './BudgetChart'
 import { Budget, Pot } from '~/types/finance.types'
 import PageTitle from '../PageTitle'
+import { getAvailableCategories } from '~/utils/budget-categories'
 
 interface BudgetModalState {
   isOpen: boolean
@@ -17,6 +18,7 @@ interface BudgetModalState {
 interface BudgetsProps {
   budgets: Budget[]
   pots?: Pot[]
+  monthlyIncome?: number
   actionData?: {
     error?: string
     success?: boolean
@@ -24,7 +26,12 @@ interface BudgetsProps {
   }
 }
 
-export function Budgets({ budgets, pots = [], actionData }: BudgetsProps) {
+export function Budgets({
+  budgets,
+  pots = [],
+  monthlyIncome = 0,
+  actionData,
+}: BudgetsProps) {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editModal, setEditModal] = useState<BudgetModalState>({
     isOpen: false,
@@ -61,6 +68,16 @@ export function Budgets({ budgets, pots = [], actionData }: BudgetsProps) {
     setDeleteModal({ isOpen: false })
   }, [])
 
+  // Check if there are any available budget categories left
+  const availableCategories = useMemo(() => {
+    return getAvailableCategories(budgets)
+  }, [budgets])
+
+  // Check if all budget categories have been used
+  const allCategoriesUsed = useMemo(() => {
+    return availableCategories.length === 0
+  }, [availableCategories])
+
   const memoizedBudgetChart = useMemo(() => {
     return <BudgetChart budgets={budgets} />
   }, [budgets])
@@ -90,14 +107,22 @@ export function Budgets({ budgets, pots = [], actionData }: BudgetsProps) {
 
   return (
     <div className='space-y-6'>
-      <div className='flex items-center justify-between'>
-        <PageTitle title='Budgets' />
-        <Button
-          onClick={handleOpenAddModal}
-          className='bg-black text-white hover:bg-black/90'
-        >
-          + Add New Budget
-        </Button>
+      <div className='flex flex-col items-end'>
+        <div className='w-full flex items-center justify-between'>
+          <PageTitle title='Budgets' />
+          <Button
+            onClick={handleOpenAddModal}
+            className='bg-black text-white hover:bg-black/90'
+            disabled={allCategoriesUsed}
+          >
+            + Add New Budget
+          </Button>
+        </div>
+        {allCategoriesUsed && (
+          <div className='text-gray-500 text-[12px] mt-1 mr-1'>
+            All budget categories have been used
+          </div>
+        )}
       </div>
 
       {actionData?.error && (
@@ -121,6 +146,7 @@ export function Budgets({ budgets, pots = [], actionData }: BudgetsProps) {
         isOpen={addModalOpen}
         onClose={handleCloseAddModal}
         usedColors={potColors}
+        monthlyIncome={monthlyIncome}
       />
 
       <EditBudgetModal
@@ -129,6 +155,7 @@ export function Budgets({ budgets, pots = [], actionData }: BudgetsProps) {
         onClose={handleCloseEditModal}
         budgets={budgets}
         usedColors={potColors}
+        monthlyIncome={monthlyIncome}
       />
 
       <DeleteBudgetModal

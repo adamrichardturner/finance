@@ -18,6 +18,15 @@ module.exports = {
   // Base config
   extends: ['eslint:recommended'],
 
+  // Global rules to ensure warnings are reported
+  rules: {
+    // These rules are set to 'warn' to ensure warnings appear in the editor
+    'no-unused-vars': 'warn',
+    'no-debugger': 'warn',
+    // Disable module boundary types warning as it's too pervasive in the codebase
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+  },
+
   overrides: [
     // React
     {
@@ -43,6 +52,10 @@ module.exports = {
         'jsx-a11y/label-has-associated-control': 'off',
         // Change exhaustive-deps to warning level
         'react-hooks/exhaustive-deps': 'warn',
+        // Additional warnings for React components
+        'react/no-unused-state': 'warn',
+        'react/jsx-key': 'warn',
+        'react/jsx-no-target-blank': 'warn',
       },
       settings: {
         react: {
@@ -80,6 +93,15 @@ module.exports = {
         'plugin:import/recommended',
         'plugin:import/typescript',
       ],
+      rules: {
+        // Ensure TypeScript warnings are reported
+        '@typescript-eslint/no-unused-vars': 'warn',
+        '@typescript-eslint/no-explicit-any': 'warn',
+        '@typescript-eslint/explicit-module-boundary-types': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'warn',
+        'import/no-unresolved': 'warn',
+        'import/named': 'warn',
+      },
     },
 
     // Node files (migrations, seeds, scripts)

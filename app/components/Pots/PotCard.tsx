@@ -12,6 +12,8 @@ import { Pot } from '~/types/finance.types'
 import { usePotMutations } from '~/hooks/use-pots/use-pot-mutations'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
+import { formatCurrency } from '~/utils/number-formatter'
+import { CurrencyInput } from '../ui/currency-input'
 
 interface PotCardProps {
   pot: Pot
@@ -66,15 +68,6 @@ export function PotCard({
     const percentage = (pot.total / pot.target) * 100
     return Math.min(100, Math.max(0, percentage))
   }, [pot.total, pot.target])
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount)
-  }
 
   const handleAddMoney = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -287,30 +280,18 @@ export function PotCard({
               <label htmlFor='add-amount' className='text-sm font-medium'>
                 Amount to Add
               </label>
-              <div className='relative'>
-                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                  <span className='text-gray-500'>£</span>
-                </div>
-                <Input
-                  id='add-amount'
-                  type='text'
-                  inputMode='decimal'
-                  placeholder='Enter amount'
-                  value={amount}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9.]/g, '')
-                    const numValue = parseFloat(value || '0')
-                    if (
-                      !value ||
-                      isNaN(numValue) ||
-                      numValue <= currentBalance
-                    ) {
-                      setAmount(value)
-                    }
-                  }}
-                  className='pl-7'
-                />
-              </div>
+              <CurrencyInput
+                id='add-amount'
+                placeholder='Enter amount'
+                value={amount}
+                onChange={(value) => {
+                  const numValue = parseFloat(value || '0')
+                  if (!value || isNaN(numValue) || numValue <= currentBalance) {
+                    setAmount(value)
+                  }
+                }}
+                decimals={2}
+              />
               <p className='text-xs text-gray-500 mt-1'>
                 Available balance: {formatCurrency(currentBalance)}
               </p>
@@ -379,26 +360,18 @@ export function PotCard({
               <label htmlFor='withdraw-amount' className='text-sm font-medium'>
                 Amount to Withdraw
               </label>
-              <div className='relative'>
-                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                  <span className='text-gray-500'>£</span>
-                </div>
-                <Input
-                  id='withdraw-amount'
-                  type='text'
-                  inputMode='decimal'
-                  placeholder='Enter amount'
-                  value={amount}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9.]/g, '')
-                    const numValue = parseFloat(value || '0')
-                    if (!value || isNaN(numValue) || numValue <= pot.total) {
-                      setAmount(value)
-                    }
-                  }}
-                  className='pl-7'
-                />
-              </div>
+              <CurrencyInput
+                id='withdraw-amount'
+                placeholder='Enter amount'
+                value={amount}
+                onChange={(value) => {
+                  const numValue = parseFloat(value || '0')
+                  if (!value || isNaN(numValue) || numValue <= pot.total) {
+                    setAmount(value)
+                  }
+                }}
+                decimals={2}
+              />
               <p className='text-xs text-gray-500 mt-1'>
                 Available in pot: {formatCurrency(pot.total)}
               </p>

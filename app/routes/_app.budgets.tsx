@@ -15,6 +15,16 @@ import {
 import { Budget, Pot } from '~/types/finance.types'
 import { getThemeForCategory } from '~/utils/budget-categories'
 import { getPots } from '~/services/finance/finance.service'
+import { getFinancialData } from '~/services/finance/finance.service'
+import { formatCurrency } from '~/utils/number-formatter'
+
+// Maximum PostgreSQL numeric value for budget precision 10, scale 2
+const MAX_BUDGET_AMOUNT = 99999999.99
+
+// Function to calculate the total of all budget maximums
+function calculateTotalBudgets(budgets: Budget[]): number {
+  return budgets.reduce((sum, budget) => sum + parseFloat(budget.maximum), 0)
+}
 
 export const meta: MetaFunction = () => {
   return [
@@ -28,10 +38,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   try {
     const budgets = await getBudgets(userId)
-    // Also load pots to get their colors
     const pots = await getPots(userId)
 
-    return data({ budgets, pots })
+    // Get financial data to check income
+    const financialData = await getFinancialData()
+    const monthlyIncome = financialData.balance
+      ? financialData.balance.income || 0
+      : 0
+
+    return data({ budgets, pots, monthlyIncome })
   } catch (error) {
     throw new Response('Error loading budgets', { status: 500 })
   }
@@ -41,6 +56,15 @@ export async function action({ request }: ActionFunctionArgs) {
   const userId = String(await requireUserId(request))
   const formData = await request.formData()
   const intent = formData.get('intent')
+
+  // Get the financial data to check income
+  const financialData = await getFinancialData()
+  // Use the balance.income property which represents monthly income
+  const monthlyIncome = financialData.balance
+    ? financialData.balance.income || 0
+    : 0
+  const existingBudgets = await getBudgets(userId)
+  const totalBudgeted = calculateTotalBudgets(existingBudgets)
 
   if (intent === 'create') {
     const category = formData.get('category')
@@ -61,6 +85,41 @@ export async function action({ request }: ActionFunctionArgs) {
       )
     }
 
+    const maxAmountValue = parseFloat(maxAmount)
+
+    // Validate against PostgreSQL numeric limit
+    if (maxAmountValue > MAX_BUDGET_AMOUNT) {
+      return data(
+        {
+          error: `Maximum amount cannot exceed ${formatCurrency(MAX_BUDGET_AMOUNT)}`,
+          success: false,
+        },
+        { status: 400 }
+      )
+    }
+
+    // Check if this budget exceeds the monthly income
+    if (maxAmountValue > monthlyIncome) {
+      return data(
+        {
+          error: `Budget cannot exceed your monthly income of ${formatCurrency(monthlyIncome)}`,
+          success: false,
+        },
+        { status: 400 }
+      )
+    }
+
+    // Check if this budget would cause total budgets to exceed income
+    if (totalBudgeted + maxAmountValue > monthlyIncome) {
+      return data(
+        {
+          error: `Adding this budget would exceed your monthly income. Current total: ${formatCurrency(totalBudgeted)}, Monthly income: ${formatCurrency(monthlyIncome)}`,
+          success: false,
+        },
+        { status: 400 }
+      )
+    }
+
     const themeColor =
       typeof theme === 'string' && theme ? theme : getThemeForCategory(category)
 
@@ -68,7 +127,7 @@ export async function action({ request }: ActionFunctionArgs) {
       const budget = await createBudget({
         userId,
         category,
-        maxAmount: parseFloat(maxAmount),
+        maxAmount: maxAmountValue,
         theme: themeColor,
       })
       return data({ budget, success: true })
@@ -108,12 +167,53 @@ export async function action({ request }: ActionFunctionArgs) {
       )
     }
 
+    const maxAmountValue = parseFloat(maxAmount)
+    const budgetIdValue = parseInt(budgetId)
+
+    // Validate against PostgreSQL numeric limit
+    if (maxAmountValue > MAX_BUDGET_AMOUNT) {
+      return data(
+        {
+          error: `Maximum amount cannot exceed ${formatCurrency(MAX_BUDGET_AMOUNT)}`,
+          success: false,
+        },
+        { status: 400 }
+      )
+    }
+
+    // Get the current budget to calculate the difference
+    const currentBudget = existingBudgets.find((b) => b.id === budgetIdValue)
+    const currentAmount = currentBudget ? parseFloat(currentBudget.maximum) : 0
+    const diff = maxAmountValue - currentAmount
+
+    // Check if this budget exceeds the monthly income
+    if (maxAmountValue > monthlyIncome) {
+      return data(
+        {
+          error: `Budget cannot exceed your monthly income of ${formatCurrency(monthlyIncome)}`,
+          success: false,
+        },
+        { status: 400 }
+      )
+    }
+
+    // Check if this budget update would cause total budgets to exceed income
+    if (totalBudgeted + diff > monthlyIncome) {
+      return data(
+        {
+          error: `Updating this budget would exceed your monthly income. Current total: ${formatCurrency(totalBudgeted)}, Monthly income: ${formatCurrency(monthlyIncome)}`,
+          success: false,
+        },
+        { status: 400 }
+      )
+    }
+
     try {
       const budget = await updateBudget({
-        id: parseInt(budgetId),
+        id: budgetIdValue,
         userId,
         category,
-        maxAmount: parseFloat(maxAmount),
+        maxAmount: maxAmountValue,
         theme,
       })
       return data({ budget, success: true })
@@ -161,12 +261,21 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function BudgetsRoute() {
-  const { budgets, pots } = useLoaderData<{ budgets: Budget[]; pots: Pot[] }>()
+  const { budgets, pots, monthlyIncome } = useLoaderData<{
+    budgets: Budget[]
+    pots: Pot[]
+    monthlyIncome: number
+  }>()
   const actionData = useActionData<typeof action>()
 
   return (
     <div className='w-full mb-12 sm:my-[0px]'>
-      <Budgets budgets={budgets} pots={pots} actionData={actionData} />
+      <Budgets
+        budgets={budgets}
+        pots={pots}
+        monthlyIncome={monthlyIncome}
+        actionData={actionData}
+      />
     </div>
   )
 }

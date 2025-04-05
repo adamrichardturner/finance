@@ -73,20 +73,40 @@ export abstract class BudgetCommand<TParams>
  * Command for creating a new budget
  */
 export class CreateBudgetCommand extends BudgetCommand<CreateBudgetParams> {
-  private validateBudget(
-    params: CreateBudgetParams,
-    existingBudgets?: Budget[]
-  ): void {
-    if (existingBudgets) {
-      const normalizedNewCategory = params.category.toLowerCase().trim()
-      const isDuplicate = existingBudgets.some(
-        (budget) =>
-          budget.category.toLowerCase().trim() === normalizedNewCategory
-      )
+  validateBudget(params: CreateBudgetParams, existingBudgets?: Budget[]): void {
+    // Validate the budget name is not empty
+    if (!params.category.trim()) {
+      throw new Error('Budget category cannot be empty')
+    }
 
-      if (isDuplicate) {
+    // Validate that the category is not "Income"
+    if (params.category.toLowerCase() === 'income') {
+      throw new Error('Income cannot be used as a budget category')
+    }
+
+    // Validate the max amount is positive
+    if (params.maxAmount <= 0) {
+      throw new Error('Maximum amount must be positive')
+    }
+
+    // Validate the max amount is below PostgreSQL numeric limit (precision 10, scale 2)
+    const MAX_BUDGET_AMOUNT = 99999999.99
+    if (params.maxAmount > MAX_BUDGET_AMOUNT) {
+      throw new Error(
+        `Maximum amount cannot exceed ${MAX_BUDGET_AMOUNT.toLocaleString('en-GB')}`
+      )
+    }
+
+    // Check if a budget with this category already exists
+    if (existingBudgets && existingBudgets.length > 0) {
+      const existingBudget = existingBudgets.find(
+        (budget) =>
+          budget.category.toLowerCase().trim() ===
+          params.category.toLowerCase().trim()
+      )
+      if (existingBudget) {
         throw new Error(
-          `A budget for category "${params.category}" already exists`
+          `A budget for "${params.category}" already exists. Please choose a different category.`
         )
       }
     }
