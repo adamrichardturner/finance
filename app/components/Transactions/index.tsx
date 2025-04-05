@@ -65,6 +65,7 @@ export function Transactions() {
     renderTransactionAvatar,
     handleCategoryClick,
     handleSenderClick,
+    clearSearch,
   } = useTransactions()
 
   if (isLoading) {
@@ -264,10 +265,10 @@ export function Transactions() {
             {searchQuery && (
               <div
                 className='absolute right-8 top-1/2 -translate-y-1/2 cursor-pointer'
-                onClick={() => setSearchQuery('')}
+                onClick={clearSearch}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
-                    setSearchQuery('')
+                    clearSearch()
                   }
                 }}
                 tabIndex={0}

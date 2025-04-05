@@ -6,7 +6,8 @@ import { useTransactionFormatting } from './use-transaction-formatting'
 import { useTransactionNavigation } from './use-transaction-navigation'
 import { useTransactionGrouping } from './use-transaction-grouping'
 import { AppTransaction } from '~/utils/transform-data'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from '@remix-run/react'
 import {
   SortOption,
   TransactionFilterStrategy,
@@ -29,6 +30,7 @@ export interface UseTransactionsResult {
   addFilter: (filter: TransactionFilterStrategy) => void
   removeFilter: (filterName: string) => void
   clearFilters: () => void
+  clearSearch: () => void
 
   // Sorting state
   sortBy: SortOption
@@ -73,6 +75,9 @@ export function useTransactions(): UseTransactionsResult {
   // Base data fetching
   const { transactions, isLoading, error, categories } = useTransactionBase()
 
+  // Navigate function for URL updates
+  const navigate = useNavigate()
+
   // Filtering logic
   const {
     searchQuery,
@@ -80,8 +85,8 @@ export function useTransactions(): UseTransactionsResult {
     debouncedSearchQuery,
     category,
     setCategory,
-    urlSearchQuery,
-    setUrlSearchQuery,
+    updateUrlParams,
+    clearUrlSearch,
     filteredTransactions,
     filteredCount,
     activeFilters,
@@ -128,20 +133,18 @@ export function useTransactions(): UseTransactionsResult {
   const { handleCategoryClick, handleSenderClick } = useTransactionNavigation({
     setCategory,
     setSearchQuery,
-    setUrlSearchQuery,
+    clearUrlSearch,
   })
+
+  // Simple function to clear search
+  const clearSearch = () => {
+    clearUrlSearch() // This already clears the search query and updates the URL
+  }
 
   // Reset pagination when filter, sort, or group changes
   useEffect(() => {
     resetPagination()
-  }, [
-    category,
-    debouncedSearchQuery,
-    urlSearchQuery,
-    sortBy,
-    groupBy,
-    resetPagination,
-  ])
+  }, [category, debouncedSearchQuery, sortBy, groupBy, resetPagination])
 
   return {
     // Data and loading state
@@ -160,6 +163,7 @@ export function useTransactions(): UseTransactionsResult {
     addFilter,
     removeFilter,
     clearFilters,
+    clearSearch,
 
     // Sorting state
     sortBy,

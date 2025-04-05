@@ -21,9 +21,9 @@ export interface TransactionFiltersResult {
   category: string
   setCategory: (category: string) => void
 
-  // URL sync
-  urlSearchQuery: string | null
-  setUrlSearchQuery: (query: string | null) => void
+  // URL sync - simplified
+  updateUrlParams: () => void
+  clearUrlSearch: () => void
 
   // Filter results
   filteredTransactions: AppTransaction[]
@@ -54,36 +54,33 @@ export function useTransactionFilters({
     TransactionFilterStrategy[]
   >([])
 
-  // URL integration
-  const [searchParams, setSearchParams] = useSearchParams()
-  const urlSearchQuery = searchParams.get('q')
+  // URL integration - simplified
+  const [, setSearchParams] = useSearchParams()
 
-  // Sync URL search param with internal state
+  // Update URL when category or search changes
   useEffect(() => {
-    if (urlSearchQuery && urlSearchQuery !== searchQuery) {
-      setSearchQuery(urlSearchQuery)
-    }
-  }, [urlSearchQuery, searchQuery])
+    // Build URL params based on current state
+    const params = new URLSearchParams()
 
-  // Set URL search param
-  const setUrlSearchQuery = useCallback(
-    (query: string | null) => {
-      if (query) {
-        setSearchParams((prev) => {
-          const newParams = new URLSearchParams(prev.toString())
-          newParams.set('q', query)
-          return newParams
-        })
-      } else {
-        setSearchParams((prev) => {
-          const newParams = new URLSearchParams(prev.toString())
-          newParams.delete('q')
-          return newParams
-        })
-      }
-    },
-    [setSearchParams]
-  )
+    // Add category if not "all"
+    if (category !== 'all') {
+      params.set('category', category.toLowerCase())
+    }
+
+    // Add search query if present
+    if (searchQuery) {
+      params.set('search', searchQuery)
+    }
+
+    // Update URL with new params
+    setSearchParams(params, { replace: true })
+  }, [category, debouncedSearchQuery, setSearchParams])
+
+  // Simple function to clear search from URL
+  const clearUrlSearch = useCallback(() => {
+    setSearchQuery('')
+    // URL will be updated by the effect above
+  }, [])
 
   // Add a filter to active filters
   const addFilter = useCallback((filter: TransactionFilterStrategy) => {
@@ -108,8 +105,8 @@ export function useTransactionFilters({
     setActiveFilters([])
     setCategory('all')
     setSearchQuery('')
-    setUrlSearchQuery(null)
-  }, [setUrlSearchQuery])
+    clearUrlSearch()
+  }, [setActiveFilters, setCategory, setSearchQuery, clearUrlSearch])
 
   // Update active filters based on search query and category
   useEffect(() => {
@@ -165,9 +162,9 @@ export function useTransactionFilters({
     category,
     setCategory,
 
-    // URL sync
-    urlSearchQuery,
-    setUrlSearchQuery,
+    // URL sync - simplified
+    updateUrlParams: clearUrlSearch,
+    clearUrlSearch,
 
     // Filter results
     filteredTransactions,

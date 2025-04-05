@@ -9,7 +9,7 @@ export interface NavigationHandlers {
 export interface UseTransactionNavigationProps {
   setCategory: (category: string) => void
   setSearchQuery: (query: string) => void
-  setUrlSearchQuery: (query: string) => void
+  clearUrlSearch: () => void
 }
 
 export interface UseTransactionNavigationResult extends NavigationHandlers {
@@ -22,7 +22,7 @@ export interface UseTransactionNavigationResult extends NavigationHandlers {
 export function useTransactionNavigation({
   setCategory,
   setSearchQuery,
-  setUrlSearchQuery,
+  clearUrlSearch,
 }: UseTransactionNavigationProps): UseTransactionNavigationResult {
   const location = useLocation()
   const navigate = useNavigate()
@@ -38,24 +38,10 @@ export function useTransactionNavigation({
     }
 
     if (searchParam) {
-      // Update the URL search parameter state
-      setUrlSearchQuery(searchParam)
-
-      // Only update the input field if the query came from the input (not from clicking)
-      if (!location.state?.fromSenderClick) {
-        setSearchQuery(searchParam)
-      }
-    } else {
-      // Clear URL search query when removed from URL
-      setUrlSearchQuery('')
+      // Update the search query directly
+      setSearchQuery(searchParam)
     }
-  }, [
-    location.search,
-    location.state,
-    setCategory,
-    setSearchQuery,
-    setUrlSearchQuery,
-  ])
+  }, [location.search, setCategory, setSearchQuery])
 
   // Sync with URL when location changes
   useEffect(() => {
@@ -65,23 +51,25 @@ export function useTransactionNavigation({
   // Navigate to transactions filtered by category
   const handleCategoryClick = useCallback(
     (categoryName: string) => {
-      navigate(
-        `/transactions?category=${encodeURIComponent(categoryName.toLowerCase())}`
-      )
+      // First, set the category state
+      setCategory(categoryName.toLowerCase())
+
+      // Clear any existing search
+      setSearchQuery('')
     },
-    [navigate]
+    [setCategory, setSearchQuery]
   )
 
   // Navigate to transactions filtered by sender/recipient
   const handleSenderClick = useCallback(
     (senderName: string) => {
-      navigate(
-        `/transactions?search=${encodeURIComponent(senderName.toLowerCase())}`,
-        // Add state to indicate this navigation came from clicking a sender
-        { state: { fromSenderClick: true } }
-      )
+      // First, make sure we're looking at all categories
+      setCategory('all')
+
+      // Set the search query
+      setSearchQuery(senderName)
     },
-    [navigate]
+    [setCategory, setSearchQuery]
   )
 
   return {
