@@ -328,16 +328,22 @@ export function Transactions() {
               >
                 <SelectTrigger
                   id='category-filter'
-                  className='w-[180px] border text-[14px] border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'
+                  className='w-[180px] border text-[14px] border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md text-gray-800'
                 >
-                  <SelectValue placeholder='Category' />
+                  <SelectValue>
+                    {category === 'all'
+                      ? 'All Transactions'
+                      : categories.find(
+                          (cat) => cat.toLowerCase() === category
+                        )}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className='min-w-[180px] max-h-[300px] overflow-y-auto'>
                   <SelectItem value='all'>All Transactions</SelectItem>
                   {categories.map(
                     (cat: string) =>
                       cat !== 'All Transactions' && (
-                        <SelectItem key={cat} value={cat}>
+                        <SelectItem key={cat} value={cat.toLowerCase()}>
                           {cat}
                         </SelectItem>
                       )

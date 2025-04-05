@@ -49,7 +49,7 @@ export function useTransactionNavigation({
   // Navigate to transactions filtered by category
   const handleCategoryClick = useCallback(
     (categoryName: string) => {
-      // First, set the category state
+      // First, set the category state - ensure lowercase
       setCategory(categoryName.toLowerCase())
 
       // Clear any existing search

@@ -49,6 +49,11 @@ export function useTransactionFilters({
   // State for category filtering
   const [category, setCategory] = useState('all')
 
+  // Custom setCategory that forces lowercase
+  const setCategoryWithCase = useCallback((newCategory: string) => {
+    setCategory(newCategory.toLowerCase())
+  }, [])
+
   // State for active filters
   const [activeFilters, setActiveFilters] = useState<
     TransactionFilterStrategy[]
@@ -160,7 +165,7 @@ export function useTransactionFilters({
 
     // Category state
     category,
-    setCategory,
+    setCategory: setCategoryWithCase,
 
     // URL sync - simplified
     updateUrlParams: clearUrlSearch,
