@@ -2,27 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useFinancialData } from '../use-overview/use-financial-data'
 import { AppTransaction } from '~/utils/transform-data'
 import { Transaction } from '~/types/finance.types'
-import { processAvatarPath } from '~/utils/avatar-utils'
-
-function transformToAppTransaction(transaction: Transaction): AppTransaction {
-  return {
-    id:
-      transaction.id?.toString() || Math.random().toString(36).substring(2, 9),
-    date:
-      transaction.date instanceof Date
-        ? transaction.date.toISOString().split('T')[0]
-        : new Date(transaction.date).toISOString().split('T')[0],
-    description: transaction.name,
-    amount: transaction.amount,
-    type: transaction.amount > 0 ? 'income' : 'expense',
-    category: transaction.category,
-    avatar: processAvatarPath(transaction.avatar),
-    recurring: transaction.recurring,
-    dueDay: transaction.dueDay,
-    isPaid: transaction.isPaid,
-    isOverdue: transaction.isOverdue,
-  }
-}
+import { useFactories } from '~/factories'
 
 const fetchTransactionsFromJson = async () => {
   try {
@@ -48,36 +28,37 @@ const fetchTransactionsDirectly = async () => {
     return data.transactions || []
   } catch (err) {
     console.error('Error fetching transactions directly:', err)
-
     return []
   }
 }
 
 export function useTransactionsQuery() {
   const { financialData } = useFinancialData()
+  const { transactions: transactionFactory } = useFactories()
 
   return useQuery({
     queryKey: ['transactions'],
     queryFn: async () => {
+      // Process transactions from financial data first if available
       if (financialData?.transactions?.length > 0) {
-        return financialData.transactions.map(transformToAppTransaction)
+        return financialData.transactions.map((tx: Transaction) =>
+          transactionFactory.fromRaw(tx)
+        )
       }
 
+      // Try the API endpoint next
       const apiData = await fetchTransactionsDirectly()
       if (apiData && apiData.length > 0) {
-        return apiData.map(transformToAppTransaction)
+        return apiData.map((tx: Transaction) => transactionFactory.fromRaw(tx))
       }
 
+      // Fall back to JSON data
       const jsonData = await fetchTransactionsFromJson()
-      return jsonData.map(transformToAppTransaction)
+      return jsonData.map((tx: Transaction) => transactionFactory.fromRaw(tx))
     },
-
     enabled: true,
-
     staleTime: 5 * 60 * 1000,
-
     refetchOnWindowFocus: false,
-
     retry: 2,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
   })

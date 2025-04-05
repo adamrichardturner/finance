@@ -14,6 +14,7 @@ import { THEME_COLORS, getAvailableCategories } from '~/utils/budget-categories'
 import { Budget } from '~/types/finance.types'
 import isEqual from 'lodash/isEqual'
 import { ColorSelect } from '~/components/ui/color-select'
+import { useFactories } from '~/factories'
 
 interface BudgetFormValues {
   category: string
@@ -51,6 +52,7 @@ export function AddBudgetModal({
 
   const [error, setError] = useState<string | null>(null)
   const { createBudget } = useBudgetMutations()
+  const { budgets: budgetFactory } = useFactories()
 
   // Check if any fields have been modified from their initial state
   const hasChanges = useMemo(() => {
@@ -120,16 +122,14 @@ export function AddBudgetModal({
     }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  const validateForm = (): string | null => {
+    // Basic form validation
     if (
       !formState.current.category ||
       !formState.current.amount ||
       !formState.current.theme
     ) {
-      setError('Please fill in all fields')
-      return
+      return 'Please fill in all fields'
     }
 
     const normalizedSelectedCategory = formState.current.category
@@ -141,9 +141,33 @@ export function AddBudgetModal({
     )
 
     if (isDuplicate) {
-      setError(
-        `A budget for "${formState.current.category}" already exists. Please select a different category.`
-      )
+      return `A budget for "${formState.current.category}" already exists. Please select a different category.`
+    }
+
+    // Use the factory for additional validation
+    try {
+      // Create a temporary budget object for validation
+      const budgetToValidate = budgetFactory.create({
+        category: formState.current.category,
+        maxAmount: parseFloat(formState.current.amount),
+        theme: formState.current.theme,
+        userId: 'temporary', // Will be replaced by the server
+      })
+
+      // The factory will throw if validation fails, so if we reach here, it's valid
+      return null
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Invalid budget data'
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    // Validate the form using our validator
+    const validationError = validateForm()
+    if (validationError) {
+      setError(validationError)
       return
     }
 
@@ -152,6 +176,7 @@ export function AddBudgetModal({
         category: formState.current.category,
         maxAmount: parseFloat(formState.current.amount),
         theme: formState.current.theme,
+        userId: 'temp', // Will be replaced by the session user ID on the server
       })
       onClose()
     } catch (error) {

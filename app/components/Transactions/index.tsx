@@ -31,7 +31,7 @@ import { useTransactions } from '~/hooks/use-transactions/index'
 import { getThemeForCategory } from '~/utils/budget-categories'
 import { AppTransaction } from '~/utils/transform-data'
 import Pointer from '/assets/icons/Pointer.svg?url'
-import { SortOption } from '~/hooks/use-transactions/use-transaction-sorting'
+import { SortOption } from '~/strategies/transactions'
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
