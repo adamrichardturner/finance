@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from '@remix-run/react'
+import { useLocation } from '@remix-run/react'
 import { useEffect, useCallback } from 'react'
 
 export interface NavigationHandlers {
@@ -22,10 +22,8 @@ export interface UseTransactionNavigationResult extends NavigationHandlers {
 export function useTransactionNavigation({
   setCategory,
   setSearchQuery,
-  clearUrlSearch,
 }: UseTransactionNavigationProps): UseTransactionNavigationResult {
   const location = useLocation()
-  const navigate = useNavigate()
 
   // Sync component state with URL parameters
   const syncWithUrl = useCallback(() => {

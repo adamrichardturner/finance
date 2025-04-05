@@ -74,7 +74,7 @@ export function useTransactionFilters({
 
     // Update URL with new params
     setSearchParams(params, { replace: true })
-  }, [category, debouncedSearchQuery, setSearchParams])
+  }, [category, debouncedSearchQuery, searchQuery, setSearchParams])
 
   // Simple function to clear search from URL
   const clearUrlSearch = useCallback(() => {

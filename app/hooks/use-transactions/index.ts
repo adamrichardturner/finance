@@ -6,8 +6,7 @@ import { useTransactionFormatting } from './use-transaction-formatting'
 import { useTransactionNavigation } from './use-transaction-navigation'
 import { useTransactionGrouping } from './use-transaction-grouping'
 import { AppTransaction } from '~/utils/transform-data'
-import { useEffect, useState } from 'react'
-import { useNavigate } from '@remix-run/react'
+import { useEffect } from 'react'
 import {
   SortOption,
   TransactionFilterStrategy,
@@ -75,9 +74,6 @@ export function useTransactions(): UseTransactionsResult {
   // Base data fetching
   const { transactions, isLoading, error, categories } = useTransactionBase()
 
-  // Navigate function for URL updates
-  const navigate = useNavigate()
-
   // Filtering logic
   const {
     searchQuery,
@@ -85,7 +81,6 @@ export function useTransactions(): UseTransactionsResult {
     debouncedSearchQuery,
     category,
     setCategory,
-    updateUrlParams,
     clearUrlSearch,
     filteredTransactions,
     filteredCount,
