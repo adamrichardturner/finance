@@ -102,6 +102,8 @@ export function EditPotModal({
           name: value,
         },
       }))
+      // Clear error when user changes input
+      setError(null)
     }
   }
 
@@ -113,10 +115,14 @@ export function EditPotModal({
         target: value,
       },
     }))
+    // Clear error when user changes input
+    setError(null)
   }
 
   const handleAddFundsChange = (value: string, numericValue: number) => {
     setAddFundsValue(value)
+    // Clear error when user changes input
+    setError(null)
   }
 
   const handleThemeChange = (value: string) => {
@@ -127,7 +133,45 @@ export function EditPotModal({
         theme: value,
       },
     }))
+    // Clear error when user changes input
+    setError(null)
   }
+
+  // Check if form values are valid without showing error messages
+  const isFormValid = useMemo(() => {
+    if (
+      !formState.current.name ||
+      !formState.current.target ||
+      !formState.current.theme
+    ) {
+      return false
+    }
+
+    // Check if target is a valid number
+    const targetValue = parseFloat(formState.current.target)
+    if (isNaN(targetValue) || targetValue <= 0) {
+      return false
+    }
+
+    // Check if add funds is valid if provided
+    if (addFundsValue && addFundsValue !== '0') {
+      const fundsValue = parseFloat(addFundsValue)
+      if (isNaN(fundsValue) || fundsValue < 0) {
+        return false
+      }
+    }
+
+    return true
+  }, [formState.current, addFundsValue])
+
+  // Update button's disabled state
+  const isButtonDisabled = useMemo(() => {
+    return (
+      updatePot.isPending ||
+      !isFormValid ||
+      (!hasChanges && addFundsValue === '0')
+    )
+  }, [updatePot.isPending, isFormValid, hasChanges, addFundsValue])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -245,13 +289,7 @@ export function EditPotModal({
           <Button
             type='submit'
             className='w-full bg-black text-white hover:bg-black/90'
-            disabled={
-              updatePot.isPending ||
-              !formState.current.name ||
-              !formState.current.target ||
-              !formState.current.theme ||
-              !hasChanges
-            }
+            disabled={isButtonDisabled}
           >
             {updatePot.isPending ? 'Saving...' : 'Save Changes'}
           </Button>

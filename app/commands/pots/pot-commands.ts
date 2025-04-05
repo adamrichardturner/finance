@@ -57,12 +57,25 @@ export abstract class PotCommand<TParams>
     action: string,
     method: 'get' | 'post' | 'put' | 'patch' | 'delete' = 'post'
   ): Promise<PotCommandResult> {
-    const result = await this.submitFn(formData, {
-      method,
-      action,
-    })
+    try {
+      const result = await this.submitFn(formData, {
+        method,
+        action,
+      })
 
-    return result as PotCommandResult
+      // Ensure we always return a valid PotCommandResult
+      if (!result) {
+        return { error: 'No response received from server' }
+      }
+
+      return result as PotCommandResult
+    } catch (error) {
+      // Handle any errors in the submit function
+      if (error instanceof Error) {
+        return { error: error.message }
+      }
+      return { error: 'Failed to submit form' }
+    }
   }
 }
 
@@ -128,6 +141,11 @@ export class UpdatePotCommand extends PotCommand<UpdatePotParams> {
 export class DeletePotCommand extends PotCommand<DeletePotParams> {
   async execute(params: DeletePotParams): Promise<PotCommandResult> {
     try {
+      // Validate potId is a valid string that can be converted to a number
+      if (!params.potId || isNaN(Number(params.potId))) {
+        return { error: 'Invalid pot ID' }
+      }
+
       const formData = new FormData()
       formData.append('intent', 'delete')
       formData.append('potId', params.potId)

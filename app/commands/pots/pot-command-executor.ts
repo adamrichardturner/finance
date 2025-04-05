@@ -81,11 +81,22 @@ export class PotCommandExecutor {
   async delete(params: DeletePotParams): Promise<PotCommandResult> {
     this.isExecuting = true
     try {
+      // Validate the pot ID
+      if (!params.potId) {
+        return { error: 'Pot ID is required' }
+      }
+
       const result = await this.deleteCommand.execute(params)
+
+      // The result is already handled by the command's execute method
       if (!result.error) {
         this.commandHistory.push({ command: 'delete', params })
       }
+
       return result
+    } catch (error) {
+      // This should not happen since the command's execute method handles errors
+      return { error: 'Failed to delete pot' }
     } finally {
       this.isExecuting = false
     }

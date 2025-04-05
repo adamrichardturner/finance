@@ -15,7 +15,7 @@ export function DeletePotModal({
   isOpen,
   potId,
   onClose,
-  pots,
+  pots = [],
 }: DeletePotModalProps) {
   const [error, setError] = useState<string | null>(null)
   const { deletePot } = usePotMutations()
@@ -26,21 +26,27 @@ export function DeletePotModal({
   }
 
   const potName = useMemo(() => {
-    if (potId && pots) {
-      const pot = pots.find((p) => String(p.id) === potId)
-      return pot?.name || 'Savings'
+    if (!potId || pots.length === 0) {
+      return 'Savings'
     }
-    return 'Savings'
+
+    const pot = pots.find((p) => String(p.id) === potId)
+    return pot?.name || 'Savings'
   }, [potId, pots])
 
   const handleDelete = async () => {
     if (!potId) {
+      setError('Invalid pot ID')
       return
     }
 
+    setError(null)
+
     try {
       await deletePot.mutateAsync({ potId })
-      onClose()
+
+      // Explicitly close the modal after successful deletion
+      handleClose()
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message)

@@ -21,14 +21,35 @@ export const usePotMutations = () => {
   // Create the command executor with the submit function
   const commandExecutor = new PotCommandExecutor(
     useCallback(
-      (
+      async (
         formData: FormData,
         options: {
           method: 'get' | 'post' | 'put' | 'patch' | 'delete'
           action: string
         }
       ) => {
-        return fetcher.submit(formData, options) as unknown as Promise<unknown>
+        fetcher.submit(formData, options)
+
+        // Wait for the fetcher to complete
+        return new Promise((resolve) => {
+          const checkData = () => {
+            // If we have completed the submission and have data
+            if (fetcher.state === 'idle' && fetcher.data) {
+              resolve(fetcher.data)
+            } else if (fetcher.state === 'idle' && !fetcher.data) {
+              if (formData.get('intent') === 'delete') {
+                resolve({ success: true })
+              } else {
+                resolve({ error: 'No response received from server' })
+              }
+            } else {
+              // Otherwise wait and check again
+              setTimeout(checkData, 100)
+            }
+          }
+
+          checkData()
+        })
       },
       [fetcher]
     )
@@ -51,7 +72,7 @@ export const usePotMutations = () => {
         if (result.error) {
           throw new Error(result.error)
         }
-        return result
+        return { ...result, success: true }
       } catch (error) {
         if (error instanceof Error) {
           throw error
@@ -89,7 +110,7 @@ export const usePotMutations = () => {
         if (result.error) {
           throw new Error(result.error)
         }
-        return result
+        return { ...result, success: true }
       } catch (error) {
         if (error instanceof Error) {
           throw error
@@ -107,11 +128,18 @@ export const usePotMutations = () => {
     mutateAsync: async (data: DeletePotParams) => {
       setIsPending(true)
       try {
+        if (!data.potId) {
+          throw new Error('Pot ID is required')
+        }
+
         const result = await commandExecutor.delete(data)
+
+        // Don't check for undefined result since commandExecutor.delete now handles that case
         if (result.error) {
           throw new Error(result.error)
         }
-        return result
+
+        return { success: true }
       } catch (error) {
         if (error instanceof Error) {
           throw error
@@ -138,7 +166,7 @@ export const usePotMutations = () => {
         if (result.error) {
           throw new Error(result.error)
         }
-        return result
+        return { ...result, success: true }
       } catch (error) {
         if (error instanceof Error) {
           throw error
@@ -165,7 +193,7 @@ export const usePotMutations = () => {
         if (result.error) {
           throw new Error(result.error)
         }
-        return result
+        return { ...result, success: true }
       } catch (error) {
         if (error instanceof Error) {
           throw error

@@ -80,6 +80,8 @@ export function AddPotModal({
           name: value,
         },
       }))
+      // Clear error when user changes input
+      setError(null)
     }
   }
 
@@ -91,6 +93,8 @@ export function AddPotModal({
         target: value,
       },
     }))
+    // Clear error when user changes input
+    setError(null)
   }
 
   const handleThemeChange = (value: string) => {
@@ -101,7 +105,33 @@ export function AddPotModal({
         theme: value,
       },
     }))
+    // Clear error when user changes input
+    setError(null)
   }
+
+  // Check if form values are valid without showing error messages
+  const isFormValid = useMemo(() => {
+    if (
+      !formState.current.name ||
+      !formState.current.target ||
+      !formState.current.theme
+    ) {
+      return false
+    }
+
+    // Check if target is a valid number
+    const targetValue = parseFloat(formState.current.target)
+    if (isNaN(targetValue) || targetValue <= 0) {
+      return false
+    }
+
+    return true
+  }, [formState.current])
+
+  // Update button's disabled state
+  const isButtonDisabled = useMemo(() => {
+    return createPot.isPending || !isFormValid || !hasChanges
+  }, [createPot.isPending, isFormValid, hasChanges])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -199,13 +229,7 @@ export function AddPotModal({
           <Button
             type='submit'
             className='w-full bg-black text-white hover:bg-black/90'
-            disabled={
-              createPot.isPending ||
-              !formState.current.name ||
-              !formState.current.target ||
-              !formState.current.theme ||
-              !hasChanges
-            }
+            disabled={isButtonDisabled}
           >
             {createPot.isPending ? 'Creating...' : 'Add Pot'}
           </Button>

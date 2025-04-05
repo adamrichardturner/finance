@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Button } from '../ui/button'
 import { PotCard } from './PotCard'
 import { AddPotModal } from './AddPotModal'
@@ -36,6 +36,19 @@ export function Pots({
   const [deleteModal, setDeleteModal] = useState<PotModalState>({
     isOpen: false,
   })
+
+  // Close modals when action is successful
+  useEffect(() => {
+    if (actionData?.success) {
+      // Close any open modals upon successful action
+      setAddModalOpen(false)
+      setEditModal({ isOpen: false })
+
+      // For delete modals, we now handle the closing in the DeletePotModal component
+      // so we don't need to close it here based on actionData
+      // This prevents trying to access a deleted pot
+    }
+  }, [actionData])
 
   const handleOpenAddModal = useCallback(() => setAddModalOpen(true), [])
   const handleCloseAddModal = useCallback(() => setAddModalOpen(false), [])
