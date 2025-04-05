@@ -11,7 +11,7 @@ import {
 } from '../ui/select'
 import { Pot } from '~/types/finance.types'
 import { THEME_COLORS } from '~/utils/budget-categories'
-import { usePotMutations } from '~/hooks/use-pot-mutations'
+import { usePotMutations } from '~/hooks/use-pots/use-pot-mutations'
 import { ColorSelect } from '~/components/ui/color-select'
 import isEqual from 'lodash/isEqual'
 

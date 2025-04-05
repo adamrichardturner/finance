@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
-import { useBudgetMutations } from '~/hooks/use-budget-mutations'
+import { useBudgetMutations } from '~/hooks/use-budgets/use-budget-mutations'
 import { THEME_COLORS, getAvailableCategories } from '~/utils/budget-categories'
 import { Budget } from '~/types/finance.types'
 import isEqual from 'lodash/isEqual'

@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { Pot } from '~/types/finance.types'
-import { usePotMutations } from '~/hooks/use-pot-mutations'
+import { usePotMutations } from '~/hooks/use-pots/use-pot-mutations'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
 
