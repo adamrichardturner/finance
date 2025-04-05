@@ -1,6 +1,4 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import Pointer from '../../../assets/icons/Pointer.svg?url'
-import PiggyBank from '../../../assets/icons/PiggyBank.svg?url'
 import { Pot } from '~/types/finance.types'
 import { transformPotsToOverview } from '~/transformers/potTransformer'
 
@@ -26,7 +24,11 @@ const Pots: React.FC<PotsProps> = ({ pots }) => {
         <div className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors items-center flex flex-row gap-1'>
           See Details
           <span>
-            <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2 ml-2`} />
+            <img
+              src='/assets/icons/Pointer.svg'
+              alt='Pointer Icon'
+              className={`h-2 w-2 ml-2`}
+            />
           </span>
         </div>
       </CardHeader>
@@ -55,7 +57,7 @@ export const PotTotal: React.FC<PotTotal> = ({ total }) => {
     <div className='p-4 bg-[#F8F4F0] flex items-center w-full sm:w-full rounded-lg'>
       <div>
         <img
-          src={PiggyBank}
+          src='/assets/icons/PiggyBank.svg'
           alt='Piggy Bank'
           className={`h-[40px] w-[40px] mb-1`}
         />

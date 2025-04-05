@@ -22,8 +22,6 @@ import {
   SheetClose,
 } from '~/components/ui/sheet'
 import { Button } from '~/components/ui/button'
-import BillsDark from '../../assets/icons/BillsDark.svg?url'
-import BillsLight from '../../assets/icons/BillsLight.svg?url'
 import debounce from 'lodash/debounce'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -48,13 +46,17 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState('latest')
 
-  const debouncedSearch = useCallback(
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    debounce(function updateDebouncedSearch(value: string) {
-      setDebouncedSearchTerm(value)
-    }, 200),
-    [setDebouncedSearchTerm]
-  )
+  const debouncedSearch = useCallback((value: string) => {
+    const handler = debounce((searchValue: string) => {
+      setDebouncedSearchTerm(searchValue)
+    }, 200)
+
+    handler(value)
+
+    return () => {
+      handler.cancel()
+    }
+  }, [])
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
@@ -109,7 +111,11 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
             <CardContent className='p-0 flex flex-col justify-between h-full'>
               <div className='mb-4'>
                 <div className='w-12 h-12 bg-transparent mb-6'>
-                  <img src={BillsLight} alt='Bills' className='w-10 h-10' />
+                  <img
+                    src='/assets/icons/BillsLight.svg'
+                    alt='Bills'
+                    className='w-10 h-10'
+                  />
                 </div>
                 <div>
                   <p className='text-base text-white mb-2'>Total Bills</p>
@@ -199,7 +205,7 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
                     <SheetTrigger asChild>
                       <div className='w-8 h-8 flex items-center justify-center cursor-pointer'>
                         <img
-                          src={BillsDark}
+                          src='/assets/icons/BillsDark.svg'
                           alt='Sort bills'
                           className='w-6 h-6'
                         />

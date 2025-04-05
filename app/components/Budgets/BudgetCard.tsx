@@ -11,7 +11,6 @@ import { EllipsisIcon } from '../ui/icons/EllipsisIcon'
 import { Progress } from '../ui/progress'
 import { useNavigate } from '@remix-run/react'
 import { getThemeForCategory } from '~/utils/budget-categories'
-import Pointer from '../../../assets/icons/Pointer.svg?url'
 
 interface BudgetCardProps {
   budget: Budget
@@ -147,7 +146,11 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
               >
                 See All
                 <span className='ml-2'>
-                  <img src={Pointer} alt='Pointer Icon' className='h-2 w-2' />
+                  <img
+                    src='/assets/icons/Pointer.svg'
+                    alt='Pointer Icon'
+                    className='h-2 w-2'
+                  />
                 </span>
               </span>
             </div>

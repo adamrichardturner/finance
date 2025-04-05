@@ -30,7 +30,6 @@ import { Button } from '~/components/ui/button'
 import { useTransactions } from '~/hooks/use-transactions/index'
 import { getThemeForCategory } from '~/utils/budget-categories'
 import { AppTransaction } from '~/utils/transform-data'
-import Pointer from '../../assets/icons/Pointer.svg?url'
 import { SortOption } from '~/strategies/transactions'
 
 const itemVariants = {
@@ -232,7 +231,11 @@ export function Transactions() {
             >
               View all transactions
               <span className='ml-2'>
-                <img src={Pointer} alt='Pointer Icon' className='h-2 w-2' />
+                <img
+                  src='/assets/icons/Pointer.svg'
+                  alt='Pointer Icon'
+                  className='h-2 w-2'
+                />
               </span>
             </span>
           )}

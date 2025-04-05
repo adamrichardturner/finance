@@ -65,4 +65,11 @@ export default defineConfig({
       '~': path.resolve(__dirname, './app'),
     },
   },
+  // Add explicit handling for SVG URL imports
+  assetsInclude: ['**/*.svg'],
+  css: {
+    preprocessorOptions: {
+      // Add any CSS preprocessor options if needed
+    },
+  },
 })

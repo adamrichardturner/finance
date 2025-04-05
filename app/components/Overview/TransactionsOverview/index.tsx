@@ -1,5 +1,4 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import Pointer from '../../../assets/icons/Pointer.svg?url'
 import { formatDistanceToNow, format, isAfter, subMonths } from 'date-fns'
 import { AppTransaction } from '~/utils/transform-data'
 import React, { useMemo } from 'react'
@@ -86,7 +85,11 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
         >
           View All
           <span>
-            <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2 ml-2`} />
+            <img
+              src='/assets/icons/Pointer.svg'
+              alt='Pointer Icon'
+              className={`h-2 w-2 ml-2`}
+            />
           </span>
         </div>
       </CardHeader>

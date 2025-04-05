@@ -1,5 +1,4 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import Pointer from '../../../assets/icons/Pointer.svg?url'
 import { AppTransaction } from '~/utils/transform-data'
 import { useNavigate } from '@remix-run/react'
 import { useMemo } from 'react'
@@ -114,7 +113,11 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
         >
           See Details
           <span className='flex items-center'>
-            <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2 ml-2`} />
+            <img
+              src='/assets/icons/Pointer.svg'
+              alt='Pointer Icon'
+              className={`h-2 w-2 ml-2`}
+            />
           </span>
         </div>
       </CardHeader>

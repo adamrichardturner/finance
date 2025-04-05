@@ -1,5 +1,4 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import Pointer from '../../../assets/icons/Pointer.svg?url'
 import { ChartTooltipContent } from '~/components/ui/charts'
 import { Budget } from '~/types/finance.types'
 import { transformBudgetsToChart } from '~/transformers/budgetTransformer'
@@ -49,7 +48,7 @@ const ChartContent = ({
     return (
       <div className='w-full h-full flex items-center justify-center'>
         <img
-          src={`/assets/icons/LoadingAnimation.svg?t=${Date.now()}`}
+          src='/assets/icons/LoadingAnimation.svg'
           alt='Loading chart'
           className='w-16 h-16 absolute'
         />
@@ -111,7 +110,34 @@ export function BudgetPieChart({
     return transformBudgetsToChart(budgets)
   }, [budgets])
 
-  const { chartData: allChartData, formattedTotal } = chartDataMemo
+  // Define specific types for the two possible return values
+  type ChartDataResult = {
+    chartData: ChartDataItem[]
+    total: number
+    formattedTotal: string
+  }
+
+  type EmptyChartDataResult = {
+    allChartData: ChartDataItem[]
+    formattedTotal: string
+  }
+
+  // Use type guard to safely access chartData
+  const allChartData = useMemo(() => {
+    // Define the type guard function inside the useMemo callback
+    const hasChartData = (
+      data: ChartDataResult | EmptyChartDataResult
+    ): data is ChartDataResult => {
+      return 'chartData' in data
+    }
+
+    if (hasChartData(chartDataMemo)) {
+      return chartDataMemo.chartData
+    }
+    return chartDataMemo.allChartData || []
+  }, [chartDataMemo])
+
+  const { formattedTotal } = chartDataMemo
 
   const chartData = useMemo(() => {
     if (!allChartData || allChartData.length === 0) {
@@ -161,7 +187,7 @@ export function BudgetPieChart({
 
   const BudgetItems = () => (
     <>
-      {chartData.map((category, index) => (
+      {chartData.map((category: ChartDataItem, index: number) => (
         <div key={index} className='flex items-center sm:justify-end gap-4'>
           <div
             className='w-1 h-[40px] rounded-full'
@@ -187,7 +213,7 @@ export function BudgetPieChart({
           fallback={
             <div className='w-full h-full flex items-center justify-center'>
               <img
-                src={`/assets/icons/LoadingAnimation.svg?t=${Date.now()}`}
+                src='/assets/icons/LoadingAnimation.svg'
                 alt='Loading chart'
                 className='w-16 h-16'
               />
@@ -239,7 +265,11 @@ export function BudgetPieChart({
         >
           See Details
           <span className='flex items-center'>
-            <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2 ml-2`} />
+            <img
+              src='/assets/icons/Pointer.svg'
+              alt='Pointer Icon'
+              className={`h-2 w-2 ml-2`}
+            />
           </span>
         </div>
       </CardHeader>
