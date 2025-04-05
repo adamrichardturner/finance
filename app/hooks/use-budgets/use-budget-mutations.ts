@@ -58,45 +58,48 @@ export function useBudgetMutations() {
           // Submit the form
           fetcher.submit(formData, options)
 
-          // Create a checker function to see when data is available
-          const checkData = () => {
-            // Only check when the fetcher is idle
-            if (fetcher.state !== 'idle') {
-              return false
+          // Track if we've resolved the promise
+          let hasResolved = false
+
+          // Create a function to resolve with data
+          const resolveWithData = () => {
+            if (hasResolved) {
+              return
             }
 
-            // Log data to help with debugging
-            console.log('Fetcher data:', fetcher.data)
+            hasResolved = true
 
-            // We have data - no matter what, consider it a success
-            if (fetcher.data) {
-              resolve({
-                ...fetcher.data,
-                success: true,
-              })
-              return true
-            }
+            // For debugging
+            console.log('Fetcher state:', fetcher.state, 'data:', fetcher.data)
 
-            // No data case
-            resolve({
-              error: 'No response received from server',
-              success: false,
-            })
-            return true
+            // Success case: resolve with data
+            resolve(fetcher.data || { success: true })
           }
 
-          // Set up an interval to check
-          const intervalId = setInterval(() => {
-            if (checkData()) {
-              clearInterval(intervalId)
+          // Create a function to resolve with error
+          const resolveWithError = (errorMsg: string) => {
+            if (hasResolved) {
+              return
+            }
+
+            hasResolved = true
+            console.error(errorMsg)
+            resolve({ error: errorMsg, success: false })
+          }
+
+          // Use an interval to check when the fetcher is idle
+          const checkInterval = setInterval(() => {
+            if (fetcher.state === 'idle') {
+              clearInterval(checkInterval)
+              resolveWithData()
             }
           }, 100)
 
           // Set a timeout to prevent hanging
           setTimeout(() => {
-            clearInterval(intervalId)
-            if (fetcher.state !== 'idle') {
-              resolve({ error: 'Request timeout', success: false })
+            if (!hasResolved) {
+              clearInterval(checkInterval)
+              resolveWithError('Request timed out')
             }
           }, 5000)
         })
@@ -134,7 +137,10 @@ export function useBudgetMutations() {
           existingBudgets
         )
 
-        // Check for error in the result
+        // This logs whether we got a successful response
+        console.log('Create budget result:', result)
+
+        // Check for error and throw if needed
         if (
           result &&
           typeof result === 'object' &&
@@ -197,7 +203,10 @@ export function useBudgetMutations() {
           existingBudgets
         )
 
-        // Check for error in the result
+        // This logs whether we got a successful response
+        console.log('Update budget result:', result)
+
+        // Check for error and throw if needed
         if (
           result &&
           typeof result === 'object' &&
@@ -222,7 +231,10 @@ export function useBudgetMutations() {
       try {
         const result = await commandExecutor.delete(data)
 
-        // Check for error in the result
+        // This logs whether we got a successful response
+        console.log('Delete budget result:', result)
+
+        // Check for error and throw if needed
         if (
           result &&
           typeof result === 'object' &&

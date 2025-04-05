@@ -106,12 +106,12 @@ export class CreateBudgetCommand extends BudgetCommand<CreateBudgetParams> {
       formData.append('theme', params.theme)
 
       const result = await this.submitForm(formData, '/budgets')
-      return result || { error: 'Failed to create budget' }
+      return result || { success: true }
     } catch (error) {
       if (error instanceof Error) {
-        return { error: error.message }
+        return { error: error.message, success: false }
       }
-      return { error: 'An unknown error occurred' }
+      return { error: 'An unknown error occurred', success: false }
     }
   }
 }
@@ -164,12 +164,12 @@ export class UpdateBudgetCommand extends BudgetCommand<UpdateBudgetParams> {
       formData.append('theme', params.theme)
 
       const result = await this.submitForm(formData, '/budgets')
-      return result || { error: 'Failed to update budget' }
+      return result || { success: true }
     } catch (error) {
       if (error instanceof Error) {
-        return { error: error.message }
+        return { error: error.message, success: false }
       }
-      return { error: 'An unknown error occurred' }
+      return { error: 'An unknown error occurred', success: false }
     }
   }
 }
@@ -185,18 +185,7 @@ export class DeleteBudgetCommand extends BudgetCommand<DeleteBudgetParams> {
       formData.append('budgetId', params.budgetId)
 
       const result = await this.submitForm(formData, '/budgets')
-
-      // Properly handle successful deletion
-      if (result && typeof result === 'object' && 'success' in result) {
-        return result
-      }
-
-      // If we don't have a specific success marker but no error, assume success
-      if (result && (!result || !('error' in result))) {
-        return { success: true }
-      }
-
-      return result || { error: 'Failed to delete budget', success: false }
+      return result || { success: true }
     } catch (error) {
       if (error instanceof Error) {
         return { error: error.message, success: false }
