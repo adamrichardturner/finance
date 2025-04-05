@@ -173,39 +173,38 @@ export function EditPotModal({
     )
   }, [updatePot.isPending, isFormValid, hasChanges, addFundsValue])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  const handleSubmit = async () => {
     if (!potId) {
       return
     }
 
-    if (
-      !formState.current.name ||
-      !formState.current.target ||
-      !formState.current.theme
-    ) {
-      setError('Please fill in all fields')
-      return
-    }
+    setIsSubmitting(true)
+    setError(null)
 
     try {
-      const parsedAddFunds = addFundsValue ? parseFloat(addFundsValue) : 0
-
-      await updatePot.mutateAsync({
+      // Include add funds if provided and valid
+      const updateData: CommandUpdatePotParams = {
         potId,
         name: formState.current.name,
         target: parseFloat(formState.current.target),
         theme: formState.current.theme,
-        addFunds: parsedAddFunds > 0 ? parsedAddFunds : undefined,
-      })
-      handleClose()
+      }
+
+      if (addFundsValue > 0) {
+        updateData.addFunds = parseFloat(addFundsValue)
+      }
+
+      await updatePot.mutateAsync(updateData)
+      // Close modal immediately on success instead of waiting for parent to close it
+      onClose()
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message)
       } else {
-        setError('Failed to update pot')
+        setError('An unknown error occurred')
       }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 

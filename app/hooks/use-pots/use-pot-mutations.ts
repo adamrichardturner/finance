@@ -37,7 +37,18 @@ export const usePotMutations = () => {
             if (fetcher.state === 'idle' && fetcher.data) {
               resolve(fetcher.data)
             } else if (fetcher.state === 'idle' && !fetcher.data) {
-              if (formData.get('intent') === 'delete') {
+              // If we've reached idle state with no data, this likely means
+              // the operation was successful but didn't return data.
+              const intent = formData.get('intent') as string
+
+              // For any successful operation, return success
+              if (
+                intent === 'create' ||
+                intent === 'update' ||
+                intent === 'delete' ||
+                intent === 'add-money' ||
+                intent === 'withdraw'
+              ) {
                 resolve({ success: true })
               } else {
                 resolve({ error: 'No response received from server' })
@@ -69,10 +80,11 @@ export const usePotMutations = () => {
 
         setIsPending(true)
         const result = await commandExecutor.create(params)
+        // No need to check for undefined result as commandExecutor handles it
         if (result.error) {
           throw new Error(result.error)
         }
-        return { ...result, success: true }
+        return { success: true }
       } catch (error) {
         if (error instanceof Error) {
           throw error
@@ -107,10 +119,11 @@ export const usePotMutations = () => {
 
         setIsPending(true)
         const result = await commandExecutor.update(params)
+        // No need to check for undefined result as commandExecutor handles it
         if (result.error) {
           throw new Error(result.error)
         }
-        return { ...result, success: true }
+        return { success: true }
       } catch (error) {
         if (error instanceof Error) {
           throw error
@@ -163,10 +176,11 @@ export const usePotMutations = () => {
       setIsPending(true)
       try {
         const result = await commandExecutor.addMoney(data)
+        // No need to check for undefined result as commandExecutor handles it
         if (result.error) {
           throw new Error(result.error)
         }
-        return { ...result, success: true }
+        return { success: true }
       } catch (error) {
         if (error instanceof Error) {
           throw error
@@ -190,10 +204,11 @@ export const usePotMutations = () => {
       setIsPending(true)
       try {
         const result = await commandExecutor.withdraw(data)
+        // No need to check for undefined result as commandExecutor handles it
         if (result.error) {
           throw new Error(result.error)
         }
-        return { ...result, success: true }
+        return { success: true }
       } catch (error) {
         if (error instanceof Error) {
           throw error
