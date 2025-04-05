@@ -13,6 +13,9 @@ const initialFinancialData: FinancialData = {
   bills: [],
 }
 
+/**
+ * Fetches all financial data from the API
+ */
 async function fetchFinancialData(): Promise<FinancialData> {
   const response = await fetch('/api/financial-data')
 
@@ -24,15 +27,17 @@ async function fetchFinancialData(): Promise<FinancialData> {
   return data
 }
 
+/**
+ * Hook for fetching combined financial data
+ * (balance, transactions, budgets, pots, and bills)
+ */
 export function useFinancialData() {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['financialData'],
     queryFn: fetchFinancialData,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
-
     placeholderData: initialFinancialData,
-
     retry: 3,
     retryDelay: (attempt: number) =>
       Math.min(attempt > 1 ? 2 ** attempt * 1000 : 1000, 30 * 1000),
@@ -47,5 +52,6 @@ export function useFinancialData() {
         : error
           ? new Error('Unknown error')
           : null,
+    refetch,
   }
 }

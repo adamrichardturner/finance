@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { Budget } from '~/types/finance.types'
 
-export function useBudgets() {
+/**
+ * Hook for fetching budget data
+ */
+export function useBudgetsData() {
   return useQuery({
     queryKey: ['budgets'],
     queryFn: async () => {

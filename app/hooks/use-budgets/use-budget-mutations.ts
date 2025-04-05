@@ -1,6 +1,6 @@
 import { useFetcher } from '@remix-run/react'
 import { Budget } from '~/types/finance.types'
-import { useBudgets } from './use-budgets'
+import { useBudgetsData } from './use-budgets-data'
 
 interface CreateBudgetParams {
   category: string
@@ -21,7 +21,7 @@ interface DeleteBudgetParams {
 
 export function useBudgetMutations() {
   const fetcher = useFetcher()
-  const { data: existingBudgets } = useBudgets()
+  const { data: existingBudgets } = useBudgetsData()
 
   const createBudget = {
     mutateAsync: async (data: CreateBudgetParams) => {

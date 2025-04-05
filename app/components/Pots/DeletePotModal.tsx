@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
-import { usePotMutations } from '~/hooks/use-pot-mutations'
+import { usePotMutations } from '~/hooks/use-pots/use-pot-mutations'
 import { Pot } from '~/types/finance.types'
 
 interface DeletePotModalProps {

@@ -27,10 +27,11 @@ import {
   SheetClose,
 } from '~/components/ui/sheet'
 import { Button } from '~/components/ui/button'
-import { useTransactions } from '~/hooks/use-transactions'
+import { useTransactions } from '~/hooks/use-transactions/index'
 import { getThemeForCategory } from '~/utils/budget-categories'
 import { AppTransaction } from '~/utils/transform-data'
 import Pointer from '/assets/icons/Pointer.svg?url'
+import { SortOption } from '~/hooks/use-transactions/use-transaction-sorting'
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -268,7 +269,7 @@ export function Transactions() {
               <Select
                 value={sortBy}
                 onValueChange={(value) => {
-                  setSortBy(value)
+                  setSortBy(value as SortOption)
                   setSearchQuery('')
                 }}
               >
@@ -347,7 +348,7 @@ export function Transactions() {
                         }
                         className='w-full justify-start text-sm h-[38px]'
                         onClick={() => {
-                          setSortBy(option.value)
+                          setSortBy(option.value as SortOption)
                           setSearchQuery('')
                         }}
                       >

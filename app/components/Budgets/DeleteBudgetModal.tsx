@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
-import { useFinancialData } from '~/hooks/use-financial-data'
-import { useBudgetMutations } from '~/hooks/use-budget-mutations'
+import { useFinancialData } from '~/hooks/use-overview/use-financial-data'
+import { useBudgetMutations } from '~/hooks/use-budgets/use-budget-mutations'
 
 interface DeleteBudgetModalProps {
   isOpen: boolean
