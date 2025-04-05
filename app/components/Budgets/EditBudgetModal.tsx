@@ -189,7 +189,7 @@ export function EditBudgetModal({
     }
 
     try {
-      console.log('Updating budget with theme:', formState.current.theme)
+      setError(null)
       await updateBudget.mutateAsync({
         id: parseInt(budgetId),
         category: formState.current.category,
@@ -197,13 +197,14 @@ export function EditBudgetModal({
         theme: formState.current.theme,
         userId: 'temp', // Will be replaced by the session user ID on the server
       })
+
+      // Always close the modal after server responds (successful)
       onClose()
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message)
-      } else {
-        setError('Failed to update budget')
-      }
+      // Only in case of errors, we keep the modal open
+      const message =
+        error instanceof Error ? error.message : 'Failed to update budget'
+      setError(message)
     }
   }
 

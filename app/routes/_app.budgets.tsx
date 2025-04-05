@@ -48,12 +48,15 @@ export async function action({ request }: ActionFunctionArgs) {
     const theme = formData.get('theme')
 
     if (typeof category !== 'string' || typeof maxAmount !== 'string') {
-      return data({ error: 'Invalid form data' }, { status: 400 })
+      return data(
+        { error: 'Invalid form data', success: false },
+        { status: 400 }
+      )
     }
 
     if (category.toLowerCase() === 'income') {
       return data(
-        { error: 'Income cannot be used as a budget category' },
+        { error: 'Income cannot be used as a budget category', success: false },
         { status: 400 }
       )
     }
@@ -68,12 +71,15 @@ export async function action({ request }: ActionFunctionArgs) {
         maxAmount: parseFloat(maxAmount),
         theme: themeColor,
       })
-      return data({ budget })
+      return data({ budget, success: true })
     } catch (error) {
       if (error instanceof Error && error.message.includes('already exists')) {
-        return data({ error: error.message }, { status: 400 })
+        return data({ error: error.message, success: false }, { status: 400 })
       }
-      return data({ error: 'Failed to create budget' }, { status: 500 })
+      return data(
+        { error: 'Failed to create budget', success: false },
+        { status: 500 }
+      )
     }
   }
 
@@ -89,12 +95,15 @@ export async function action({ request }: ActionFunctionArgs) {
       typeof maxAmount !== 'string' ||
       typeof theme !== 'string'
     ) {
-      return data({ error: 'Invalid form data' }, { status: 400 })
+      return data(
+        { error: 'Invalid form data', success: false },
+        { status: 400 }
+      )
     }
 
     if (category.toLowerCase() === 'income') {
       return data(
-        { error: 'Income cannot be used as a budget category' },
+        { error: 'Income cannot be used as a budget category', success: false },
         { status: 400 }
       )
     }
@@ -107,17 +116,23 @@ export async function action({ request }: ActionFunctionArgs) {
         maxAmount: parseFloat(maxAmount),
         theme,
       })
-      return data({ budget })
+      return data({ budget, success: true })
     } catch (error) {
       if (error instanceof Error && error.message.includes('already exists')) {
-        return data({ error: error.message }, { status: 400 })
+        return data({ error: error.message, success: false }, { status: 400 })
       } else if (
         error instanceof Error &&
         error.message === 'Budget not found'
       ) {
-        return data({ error: 'Budget not found' }, { status: 404 })
+        return data(
+          { error: 'Budget not found', success: false },
+          { status: 404 }
+        )
       }
-      return data({ error: 'Failed to update budget' }, { status: 500 })
+      return data(
+        { error: 'Failed to update budget', success: false },
+        { status: 500 }
+      )
     }
   }
 
@@ -125,18 +140,24 @@ export async function action({ request }: ActionFunctionArgs) {
     const budgetId = formData.get('budgetId')
 
     if (typeof budgetId !== 'string') {
-      return data({ error: 'Invalid budget ID' }, { status: 400 })
+      return data(
+        { error: 'Invalid budget ID', success: false },
+        { status: 400 }
+      )
     }
 
     try {
       await deleteBudget({ id: parseInt(budgetId), userId })
       return data({ success: true })
     } catch (error) {
-      return data({ error: 'Failed to delete budget' }, { status: 500 })
+      return data(
+        { error: 'Failed to delete budget', success: false },
+        { status: 500 }
+      )
     }
   }
 
-  return data({ error: 'Invalid intent' }, { status: 400 })
+  return data({ error: 'Invalid intent', success: false }, { status: 400 })
 }
 
 export default function BudgetsRoute() {

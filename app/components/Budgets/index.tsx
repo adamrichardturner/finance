@@ -11,6 +11,7 @@ import PageTitle from '../PageTitle'
 interface BudgetModalState {
   isOpen: boolean
   budgetId?: string
+  budgetName?: string
 }
 
 interface BudgetsProps {
@@ -18,8 +19,8 @@ interface BudgetsProps {
   pots?: Pot[]
   actionData?: {
     error?: string
-    budget?: Budget
     success?: boolean
+    budget?: Budget
   }
 }
 
@@ -43,9 +44,18 @@ export function Budgets({ budgets, pots = [], actionData }: BudgetsProps) {
     setEditModal({ isOpen: false })
   }, [])
 
-  const handleOpenDeleteModal = useCallback((id: string) => {
-    setDeleteModal({ isOpen: true, budgetId: id })
-  }, [])
+  const handleOpenDeleteModal = useCallback(
+    (id: string) => {
+      // Find the budget with this ID to get its name
+      const budget = budgets.find((b) => String(b.id) === id)
+      setDeleteModal({
+        isOpen: true,
+        budgetId: id,
+        budgetName: budget?.category || 'Unknown',
+      })
+    },
+    [budgets]
+  )
 
   const handleCloseDeleteModal = useCallback(() => {
     setDeleteModal({ isOpen: false })
@@ -124,6 +134,7 @@ export function Budgets({ budgets, pots = [], actionData }: BudgetsProps) {
       <DeleteBudgetModal
         isOpen={deleteModal.isOpen}
         budgetId={deleteModal.budgetId}
+        budgetName={deleteModal.budgetName}
         onClose={handleCloseDeleteModal}
       />
     </div>

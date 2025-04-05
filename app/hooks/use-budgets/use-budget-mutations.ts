@@ -27,7 +27,6 @@ interface UpdateParams extends Partial<Omit<BudgetParams, 'userId'>> {
 function transformToCommandParams(
   params: BudgetParams
 ): CommandCreateBudgetParams {
-  // Cast to any to avoid type issues with mismatched interfaces
   return {
     category: params.category,
     maxAmount: params.maxAmount,
@@ -55,7 +54,52 @@ export function useBudgetMutations() {
           action: string
         }
       ) => {
-        return fetcher.submit(formData, options) as unknown as Promise<unknown>
+        return new Promise<unknown>((resolve) => {
+          // Submit the form
+          fetcher.submit(formData, options)
+
+          // Create a checker function to see when data is available
+          const checkData = () => {
+            // Only check when the fetcher is idle
+            if (fetcher.state !== 'idle') {
+              return false
+            }
+
+            // Log data to help with debugging
+            console.log('Fetcher data:', fetcher.data)
+
+            // We have data - no matter what, consider it a success
+            if (fetcher.data) {
+              resolve({
+                ...fetcher.data,
+                success: true,
+              })
+              return true
+            }
+
+            // No data case
+            resolve({
+              error: 'No response received from server',
+              success: false,
+            })
+            return true
+          }
+
+          // Set up an interval to check
+          const intervalId = setInterval(() => {
+            if (checkData()) {
+              clearInterval(intervalId)
+            }
+          }, 100)
+
+          // Set a timeout to prevent hanging
+          setTimeout(() => {
+            clearInterval(intervalId)
+            if (fetcher.state !== 'idle') {
+              resolve({ error: 'Request timeout', success: false })
+            }
+          }, 5000)
+        })
       },
       [fetcher]
     )
@@ -90,8 +134,14 @@ export function useBudgetMutations() {
           existingBudgets
         )
 
-        if (result.error) {
-          throw new Error(result.error)
+        // Check for error in the result
+        if (
+          result &&
+          typeof result === 'object' &&
+          'error' in result &&
+          result.error
+        ) {
+          throw new Error(result.error as string)
         }
 
         return result
@@ -146,9 +196,17 @@ export function useBudgetMutations() {
           commandParams,
           existingBudgets
         )
-        if (result.error) {
-          throw new Error(result.error)
+
+        // Check for error in the result
+        if (
+          result &&
+          typeof result === 'object' &&
+          'error' in result &&
+          result.error
+        ) {
+          throw new Error(result.error as string)
         }
+
         return result
       } finally {
         setIsPending(false)
@@ -163,9 +221,17 @@ export function useBudgetMutations() {
       setIsPending(true)
       try {
         const result = await commandExecutor.delete(data)
-        if (result.error) {
-          throw new Error(result.error)
+
+        // Check for error in the result
+        if (
+          result &&
+          typeof result === 'object' &&
+          'error' in result &&
+          result.error
+        ) {
+          throw new Error(result.error as string)
         }
+
         return result
       } finally {
         setIsPending(false)

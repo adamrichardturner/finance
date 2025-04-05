@@ -50,12 +50,22 @@ export abstract class BudgetCommand<TParams>
     action: string,
     method: 'get' | 'post' | 'put' | 'patch' | 'delete' = 'post'
   ): Promise<BudgetCommandResult> {
-    const result = await this.submitFn(formData, {
-      method,
-      action,
-    })
+    try {
+      const result = await this.submitFn(formData, {
+        method,
+        action,
+      })
 
-    return result as BudgetCommandResult
+      return result as BudgetCommandResult
+    } catch (error) {
+      // Handle submission errors gracefully
+      return {
+        error:
+          error instanceof Error
+            ? error.message
+            : 'An unknown error occurred during submission',
+      }
+    }
   }
 }
 
@@ -95,7 +105,8 @@ export class CreateBudgetCommand extends BudgetCommand<CreateBudgetParams> {
       formData.append('maxAmount', params.maxAmount.toString())
       formData.append('theme', params.theme)
 
-      return this.submitForm(formData, '/budgets')
+      const result = await this.submitForm(formData, '/budgets')
+      return result || { error: 'Failed to create budget' }
     } catch (error) {
       if (error instanceof Error) {
         return { error: error.message }
@@ -152,7 +163,8 @@ export class UpdateBudgetCommand extends BudgetCommand<UpdateBudgetParams> {
       formData.append('maxAmount', params.maxAmount.toString())
       formData.append('theme', params.theme)
 
-      return this.submitForm(formData, '/budgets')
+      const result = await this.submitForm(formData, '/budgets')
+      return result || { error: 'Failed to update budget' }
     } catch (error) {
       if (error instanceof Error) {
         return { error: error.message }
@@ -167,10 +179,29 @@ export class UpdateBudgetCommand extends BudgetCommand<UpdateBudgetParams> {
  */
 export class DeleteBudgetCommand extends BudgetCommand<DeleteBudgetParams> {
   async execute(params: DeleteBudgetParams): Promise<BudgetCommandResult> {
-    const formData = new FormData()
-    formData.append('intent', 'delete')
-    formData.append('budgetId', params.budgetId)
+    try {
+      const formData = new FormData()
+      formData.append('intent', 'delete')
+      formData.append('budgetId', params.budgetId)
 
-    return this.submitForm(formData, '/budgets')
+      const result = await this.submitForm(formData, '/budgets')
+
+      // Properly handle successful deletion
+      if (result && typeof result === 'object' && 'success' in result) {
+        return result
+      }
+
+      // If we don't have a specific success marker but no error, assume success
+      if (result && (!result || !('error' in result))) {
+        return { success: true }
+      }
+
+      return result || { error: 'Failed to delete budget', success: false }
+    } catch (error) {
+      if (error instanceof Error) {
+        return { error: error.message, success: false }
+      }
+      return { error: 'An unknown error occurred', success: false }
+    }
   }
 }

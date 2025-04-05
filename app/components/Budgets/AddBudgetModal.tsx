@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
@@ -38,17 +38,57 @@ export function AddBudgetModal({
   isOpen,
   onClose,
   budgets,
+  usedColors: potsColors = [],
 }: AddBudgetModalProps) {
+  // Extract used colors from existing budgets and pots
+  const allUsedColors = useMemo(() => {
+    const budgetColors = budgets ? budgets.map((budget) => budget.theme) : []
+    // Combine both budget colors and pot colors into a single array
+    return [...budgetColors, ...potsColors]
+  }, [budgets, potsColors])
+
+  // Find the first available color that's not already used
+  const findFirstAvailableColor = (): string => {
+    for (const color of THEME_COLORS) {
+      if (!allUsedColors.includes(color.value)) {
+        return color.value
+      }
+    }
+    // If all colors are used, return the first one as fallback
+    return THEME_COLORS[0].value
+  }
+
   const initialValues: BudgetFormValues = {
     category: '',
     amount: '',
-    theme: THEME_COLORS[0].value,
+    theme: findFirstAvailableColor(),
   }
 
   const [formState, setFormState] = useState<FormState>({
     original: initialValues,
     current: initialValues,
   })
+
+  // Update the theme when used colors change
+  useEffect(() => {
+    if (
+      !formState.current.theme ||
+      allUsedColors.includes(formState.current.theme)
+    ) {
+      const nextAvailableColor = findFirstAvailableColor()
+      setFormState((prev) => ({
+        ...prev,
+        current: {
+          ...prev.current,
+          theme: nextAvailableColor,
+        },
+        original: {
+          ...prev.original,
+          theme: nextAvailableColor,
+        },
+      }))
+    }
+  }, [allUsedColors, formState.current.theme])
 
   const [error, setError] = useState<string | null>(null)
   const { createBudget } = useBudgetMutations()
@@ -59,16 +99,18 @@ export function AddBudgetModal({
     return !isEqual(formState.original, formState.current)
   }, [formState])
 
-  // Extract used colors from existing budgets
-  const usedColors = useMemo(() => {
-    if (!budgets) return []
-    return budgets.map((budget) => budget.theme)
-  }, [budgets])
-
   const resetForm = () => {
+    // Reset with a fresh available color
+    const nextAvailableColor = findFirstAvailableColor()
     setFormState({
-      original: initialValues,
-      current: initialValues,
+      original: {
+        ...initialValues,
+        theme: nextAvailableColor,
+      },
+      current: {
+        ...initialValues,
+        theme: nextAvailableColor,
+      },
     })
     setError(null)
   }
@@ -172,19 +214,22 @@ export function AddBudgetModal({
     }
 
     try {
+      setError(null)
       await createBudget.mutateAsync({
         category: formState.current.category,
         maxAmount: parseFloat(formState.current.amount),
         theme: formState.current.theme,
         userId: 'temp', // Will be replaced by the session user ID on the server
       })
+
+      // Always close the modal after server responds (successful)
+      resetForm()
       onClose()
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message)
-      } else {
-        setError('Failed to create budget')
-      }
+      // Only in case of errors, we keep the modal open
+      const message =
+        error instanceof Error ? error.message : 'Failed to create budget'
+      setError(message)
     }
   }
 
@@ -270,7 +315,7 @@ export function AddBudgetModal({
                 value={formState.current.theme}
                 onValueChange={handleThemeChange}
                 required
-                usedColors={usedColors}
+                usedColors={allUsedColors}
               />
             </div>
           </div>

@@ -63,6 +63,11 @@ export async function createBudget({
   maxAmount,
   theme,
 }: CreateBudgetParams): Promise<Budget> {
+  // Prevent creating a budget for Income category
+  if (category.toLowerCase() === 'income') {
+    throw new Error('Income cannot be used as a budget category')
+  }
+
   const existingBudget = await db('budgets')
     .where({
       user_id: userId,
@@ -100,6 +105,11 @@ export async function updateBudget({
   maxAmount,
   theme,
 }: UpdateBudgetParams): Promise<Budget> {
+  // Prevent updating a budget to Income category
+  if (category.toLowerCase() === 'income') {
+    throw new Error('Income cannot be used as a budget category')
+  }
+
   const currentBudget = await db('budgets')
     .where({ id, user_id: userId })
     .first()
