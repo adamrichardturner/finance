@@ -71,7 +71,7 @@ export function useTransactions(): UseTransactionsResult {
   })
 
   // Pagination logic
-  const { visibleTransactions, loadMore, hasMore, page, resetPagination } =
+  const { visibleTransactions, loadMore, hasMore, resetPagination } =
     useTransactionPagination({
       transactions: sortedTransactions,
     })

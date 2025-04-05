@@ -1,5 +1,5 @@
 import { usePotsData } from './use-pots-data'
-import { usePotMutations } from '../use-pot-mutations'
+import { usePotMutations } from './use-pot-mutations'
 
 export { usePotsData, usePotMutations }
 

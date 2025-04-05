@@ -1,4 +1,4 @@
-import { useTransactionsQuery } from '../use-transactions-query'
+import { useTransactionsQuery } from './use-transactions-query'
 import { AppTransaction } from '~/utils/transform-data'
 
 export interface TransactionBaseResult {

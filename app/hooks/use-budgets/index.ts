@@ -1,5 +1,5 @@
 import { useBudgetsData } from './use-budgets-data'
-import { useBudgetMutations } from '../use-budget-mutations'
+import { useBudgetMutations } from './use-budget-mutations'
 
 export { useBudgetsData, useBudgetMutations }
 
