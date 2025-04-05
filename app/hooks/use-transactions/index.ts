@@ -4,9 +4,11 @@ import { useTransactionSorting } from './use-transaction-sorting'
 import { useTransactionPagination } from './use-transaction-pagination'
 import { useTransactionFormatting } from './use-transaction-formatting'
 import { useTransactionNavigation } from './use-transaction-navigation'
+import { useTransactionGrouping } from './use-transaction-grouping'
 import { AppTransaction } from '~/utils/transform-data'
 import { useEffect } from 'react'
-import { SortOption } from './use-transaction-sorting'
+import { SortOption } from '~/strategies/transactions'
+import { TransactionFilterStrategy } from '~/strategies/transactions'
 
 export interface UseTransactionsResult {
   // Data and loading state
@@ -21,10 +23,28 @@ export interface UseTransactionsResult {
   debouncedSearchQuery: string
   category: string
   setCategory: (category: string) => void
+  activeFilters: TransactionFilterStrategy[]
+  addFilter: (filter: TransactionFilterStrategy) => void
+  removeFilter: (filterName: string) => void
+  clearFilters: () => void
 
   // Sorting state
   sortBy: SortOption
   setSortBy: (sort: SortOption) => void
+  availableSortOptions: Array<{
+    value: SortOption
+    label: string
+  }>
+
+  // Grouping state
+  groupBy: string | null
+  setGroupBy: (groupOption: string | null) => void
+  groupedTransactions: Record<string, AppTransaction[]> | null
+  availableGroupOptions: Array<{
+    value: string
+    label: string
+  }>
+  isGrouped: boolean
 
   // Results
   visibleTransactions: AppTransaction[]
@@ -45,6 +65,7 @@ export interface UseTransactionsResult {
 
 /**
  * Main transactions hook that composes all specialized hooks
+ * using the Strategy pattern for data operations
  */
 export function useTransactions(): UseTransactionsResult {
   // Base data fetching
@@ -61,18 +82,35 @@ export function useTransactions(): UseTransactionsResult {
     setUrlSearchQuery,
     filteredTransactions,
     filteredCount,
+    activeFilters,
+    addFilter,
+    removeFilter,
+    clearFilters,
   } = useTransactionFilters({
     transactions,
   })
 
   // Sorting logic
-  const { sortBy, setSortBy, sortedTransactions } = useTransactionSorting({
-    transactions: filteredTransactions,
+  const { sortBy, setSortBy, sortedTransactions, availableSortOptions } =
+    useTransactionSorting({
+      transactions: filteredTransactions,
+    })
+
+  // Grouping logic
+  const {
+    groupBy,
+    setGroupBy,
+    groupedTransactions,
+    availableGroupOptions,
+    isGrouped,
+  } = useTransactionGrouping({
+    transactions: sortedTransactions,
   })
 
   // Pagination logic
   const { visibleTransactions, loadMore, hasMore, resetPagination } =
     useTransactionPagination({
+      // If we're grouping, we'll handle pagination differently
       transactions: sortedTransactions,
     })
 
@@ -91,10 +129,17 @@ export function useTransactions(): UseTransactionsResult {
     setUrlSearchQuery,
   })
 
-  // Reset pagination when filter or sort changes
+  // Reset pagination when filter, sort, or group changes
   useEffect(() => {
     resetPagination()
-  }, [category, debouncedSearchQuery, urlSearchQuery, sortBy, resetPagination])
+  }, [
+    category,
+    debouncedSearchQuery,
+    urlSearchQuery,
+    sortBy,
+    groupBy,
+    resetPagination,
+  ])
 
   return {
     // Data and loading state
@@ -109,10 +154,22 @@ export function useTransactions(): UseTransactionsResult {
     debouncedSearchQuery,
     category,
     setCategory,
+    activeFilters,
+    addFilter,
+    removeFilter,
+    clearFilters,
 
     // Sorting state
     sortBy,
     setSortBy,
+    availableSortOptions,
+
+    // Grouping state
+    groupBy,
+    setGroupBy,
+    groupedTransactions,
+    availableGroupOptions,
+    isGrouped,
 
     // Results
     visibleTransactions,
@@ -137,6 +194,7 @@ export {
   useTransactionBase,
   useTransactionFilters,
   useTransactionSorting,
+  useTransactionGrouping,
   useTransactionPagination,
   useTransactionFormatting,
   useTransactionNavigation,
