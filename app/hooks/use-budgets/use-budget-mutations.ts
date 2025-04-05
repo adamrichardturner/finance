@@ -1,122 +1,96 @@
 import { useFetcher } from '@remix-run/react'
+import { useState, useCallback } from 'react'
 import { Budget } from '~/types/finance.types'
 import { useBudgetsData } from './use-budgets-data'
+import { BudgetCommandExecutor } from '~/commands/budgets/budget-command-executor'
+import {
+  CreateBudgetParams,
+  UpdateBudgetParams,
+  DeleteBudgetParams,
+} from '~/commands/budgets/budget-commands'
 
-interface CreateBudgetParams {
-  category: string
-  maxAmount: number
-  theme: string
-}
-
-interface UpdateBudgetParams {
-  budgetId: string
-  category: string
-  maxAmount: number
-  theme: string
-}
-
-interface DeleteBudgetParams {
-  budgetId: string
-}
-
+/**
+ * Hook that provides budget mutation capabilities using the Command pattern
+ */
 export function useBudgetMutations() {
   const fetcher = useFetcher()
   const { data: existingBudgets } = useBudgetsData()
+  const [isPending, setIsPending] = useState(false)
 
+  // Create the command executor with the submit function
+  const commandExecutor = new BudgetCommandExecutor(
+    useCallback(
+      (
+        formData: FormData,
+        options: {
+          method: 'get' | 'post' | 'put' | 'patch' | 'delete'
+          action: string
+        }
+      ) => {
+        return fetcher.submit(formData, options)
+      },
+      [fetcher]
+    )
+  )
+
+  // Create a wrapper for the create command
   const createBudget = {
     mutateAsync: async (data: CreateBudgetParams) => {
-      if (existingBudgets) {
-        const normalizedNewCategory = data.category.toLowerCase().trim()
-        const isDuplicate = existingBudgets.some(
-          (budget) =>
-            budget.category.toLowerCase().trim() === normalizedNewCategory
-        )
-
-        if (isDuplicate) {
-          throw new Error(
-            `A budget for category "${data.category}" already exists`
-          )
+      setIsPending(true)
+      try {
+        const result = await commandExecutor.create(data, existingBudgets)
+        if (result.error) {
+          throw new Error(result.error)
         }
+        return result
+      } finally {
+        setIsPending(false)
       }
-
-      const formData = new FormData()
-      formData.append('intent', 'create')
-      formData.append('category', data.category)
-      formData.append('maxAmount', data.maxAmount.toString())
-      formData.append('theme', data.theme)
-
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/budgets',
-      })
-
-      return result as unknown as { budget: Budget }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Create a wrapper for the update command
   const updateBudget = {
     mutateAsync: async (data: UpdateBudgetParams) => {
-      if (existingBudgets) {
-        const normalizedNewCategory = data.category.toLowerCase().trim()
-        const currentBudget = existingBudgets.find(
-          (b) => String(b.id) === data.budgetId
-        )
-
-        if (
-          currentBudget &&
-          normalizedNewCategory !== currentBudget.category.toLowerCase().trim()
-        ) {
-          const isDuplicate = existingBudgets.some(
-            (budget) =>
-              budget.category.toLowerCase().trim() === normalizedNewCategory &&
-              String(budget.id) !== data.budgetId
-          )
-
-          if (isDuplicate) {
-            throw new Error(
-              `A budget for category "${data.category}" already exists`
-            )
-          }
+      setIsPending(true)
+      try {
+        const result = await commandExecutor.update(data, existingBudgets)
+        if (result.error) {
+          throw new Error(result.error)
         }
+        return result
+      } finally {
+        setIsPending(false)
       }
-
-      const formData = new FormData()
-      formData.append('intent', 'update')
-      formData.append('budgetId', data.budgetId)
-      formData.append('category', data.category)
-      formData.append('maxAmount', data.maxAmount.toString())
-      formData.append('theme', data.theme)
-
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/budgets',
-      })
-
-      return result as unknown as { budget: Budget }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Create a wrapper for the delete command
   const deleteBudget = {
     mutateAsync: async (data: DeleteBudgetParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'delete')
-      formData.append('budgetId', data.budgetId)
-
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/budgets',
-      })
-
-      return result as unknown as { success: true }
+      setIsPending(true)
+      try {
+        const result = await commandExecutor.delete(data)
+        if (result.error) {
+          throw new Error(result.error)
+        }
+        return result
+      } finally {
+        setIsPending(false)
+      }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Return the same interface as before to maintain compatibility
   return {
     createBudget,
     updateBudget,
     deleteBudget,
+    // Add command history access for debugging or future undo functionality
+    getCommandHistory: () => commandExecutor.getCommandHistory(),
+    clearCommandHistory: () => commandExecutor.clearHistory(),
   }
 }

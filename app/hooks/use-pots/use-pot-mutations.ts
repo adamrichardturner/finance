@@ -1,137 +1,128 @@
 import { useFetcher } from '@remix-run/react'
-import { Pot } from '~/types/finance.types'
-
-interface CreatePotParams {
-  name: string
-  target: number
-  theme: string
-}
-
-interface UpdatePotParams {
-  potId: string
-  name: string
-  target: number
-  theme: string
-  icon?: string
-  color?: string
-}
-
-interface DeletePotParams {
-  potId: string
-}
-
-interface AddMoneyParams {
-  potId: string
-  amount: number
-}
-
-interface PotResponse {
-  pot: Pot
-  error?: string
-}
-
-interface DeleteResponse {
-  success: boolean
-  error?: string
-}
+import { useState, useCallback } from 'react'
+import {
+  PotCommandExecutor,
+  CreatePotParams,
+  UpdatePotParams,
+  DeletePotParams,
+  MoneyTransactionParams,
+  PotCommandResult,
+} from '~/commands/pots'
 
 export const usePotMutations = () => {
   const fetcher = useFetcher()
+  const [isPending, setIsPending] = useState(false)
 
+  // Create the command executor with the submit function
+  const commandExecutor = new PotCommandExecutor(
+    useCallback(
+      (
+        formData: FormData,
+        options: {
+          method: 'get' | 'post' | 'put' | 'patch' | 'delete'
+          action: string
+        }
+      ) => {
+        return fetcher.submit(formData, options)
+      },
+      [fetcher]
+    )
+  )
+
+  // Create a wrapper for the create command
   const createPot = {
     mutateAsync: async (data: CreatePotParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'create')
-      formData.append('name', data.name)
-      formData.append('target', data.target.toString())
-      formData.append('theme', data.theme)
-
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/pots',
-      })
-
-      return result as unknown as PotResponse
+      setIsPending(true)
+      try {
+        const result = await commandExecutor.create(data)
+        if (result.error) {
+          throw new Error(result.error)
+        }
+        return result
+      } finally {
+        setIsPending(false)
+      }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Create a wrapper for the update command
   const updatePot = {
     mutateAsync: async (data: UpdatePotParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'update')
-      formData.append('potId', data.potId)
-      formData.append('name', data.name)
-      formData.append('target', data.target.toString())
-      formData.append('theme', data.theme)
-
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/pots',
-      })
-
-      return result as unknown as PotResponse
+      setIsPending(true)
+      try {
+        const result = await commandExecutor.update(data)
+        if (result.error) {
+          throw new Error(result.error)
+        }
+        return result
+      } finally {
+        setIsPending(false)
+      }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Create a wrapper for the delete command
   const deletePot = {
     mutateAsync: async (data: DeletePotParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'delete')
-      formData.append('potId', data.potId)
-
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/pots',
-      })
-
-      return result as unknown as DeleteResponse
+      setIsPending(true)
+      try {
+        const result = await commandExecutor.delete(data)
+        if (result.error) {
+          throw new Error(result.error)
+        }
+        return result
+      } finally {
+        setIsPending(false)
+      }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Create a wrapper for the add money command
   const addMoney = {
-    mutateAsync: async (data: AddMoneyParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'add-money')
-      formData.append('potId', data.potId)
-
-      formData.append('amount', String(data.amount))
-
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/pots',
-      })
-
-      return result as unknown as PotResponse
+    mutateAsync: async (data: MoneyTransactionParams) => {
+      setIsPending(true)
+      try {
+        const result = await commandExecutor.addMoney(data)
+        if (result.error) {
+          throw new Error(result.error)
+        }
+        return result
+      } finally {
+        setIsPending(false)
+      }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Create a wrapper for the withdraw command
   const withdraw = {
-    mutateAsync: async (data: AddMoneyParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'withdraw')
-      formData.append('potId', data.potId)
-
-      formData.append('amount', String(data.amount))
-
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/pots',
-      })
-
-      return result as unknown as PotResponse
+    mutateAsync: async (data: MoneyTransactionParams) => {
+      setIsPending(true)
+      try {
+        const result = await commandExecutor.withdraw(data)
+        if (result.error) {
+          throw new Error(result.error)
+        }
+        return result
+      } finally {
+        setIsPending(false)
+      }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Return the same interface as before to maintain compatibility
   return {
     createPot,
     updatePot,
     deletePot,
     addMoney,
     withdraw,
+    // Add command history access for debugging or future undo functionality
+    getCommandHistory: () => commandExecutor.getCommandHistory(),
+    clearCommandHistory: () => commandExecutor.clearHistory(),
   }
 }
