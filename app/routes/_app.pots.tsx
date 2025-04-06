@@ -40,8 +40,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const financialData = await getFinancialData()
     const currentBalance = financialData.balance?.current || 0
 
+    // Sort pots by total saved in descending order
+    const sortedPots = [...pots].sort((a, b) => {
+      const totalA = Number(a.total)
+      const totalB = Number(b.total)
+      return totalB - totalA // Descending order
+    })
+
     return data({
-      pots,
+      pots: sortedPots,
       currentBalance,
       budgets,
     })

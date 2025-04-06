@@ -253,11 +253,6 @@
   ],
   "budgets": [
     {
-      "category": "Income",
-      "maximum": "4000.00",
-      "theme": "#2BAC76"
-    },
-    {
       "category": "Entertainment",
       "maximum": "50.00",
       "theme": "#277C78"

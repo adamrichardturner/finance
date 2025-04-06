@@ -46,7 +46,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
       ? financialData.balance.income || 0
       : 0
 
-    return data({ budgets, pots, monthlyIncome })
+    // Sort budgets by maximum spend in descending order
+    const sortedBudgets = [...budgets].sort((a, b) => {
+      const maxA = parseFloat(a.maximum)
+      const maxB = parseFloat(b.maximum)
+      return maxB - maxA // Descending order
+    })
+
+    // Sort pots by total saved in descending order
+    const sortedPots = [...pots].sort((a, b) => {
+      const totalA = Number(a.total)
+      const totalB = Number(b.total)
+      return totalB - totalA // Descending order
+    })
+
+    return data({ budgets: sortedBudgets, pots: sortedPots, monthlyIncome })
   } catch (error) {
     throw new Response('Error loading budgets', { status: 500 })
   }

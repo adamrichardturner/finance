@@ -288,7 +288,7 @@ export function EditBudgetModal({
 
   // Update button's disabled state
   const isButtonDisabled = useMemo(() => {
-    return updateBudget.isPending || !hasChanges || !isFormValid
+    return !hasChanges
   }, [updateBudget.isPending, hasChanges, isFormValid])
 
   const handleSubmit = async (e: React.FormEvent) => {
