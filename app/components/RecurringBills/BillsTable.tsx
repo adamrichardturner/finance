@@ -1,5 +1,5 @@
 import React from 'react'
-import { format, subMonths } from 'date-fns'
+import { format } from 'date-fns'
 import { AppTransaction } from '~/utils/transform-data'
 import { renderAvatar } from '~/utils/avatar-utils'
 import { CheckCircle2, AlertCircle } from 'lucide-react'
@@ -22,10 +22,29 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
     return new Date(date) < new Date()
   }
 
-  const isOverAMonthOld = (dateString: string): boolean => {
-    const date = new Date(dateString)
-    const oneMonthAgo = subMonths(new Date(), 1)
-    return date < oneMonthAgo
+  const formatBillDate = (bill: AppTransaction): string => {
+    try {
+      // If the bill has a dueDay, use it to create a date in April 2025
+      if (bill.dueDay) {
+        // Create a date for April with the specified dueDay
+        const date = new Date(2025, 3, bill.dueDay) // April is month 3 (0-indexed)
+        return format(date, 'dd/MM/yyyy')
+      }
+
+      // Otherwise use the date property
+      const date = new Date(bill.date)
+      // Force year to be 2025 if it isn't already
+      if (date.getFullYear() !== 2025) {
+        date.setFullYear(2025)
+      }
+      // Force month to be April (3) if needed
+      if (date.getMonth() !== 3) {
+        date.setMonth(3)
+      }
+      return format(date, 'dd/MM/yyyy')
+    } catch (error) {
+      return 'Invalid date'
+    }
   }
 
   const formatDueDay = (day: number): string => {
@@ -59,9 +78,12 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
       return false
     }
 
+    const billDate = new Date(bill.date)
+    const oneMonthAgo = new Date()
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
+
     return (
-      isOverAMonthOld(bill.date) ||
-      (isOverdue(bill.date) && Math.random() > 0.3)
+      billDate < oneMonthAgo || (isOverdue(bill.date) && Math.random() > 0.3)
     )
   }
 
@@ -122,19 +144,11 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                         </p>
 
                         <div className='sm:hidden flex items-center mt-1'>
-                          {isOverAMonthOld(bill.date) ? (
-                            <p
-                              className={`text-[12px] ${overdue ? 'text-[#C94736]' : 'text-gray-600'}`}
-                            >
-                              {format(new Date(bill.date), 'dd/MM/yyyy')}
-                            </p>
-                          ) : (
-                            <p
-                              className={`text-[12px] ${overdue ? 'text-[#C94736]' : 'text-gray-600'}`}
-                            >
-                              Monthly-{formatDueDay(getDueDay(bill))}
-                            </p>
-                          )}
+                          <p
+                            className={`text-[12px] ${overdue ? 'text-[#C94736]' : 'text-gray-600'}`}
+                          >
+                            {formatBillDate(bill)}
+                          </p>
 
                           {paid ? (
                             <CheckCircle2 className='h-4 w-4 text-green-500 ml-2' />
@@ -147,19 +161,11 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills }) => {
                   </td>
                   <td className='py-4 max-[640px]:py-3 sm:table-cell hidden'>
                     <div className='flex items-center'>
-                      {isOverAMonthOld(bill.date) ? (
-                        <p
-                          className={`text-[12px] ${overdue ? 'text-[#C94736]' : 'text-gray-600'}`}
-                        >
-                          {format(new Date(bill.date), 'dd/MM/yyyy')}
-                        </p>
-                      ) : (
-                        <p
-                          className={`text-[12px] ${overdue ? 'text-[#C94736]' : 'text-gray-600'}`}
-                        >
-                          Monthly-{formatDueDay(getDueDay(bill))}
-                        </p>
-                      )}
+                      <p
+                        className={`text-[12px] ${overdue ? 'text-[#C94736]' : 'text-gray-600'}`}
+                      >
+                        {formatBillDate(bill)}
+                      </p>
 
                       {paid ? (
                         <CheckCircle2 className='h-4 w-4 text-green-500 ml-2' />

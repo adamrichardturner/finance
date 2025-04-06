@@ -1,5 +1,5 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import { formatDistanceToNow, format, isAfter, subMonths } from 'date-fns'
+import { format } from 'date-fns'
 import { AppTransaction } from '~/utils/transform-data'
 import React, { useMemo } from 'react'
 import { renderAvatar } from '~/utils/avatar-utils'
@@ -38,21 +38,11 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
     }).format(amount)
   }
 
-  const isOverAMonthOld = (date: Date): boolean => {
-    const oneMonthAgo = subMonths(new Date(), 1)
-    return !isAfter(date, oneMonthAgo)
-  }
-
   const formatDate = (dateString: string | Date) => {
     try {
       const date =
         typeof dateString === 'string' ? new Date(dateString) : dateString
-
-      if (isOverAMonthOld(date)) {
-        return format(date, 'dd/MM/yyyy')
-      }
-
-      return formatDistanceToNow(date, { addSuffix: true })
+      return format(date, 'dd/MM/yyyy')
     } catch (error) {
       return 'Invalid date'
     }
