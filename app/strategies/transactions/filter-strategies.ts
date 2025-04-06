@@ -29,6 +29,44 @@ export class CategoryFilterStrategy extends BaseFilterStrategy {
   }
 
   matches(transaction: AppTransaction): boolean {
+    // Special case for "All Transactions" category or "all" category
+    if (
+      this.category.toLowerCase() === 'all transactions' ||
+      this.category.toLowerCase() === 'all'
+    ) {
+      return true
+    }
+
+    // Handle special cases for pot-related transactions
+    if (this.category.toLowerCase() === 'savings') {
+      return (
+        transaction.category.toLowerCase() === 'savings' ||
+        transaction.description.toLowerCase().includes('savings pot') ||
+        transaction.description.toLowerCase().includes('transfer to pot') ||
+        transaction.description.toLowerCase().includes('adding to pot')
+      )
+    }
+
+    if (this.category.toLowerCase() === 'withdrawal') {
+      return (
+        transaction.category.toLowerCase() === 'withdrawal' ||
+        transaction.description.toLowerCase().includes('withdrawal from') ||
+        transaction.description.toLowerCase().includes('pot withdrawal')
+      )
+    }
+
+    if (this.category.toLowerCase() === 'return') {
+      return (
+        transaction.category.toLowerCase() === 'return' ||
+        transaction.description.toLowerCase().includes('returned funds') ||
+        transaction.description
+          .toLowerCase()
+          .includes('pot balance returned') ||
+        transaction.description.toLowerCase().includes('deleted pot')
+      )
+    }
+
+    // Standard category matching
     return transaction.category.toLowerCase() === this.category.toLowerCase()
   }
 }
@@ -73,10 +111,16 @@ export class TextSearchFilterStrategy extends BaseFilterStrategy {
     }
 
     const search = this.searchText.toLowerCase().trim()
+
+    // Safely handle potential null/undefined values
+    const description = transaction.description?.toLowerCase() || ''
+    const category = transaction.category?.toLowerCase() || ''
+    const amount = transaction.amount?.toString() || ''
+
     return (
-      transaction.description.toLowerCase().includes(search) ||
-      transaction.category.toLowerCase().includes(search) ||
-      transaction.amount.toString().includes(search)
+      description.includes(search) ||
+      category.includes(search) ||
+      amount.includes(search)
     )
   }
 }

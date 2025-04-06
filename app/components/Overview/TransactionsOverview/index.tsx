@@ -21,14 +21,8 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
       return []
     }
 
-    return transactions.filter((tx) => {
-      const isPotTransaction =
-        tx.description.toLowerCase().includes('pot') ||
-        tx.category.toLowerCase().includes('pot') ||
-        tx.description.toLowerCase().includes('savings')
-
-      return !isPotTransaction
-    })
+    // Don't filter out pot transactions, show all transactions
+    return transactions
   }, [transactions])
 
   if (!transactions || transactions.length === 0) {

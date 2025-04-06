@@ -2,6 +2,9 @@ import { Pot } from '~/types/finance.types'
 
 export function transformPotsToOverview(pots: Pot[]) {
   if (!pots || !Array.isArray(pots)) {
+    console.log(
+      'WARNING: Non-array or null pots received in transformPotsToOverview'
+    )
     // Return a safe default value instead of throwing an error
     return {
       formattedTotal: '£0.00',
@@ -9,6 +12,7 @@ export function transformPotsToOverview(pots: Pot[]) {
   }
 
   if (pots.length === 0) {
+    console.log('INFO: Empty pots array received in transformPotsToOverview')
     return {
       formattedTotal: '£0.00',
     }

@@ -17,6 +17,9 @@ import {
 import { getBudgets } from '~/models/budget.server'
 import { getFinancialData } from '~/services/finance/finance.service'
 import { formatCurrency } from '~/utils/number-formatter'
+import { useTransactions } from '~/hooks/use-transactions'
+import { useEffect } from 'react'
+import { Budget, Pot } from '~/types/finance.types'
 
 // Maximum PostgreSQL numeric value for pot precision 10, scale 2
 const MAX_POT_AMOUNT = 99999999.99
@@ -331,17 +334,37 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function PotsRoute() {
-  const loaderData = useLoaderData<typeof loader>()
+  const { pots, currentBalance, budgets } = useLoaderData<{
+    pots: Pot[]
+    currentBalance: number
+    budgets: Budget[]
+  }>()
   const actionData = useActionData<typeof action>()
   const navigation = useNavigation()
+  const { refreshTransactions } = useTransactions()
+
+  // Refresh transactions when actionData changes (pot operations completed)
+  useEffect(() => {
+    if (actionData?.success) {
+      // If a pot action was successful, refresh the transactions
+      // Short delay to ensure the DB operation completes
+      const timer = setTimeout(() => {
+        refreshTransactions().catch((error) => {
+          console.error('Failed to refresh transactions:', error)
+        })
+      }, 500)
+
+      return () => clearTimeout(timer)
+    }
+  }, [actionData, refreshTransactions])
 
   return (
     <div className='w-full mb-12 sm:my-[0px]'>
       <Pots
-        pots={loaderData.pots}
+        pots={pots}
         actionData={actionData}
-        currentBalance={loaderData.currentBalance}
-        budgets={loaderData.budgets}
+        currentBalance={currentBalance}
+        budgets={budgets}
       />
     </div>
   )

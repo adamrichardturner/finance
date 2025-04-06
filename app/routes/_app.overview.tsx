@@ -14,43 +14,16 @@ export const meta: MetaFunction = () => {
   ]
 }
 
-function transformToAppTransaction(transaction: Transaction): AppTransaction {
-  const processAvatarPath = (path?: string): string | undefined => {
-    if (!path) {
-      return transaction.amount > 0
-        ? '/assets/icons/salary.svg'
-        : '/assets/icons/expense.svg'
-    }
-
-    if (path.startsWith('./')) {
-      return path.substring(2)
-    }
-
-    return path
-  }
-
-  return {
-    id:
-      transaction.id?.toString() || Math.random().toString(36).substring(2, 9),
-    date:
-      transaction.date instanceof Date
-        ? transaction.date.toISOString().split('T')[0]
-        : new Date(transaction.date).toISOString().split('T')[0],
-    description: transaction.name,
-    amount: transaction.amount,
-    type: transaction.amount > 0 ? 'income' : 'expense',
-    category: transaction.category,
-    avatar: processAvatarPath(transaction.avatar),
-    recurring: transaction.recurring || false,
-  }
-}
-
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = String(await requireUserId(request))
 
   const budgets = await getBudgets(userId)
 
   const financialData = await getFinancialData()
+
+  // Import the transaction factory
+  const { TransactionFactory } = await import('~/factories/transaction.factory')
+  const transactionFactory = TransactionFactory.getInstance()
 
   const billsTransactions = financialData.bills
     ? financialData.bills.map((bill: Bill) => ({
@@ -131,8 +104,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const totalBalance = mainAccountBalance
 
+  // Use the TransactionFactory to ensure consistent transformation
   const appTransactions =
-    financialData?.transactions?.map(transformToAppTransaction) || []
+    financialData?.transactions?.map((tx) => transactionFactory.fromRaw(tx)) ||
+    []
 
   return {
     balance: totalBalance,

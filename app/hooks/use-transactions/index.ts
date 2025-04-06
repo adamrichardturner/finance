@@ -11,6 +11,7 @@ import {
   SortOption,
   TransactionFilterStrategy,
 } from '~/strategies/transactions'
+import { useQueryClient } from '@tanstack/react-query'
 
 export interface UseTransactionsResult {
   // Data and loading state
@@ -18,6 +19,7 @@ export interface UseTransactionsResult {
   error: unknown
   transactions: AppTransaction[] | undefined
   categories: string[]
+  refreshTransactions: () => Promise<boolean>
 
   // Filtering state
   searchQuery: string
@@ -73,6 +75,7 @@ export interface UseTransactionsResult {
 export function useTransactions(): UseTransactionsResult {
   // Base data fetching
   const { transactions, isLoading, error, categories } = useTransactionBase()
+  const queryClient = useQueryClient()
 
   // Filtering logic
   const {
@@ -141,12 +144,31 @@ export function useTransactions(): UseTransactionsResult {
     resetPagination()
   }, [category, debouncedSearchQuery, sortBy, groupBy, resetPagination])
 
+  // Add refreshTransactions implementation
+  const refreshTransactions = async (): Promise<boolean> => {
+    try {
+      // Reset pagination first
+      resetPagination()
+
+      // Then invalidate the relevant queries to force a refresh
+      await queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      await queryClient.invalidateQueries({ queryKey: ['financialData'] })
+
+      console.log('Transactions refreshed successfully')
+      return true
+    } catch (error) {
+      console.error('Error refreshing transactions:', error)
+      return false
+    }
+  }
+
   return {
     // Data and loading state
     isLoading,
     error,
     transactions,
     categories,
+    refreshTransactions,
 
     // Filtering state
     searchQuery,

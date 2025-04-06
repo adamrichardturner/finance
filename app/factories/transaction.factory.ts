@@ -80,13 +80,43 @@ export class TransactionFactory
    * Create an AppTransaction from a raw Transaction object
    */
   fromRaw(raw: Transaction): AppTransaction {
+    // Special handling for pot-related transactions to ensure proper categorization
+    let category = raw.category
+
+    // Comprehensive pot transaction detection
+    const normalizedName = raw.name.toLowerCase()
+
+    // Savings transactions
+    if (
+      normalizedName.includes('savings pot') ||
+      normalizedName.includes('transfer to pot') ||
+      normalizedName.includes('adding to pot')
+    ) {
+      category = 'Savings'
+    }
+    // Withdrawal transactions
+    else if (
+      normalizedName.includes('withdrawal from') ||
+      normalizedName.includes('pot withdrawal')
+    ) {
+      category = 'Withdrawal'
+    }
+    // Return transactions (when pot is deleted)
+    else if (
+      normalizedName.includes('returned funds') ||
+      normalizedName.includes('pot balance returned') ||
+      normalizedName.includes('deleted pot')
+    ) {
+      category = 'Return'
+    }
+
     return {
       id: raw.id?.toString() || Math.random().toString(36).substring(2, 9),
       date: this.formatDate(raw.date),
       description: raw.name,
       amount: raw.amount,
       type: raw.amount >= 0 ? 'income' : 'expense',
-      category: raw.category,
+      category: category,
       avatar: processAvatarPath(raw.avatar),
       recurring: raw.recurring,
       dueDay:

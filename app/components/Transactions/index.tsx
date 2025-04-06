@@ -31,6 +31,7 @@ import { useTransactions } from '~/hooks/use-transactions/index'
 import { getThemeForCategory } from '~/utils/budget-categories'
 import { AppTransaction } from '~/utils/transform-data'
 import { SortOption } from '~/strategies/transactions'
+import React from 'react'
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -67,6 +68,29 @@ export function Transactions() {
     handleSenderClick,
     clearSearch,
   } = useTransactions()
+
+  // Debug: Count pot transactions
+  React.useEffect(() => {
+    if (transactions?.length) {
+      const potTransactions = transactions.filter(
+        (tx) =>
+          tx.category?.toLowerCase() === 'savings' ||
+          tx.category?.toLowerCase() === 'withdrawal' ||
+          tx.category?.toLowerCase() === 'return' ||
+          tx.description?.toLowerCase().includes('pot') ||
+          tx.description?.toLowerCase().includes('savings') ||
+          tx.description?.toLowerCase().includes('transfer')
+      )
+
+      console.log(
+        `Debug: Found ${potTransactions.length} pot transactions out of ${transactions.length} total transactions`
+      )
+
+      if (potTransactions.length > 0) {
+        console.log('Sample pot transaction:', potTransactions[0])
+      }
+    }
+  }, [transactions])
 
   if (isLoading) {
     return (
@@ -575,13 +599,16 @@ export function Transactions() {
                                     className='flex items-center justify-start gap-2 cursor-pointer hover:font-[600] transition-all'
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      handleCategoryClick(transaction.category)
+                                      handleCategoryClick(
+                                        transaction.category || 'Uncategorized'
+                                      )
                                     }}
                                     onKeyDown={(e) => {
                                       if (e.key === 'Enter' || e.key === ' ') {
                                         e.stopPropagation()
                                         handleCategoryClick(
-                                          transaction.category
+                                          transaction.category ||
+                                            'Uncategorized'
                                         )
                                       }
                                     }}
@@ -592,12 +619,13 @@ export function Transactions() {
                                       className='h-2 w-2 rounded-full flex-shrink-0 text-[12px]'
                                       style={{
                                         backgroundColor: getThemeForCategory(
-                                          transaction.category
+                                          transaction.category ||
+                                            'Uncategorized'
                                         ),
                                       }}
                                     />
                                     <span className='text-[12px] text-color-grey-500'>
-                                      {transaction.category}
+                                      {transaction.category || 'Uncategorized'}
                                     </span>
                                   </div>
                                 </TableCell>
@@ -658,12 +686,16 @@ export function Transactions() {
                                   className='text-xs text-gray-500 font-normal flex items-center gap-1 cursor-pointer hover:font-[700] transition-all mt-1'
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    handleCategoryClick(transaction.category)
+                                    handleCategoryClick(
+                                      transaction.category || 'Uncategorized'
+                                    )
                                   }}
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter' || e.key === ' ') {
                                       e.stopPropagation()
-                                      handleCategoryClick(transaction.category)
+                                      handleCategoryClick(
+                                        transaction.category || 'Uncategorized'
+                                      )
                                     }
                                   }}
                                   tabIndex={0}
@@ -673,11 +705,11 @@ export function Transactions() {
                                     className='h-2 w-2 rounded-full flex-shrink-0'
                                     style={{
                                       backgroundColor: getThemeForCategory(
-                                        transaction.category
+                                        transaction.category || 'Uncategorized'
                                       ),
                                     }}
                                   />
-                                  {transaction.category}
+                                  {transaction.category || 'Uncategorized'}
                                 </span>
                               </div>
                             </div>
