@@ -6,7 +6,7 @@ import {
 } from '@remix-run/node'
 import { Pots } from '~/components/Pots'
 import { requireUserId } from '~/services/auth/session.server'
-import { useActionData, useLoaderData } from '@remix-run/react'
+import { useActionData, useLoaderData, useNavigation } from '@remix-run/react'
 import {
   getPots,
   createPot,
@@ -68,6 +68,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const name = formData.get('name')
     const target = formData.get('target')
     const theme = formData.get('theme')
+    const initialAmount = formData.get('initialAmount')
 
     if (
       typeof name !== 'string' ||
@@ -83,11 +84,51 @@ export async function action({ request }: ActionFunctionArgs) {
     // Parse target amount
     const targetAmount = parseFloat(target)
 
+    // Parse initial amount if provided
+    let initialAmountValue = 0
+    if (initialAmount && typeof initialAmount === 'string') {
+      initialAmountValue = parseFloat(initialAmount)
+
+      // Validate if initial amount is valid
+      if (isNaN(initialAmountValue) || initialAmountValue < 0) {
+        return data(
+          { error: 'Invalid initial amount', success: false },
+          { status: 400 }
+        )
+      }
+
+      // Validate against current balance
+      if (initialAmountValue > currentBalance) {
+        return data(
+          {
+            error: `Cannot add more than your available balance of ${formatCurrency(currentBalance)}`,
+            success: false,
+          },
+          { status: 400 }
+        )
+      }
+    }
+
     // Validate against PostgreSQL numeric limit
     if (targetAmount > MAX_POT_AMOUNT) {
       return data(
         {
           error: `Target amount cannot exceed ${formatCurrency(MAX_POT_AMOUNT)}`,
+          success: false,
+        },
+        { status: 400 }
+      )
+    }
+
+    // Check if color is already in use by another pot
+    const existingPots = await getPots(userId)
+    const colorAlreadyInUse = existingPots.some((pot) => pot.theme === theme)
+
+    if (colorAlreadyInUse) {
+      return data(
+        {
+          error:
+            'This color is already in use by another pot. Please select a different color.',
           success: false,
         },
         { status: 400 }
@@ -100,6 +141,7 @@ export async function action({ request }: ActionFunctionArgs) {
         name,
         target: targetAmount,
         theme,
+        initialAmount: initialAmountValue > 0 ? initialAmountValue : undefined,
       })
       return data({ success: true, pot })
     } catch (error) {
@@ -141,6 +183,23 @@ export async function action({ request }: ActionFunctionArgs) {
       return data(
         {
           error: `Target amount cannot exceed ${formatCurrency(MAX_POT_AMOUNT)}`,
+          success: false,
+        },
+        { status: 400 }
+      )
+    }
+
+    // Check if color is already in use by another pot
+    const existingPots = await getPots(userId)
+    const colorAlreadyInUse = existingPots.some(
+      (pot) => pot.theme === theme && String(pot.id) !== potId
+    )
+
+    if (colorAlreadyInUse) {
+      return data(
+        {
+          error:
+            'This color is already in use by another pot. Please select a different color.',
           success: false,
         },
         { status: 400 }
@@ -274,6 +333,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function PotsRoute() {
   const loaderData = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
+  const navigation = useNavigation()
 
   return (
     <div className='w-full mb-12 sm:my-[0px]'>

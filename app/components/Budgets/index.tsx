@@ -85,8 +85,24 @@ export function Budgets({
   const memoizedBudgetCards = useMemo(() => {
     if (budgets.length === 0) {
       return (
-        <div className='text-center py-4 text-gray-500'>
-          No budgets created yet
+        <div className='w-full bg-white rounded-lg shadow-sm flex flex-col items-center justify-center p-16 gap-6 min-h-[320px]'>
+          <div className='text-xl font-medium text-gray-600'>
+            No budgets created yet
+          </div>
+          <div className='text-gray-500 text-center max-w-md'>
+            Create budgets to help you track and manage your spending in
+            different categories
+          </div>
+          <Button
+            onClick={handleOpenAddModal}
+            className='bg-black text-white hover:bg-black/90'
+            disabled={allCategoriesUsed}
+          >
+            <div className='flex items-center gap-2'>
+              <span className='text-xl'>+</span>
+              <span>Create Your First Budget</span>
+            </div>
+          </Button>
         </div>
       )
     }
@@ -99,7 +115,13 @@ export function Budgets({
         onDelete={handleOpenDeleteModal}
       />
     ))
-  }, [budgets, handleOpenEditModal, handleOpenDeleteModal])
+  }, [
+    budgets,
+    handleOpenEditModal,
+    handleOpenDeleteModal,
+    handleOpenAddModal,
+    allCategoriesUsed,
+  ])
 
   const potColors = useMemo(() => {
     return pots.map((pot) => pot.theme)
@@ -110,15 +132,17 @@ export function Budgets({
       <div className='flex flex-col items-end'>
         <div className='w-full flex items-center justify-between'>
           <PageTitle title='Budgets' />
-          <Button
-            onClick={handleOpenAddModal}
-            className='bg-black text-white hover:bg-black/90'
-            disabled={allCategoriesUsed}
-          >
-            + Add New Budget
-          </Button>
+          {budgets.length > 0 && (
+            <Button
+              onClick={handleOpenAddModal}
+              className='bg-black text-white hover:bg-black/90'
+              disabled={allCategoriesUsed}
+            >
+              + Add New Budget
+            </Button>
+          )}
         </div>
-        {allCategoriesUsed && (
+        {allCategoriesUsed && budgets.length > 0 && (
           <div className='text-gray-500 text-[12px] mt-1 mr-1'>
             All budget categories have been used
           </div>
@@ -131,15 +155,19 @@ export function Budgets({
         </div>
       )}
 
-      <div className='flex flex-col max-[1457px]:flex-col min-[1457px]:flex-row gap-6'>
-        <div className='w-full min-[1457px]:w-[400px]'>
-          <div className='bg-white rounded-lg p-6'>{memoizedBudgetChart}</div>
-        </div>
+      {budgets.length > 0 ? (
+        <div className='flex flex-col max-[1457px]:flex-col min-[1457px]:flex-row gap-6'>
+          <div className='w-full min-[1457px]:w-[400px]'>
+            <div className='bg-white rounded-lg p-6'>{memoizedBudgetChart}</div>
+          </div>
 
-        <div className='w-full min-[1457px]:w-2/3 space-y-6'>
-          {memoizedBudgetCards}
+          <div className='w-full min-[1457px]:w-2/3 space-y-6'>
+            {memoizedBudgetCards}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className='w-full'>{memoizedBudgetCards}</div>
+      )}
 
       <AddBudgetModal
         budgets={budgets}

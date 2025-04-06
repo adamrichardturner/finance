@@ -284,10 +284,18 @@ export function PotCard({
                 id='add-amount'
                 placeholder='Enter amount'
                 value={amount}
-                onChange={(value) => {
-                  const numValue = parseFloat(value || '0')
-                  if (!value || isNaN(numValue) || numValue <= currentBalance) {
+                onChange={(value, numericValue) => {
+                  // Prevent entering values higher than available balance
+                  if (numericValue > currentBalance) {
+                    setAmount(currentBalance.toString())
+                    setError(
+                      `Cannot add more than your available balance of ${formatCurrency(currentBalance)}`
+                    )
+                  } else {
                     setAmount(value)
+                    if (error && error.includes('available balance')) {
+                      setError(null)
+                    }
                   }
                 }}
                 decimals={2}
@@ -364,10 +372,18 @@ export function PotCard({
                 id='withdraw-amount'
                 placeholder='Enter amount'
                 value={amount}
-                onChange={(value) => {
-                  const numValue = parseFloat(value || '0')
-                  if (!value || isNaN(numValue) || numValue <= pot.total) {
+                onChange={(value, numericValue) => {
+                  // Prevent entering values higher than pot balance
+                  if (numericValue > pot.total) {
+                    setAmount(pot.total.toString())
+                    setError(
+                      `Cannot withdraw more than the available pot balance of ${formatCurrency(pot.total)}`
+                    )
+                  } else {
                     setAmount(value)
+                    if (error && error.includes('pot balance')) {
+                      setError(null)
+                    }
                   }
                 }}
                 decimals={2}

@@ -76,7 +76,7 @@ export function Pots({
   const memoizedPotCards = useMemo(() => {
     if (pots.length === 0) {
       return (
-        <div className='text-center py-8 bg-white rounded-lg'>
+        <div className='text-center py-8 bg-white rounded-lg min-h-[320px] flex flex-col items-center justify-center'>
           <h3 className='text-xl font-medium text-gray-700 mb-2'>
             No Saving Pots Yet
           </h3>
@@ -140,22 +140,25 @@ export function Pots({
       <AddPotModal
         isOpen={addModalOpen}
         onClose={handleCloseAddModal}
-        pots={pots}
+        pots={Array.isArray(pots) ? pots : []}
         usedColors={budgetColors}
+        currentBalance={currentBalance}
       />
 
       <EditPotModal
         isOpen={editModal.isOpen}
         potId={editModal.potId}
         onClose={handleCloseEditModal}
-        pots={pots}
+        pots={Array.isArray(pots) ? pots : []}
         usedColors={budgetColors}
+        currentBalance={currentBalance}
       />
 
       <DeletePotModal
         isOpen={deleteModal.isOpen}
         potId={deleteModal.potId}
         onClose={handleCloseDeleteModal}
+        pots={Array.isArray(pots) ? pots : []}
       />
     </div>
   )

@@ -3,12 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { usePotMutations } from '~/hooks/use-pots/use-pot-mutations'
 import { Pot } from '~/types/finance.types'
+import { formatCurrency } from '~/utils/number-formatter'
 
 interface DeletePotModalProps {
   isOpen: boolean
   potId?: string
   onClose: () => void
-  pots?: Pot[]
+  pots?: Pot[] | null
 }
 
 export function DeletePotModal({
@@ -26,7 +27,7 @@ export function DeletePotModal({
   }
 
   const potName = useMemo(() => {
-    if (!potId || pots.length === 0) {
+    if (!potId || !Array.isArray(pots) || pots.length === 0) {
       return 'Savings'
     }
 
@@ -65,6 +66,17 @@ export function DeletePotModal({
         <div className='text-sm text-gray-600 mt-1 mb-4'>
           Are you sure you want to delete &quot;{potName}&quot;? This action
           cannot be undone.
+          {Array.isArray(pots) && potId && (
+            <p className='mt-2'>
+              {(() => {
+                const pot = pots.find((p) => String(p.id) === potId)
+                if (pot && pot.total > 0) {
+                  return `Any funds (${formatCurrency(pot.total)}) will be returned to your main balance.`
+                }
+                return ''
+              })()}
+            </p>
+          )}
         </div>
 
         {error && (

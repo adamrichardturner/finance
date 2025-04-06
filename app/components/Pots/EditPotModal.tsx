@@ -9,6 +9,8 @@ import { ColorSelect } from '~/components/ui/color-select'
 import isEqual from 'lodash/isEqual'
 import { CurrencyInput } from '~/components/ui/currency-input'
 import { formatCurrency } from '~/utils/number-formatter'
+import { UpdatePotParams } from '~/commands/pots'
+import { useFetcher } from '@remix-run/react'
 
 interface PotFormValues {
   name: string
@@ -25,16 +27,18 @@ interface EditPotModalProps {
   isOpen: boolean
   potId?: string
   onClose: () => void
-  pots: Pot[]
+  pots?: Pot[] | null
   usedColors?: string[]
+  currentBalance?: number
 }
 
 export function EditPotModal({
   isOpen,
   potId,
   onClose,
-  pots,
+  pots = [],
   usedColors = [],
+  currentBalance = 0,
 }: EditPotModalProps) {
   const [formState, setFormState] = useState<FormState>({
     original: {
@@ -54,6 +58,7 @@ export function EditPotModal({
   const maxNameLength = 30
 
   const { updatePot } = usePotMutations()
+  const formFetcher = useFetcher()
 
   // Track if form has changes using deep comparison
   const hasChanges = useMemo(() => {
@@ -62,14 +67,14 @@ export function EditPotModal({
 
   // Combine pot colors with other used colors, excluding current pot
   const allUsedColors = useMemo(() => {
-    const otherPotColors = pots
-      .filter((pot) => String(pot.id) !== potId)
-      .map((pot) => pot.theme)
+    const otherPotColors = Array.isArray(pots)
+      ? pots.filter((pot) => String(pot.id) !== potId).map((pot) => pot.theme)
+      : []
     return [...otherPotColors, ...usedColors]
   }, [pots, potId, usedColors])
 
   useEffect(() => {
-    if (isOpen && potId && pots) {
+    if (isOpen && potId && Array.isArray(pots) && pots.length > 0) {
       const currentPot = pots.find((p) => String(p.id) === potId)
 
       if (currentPot) {
@@ -173,38 +178,74 @@ export function EditPotModal({
     )
   }, [updatePot.isPending, isFormValid, hasChanges, addFundsValue])
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
     if (!potId) {
       return
     }
 
-    setIsSubmitting(true)
+    if (
+      !formState.current.name ||
+      !formState.current.target ||
+      !formState.current.theme
+    ) {
+      setError('Please fill in all fields')
+      return
+    }
+
+    // Check if the color is already in use by another pot
+    // We need to exclude the current pot's color from the check
+    const otherPotsColors = Array.isArray(pots)
+      ? pots.filter((p) => String(p.id) !== potId).map((p) => p.theme)
+      : []
+
+    const isColorInUse = otherPotsColors.includes(formState.current.theme)
+
+    if (isColorInUse) {
+      setError(
+        'This color is already in use by another pot. Please select a different color.'
+      )
+      return
+    }
+
     setError(null)
 
     try {
-      // Include add funds if provided and valid
-      const updateData: CommandUpdatePotParams = {
-        potId,
-        name: formState.current.name,
-        target: parseFloat(formState.current.target),
-        theme: formState.current.theme,
+      const parsedAddFunds = addFundsValue ? parseFloat(addFundsValue) : 0
+
+      // Validate that addFunds doesn't exceed current balance
+      if (parsedAddFunds > currentBalance) {
+        setError(
+          `Cannot add more than your available balance of ${formatCurrency(currentBalance)}`
+        )
+        return
       }
 
-      if (addFundsValue > 0) {
-        updateData.addFunds = parseFloat(addFundsValue)
+      // Create a FormData object for direct form submission
+      const formData = new FormData()
+      formData.append('intent', 'update')
+      formData.append('potId', potId)
+      formData.append('name', formState.current.name)
+      formData.append('target', formState.current.target)
+      formData.append('theme', formState.current.theme)
+
+      if (parsedAddFunds > 0) {
+        formData.append('addFunds', parsedAddFunds.toString())
       }
 
-      await updatePot.mutateAsync(updateData)
-      // Close modal immediately on success instead of waiting for parent to close it
+      // Use direct form submission with no action/method specified
+      // This will trigger a full page reload and data refresh
+      formFetcher.submit(formData, { method: 'post', action: '/pots' })
+
+      // Close the modal right away
       onClose()
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message)
       } else {
-        setError('An unknown error occurred')
+        setError('Failed to update pot')
       }
-    } finally {
-      setIsSubmitting(false)
     }
   }
 

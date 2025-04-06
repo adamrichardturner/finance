@@ -108,11 +108,25 @@ export class PotCommandExecutor {
   async addMoney(params: MoneyTransactionParams): Promise<PotCommandResult> {
     this.isExecuting = true
     try {
+      // Validate inputs
+      if (!params.potId) {
+        return { error: 'Pot ID is required' }
+      }
+
+      if (typeof params.amount !== 'number' || params.amount <= 0) {
+        return { error: 'Amount must be a positive number' }
+      }
+
       const result = await this.addMoneyCommand.execute(params)
       if (!result.error) {
         this.commandHistory.push({ command: 'addMoney', params })
       }
       return result
+    } catch (error) {
+      if (error instanceof Error) {
+        return { error: error.message }
+      }
+      return { error: 'An unknown error occurred while adding money' }
     } finally {
       this.isExecuting = false
     }
@@ -124,11 +138,25 @@ export class PotCommandExecutor {
   async withdraw(params: MoneyTransactionParams): Promise<PotCommandResult> {
     this.isExecuting = true
     try {
+      // Validate inputs
+      if (!params.potId) {
+        return { error: 'Pot ID is required' }
+      }
+
+      if (typeof params.amount !== 'number' || params.amount <= 0) {
+        return { error: 'Amount must be a positive number' }
+      }
+
       const result = await this.withdrawCommand.execute(params)
       if (!result.error) {
         this.commandHistory.push({ command: 'withdraw', params })
       }
       return result
+    } catch (error) {
+      if (error instanceof Error) {
+        return { error: error.message }
+      }
+      return { error: 'An unknown error occurred while withdrawing money' }
     } finally {
       this.isExecuting = false
     }
