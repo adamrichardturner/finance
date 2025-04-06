@@ -1,5 +1,4 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import Pointer from '/assets/icons/Pointer.svg?url'
 import { ChartTooltipContent } from '~/components/ui/charts'
 import { Budget } from '~/types/finance.types'
 import { transformBudgetsToChart } from '~/transformers/budgetTransformer'
@@ -49,7 +48,7 @@ const ChartContent = ({
     return (
       <div className='w-full h-full flex items-center justify-center'>
         <img
-          src={`/assets/icons/LoadingAnimation.svg?t=${Date.now()}`}
+          src='/assets/icons/LoadingAnimation.svg'
           alt='Loading chart'
           className='w-16 h-16 absolute'
         />
@@ -104,21 +103,54 @@ export function BudgetPieChart({
 }: BudgetPieChartProps) {
   const [isChartLoaded, setIsChartLoaded] = useState(false)
 
-  if (!budgets || budgets.length === 0) {
-    return null
+  const chartDataMemo = useMemo(() => {
+    if (!budgets || budgets.length === 0) {
+      return { allChartData: [], formattedTotal: '£0' }
+    }
+    return transformBudgetsToChart(budgets)
+  }, [budgets])
+
+  // Define specific types for the two possible return values
+  type ChartDataResult = {
+    chartData: ChartDataItem[]
+    total: number
+    formattedTotal: string
   }
 
-  const { chartData: allChartData, formattedTotal } = useMemo(
-    () => transformBudgetsToChart(budgets),
-    [budgets]
-  )
+  type EmptyChartDataResult = {
+    allChartData: ChartDataItem[]
+    formattedTotal: string
+  }
 
-  const chartData = useMemo(
-    () => (showAllCategories ? allChartData : allChartData.slice(0, 4)),
-    [allChartData, showAllCategories]
-  )
+  // Use type guard to safely access chartData
+  const allChartData = useMemo(() => {
+    // Define the type guard function inside the useMemo callback
+    const hasChartData = (
+      data: ChartDataResult | EmptyChartDataResult
+    ): data is ChartDataResult => {
+      return 'chartData' in data
+    }
 
-  const { formattedSpentAmount } = useMemo(() => {
+    if (hasChartData(chartDataMemo)) {
+      return chartDataMemo.chartData
+    }
+    return chartDataMemo.allChartData || []
+  }, [chartDataMemo])
+
+  const { formattedTotal } = chartDataMemo
+
+  const chartData = useMemo(() => {
+    if (!allChartData || allChartData.length === 0) {
+      return []
+    }
+    return showAllCategories ? allChartData : allChartData.slice(0, 4)
+  }, [allChartData, showAllCategories])
+
+  const spentAmountMemo = useMemo(() => {
+    if (!budgets || budgets.length === 0) {
+      return { totalSpent: 0, formattedSpentAmount: '£0' }
+    }
+
     const spent = budgets.reduce((total, budget) => {
       const spentAmount =
         budget.transactions?.reduce(
@@ -133,6 +165,12 @@ export function BudgetPieChart({
       formattedSpentAmount: formatCurrency(spent),
     }
   }, [budgets])
+
+  const { formattedSpentAmount } = spentAmountMemo
+
+  if (!budgets || budgets.length === 0) {
+    return null
+  }
 
   const dimensions = {
     sm: {
@@ -149,7 +187,7 @@ export function BudgetPieChart({
 
   const BudgetItems = () => (
     <>
-      {chartData.map((category, index) => (
+      {chartData.map((category: ChartDataItem, index: number) => (
         <div key={index} className='flex items-center sm:justify-end gap-4'>
           <div
             className='w-1 h-[40px] rounded-full'
@@ -175,7 +213,7 @@ export function BudgetPieChart({
           fallback={
             <div className='w-full h-full flex items-center justify-center'>
               <img
-                src={`/assets/icons/LoadingAnimation.svg?t=${Date.now()}`}
+                src='/assets/icons/LoadingAnimation.svg'
                 alt='Loading chart'
                 className='w-16 h-16'
               />
@@ -213,10 +251,25 @@ export function BudgetPieChart({
     <Card className='p-[32px] flex flex-col gap-4 shadow-none'>
       <CardHeader className='flex p-0 flex-row justify-between items-center w-full'>
         <CardTitle className='text-[20px]'>{title}</CardTitle>
-        <div className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex flex-row gap-1 items-center'>
+        <div
+          className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex flex-row gap-1 items-center'
+          role='button'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              // Navigate to budgets page or handle click
+              window.location.href = '/budgets'
+            }
+          }}
+          onClick={() => (window.location.href = '/budgets')}
+        >
           See Details
           <span className='flex items-center'>
-            <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2 ml-2`} />
+            <img
+              src='/assets/icons/Pointer.svg'
+              alt='Pointer Icon'
+              className={`h-2 w-2 ml-2`}
+            />
           </span>
         </div>
       </CardHeader>

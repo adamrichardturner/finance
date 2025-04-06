@@ -69,7 +69,7 @@ export function getAvailableCategories(
     : undefined
 
   // Create a working copy of budget categories that may include the current category
-  let workingCategories = [...BUDGET_CATEGORIES]
+  const workingCategories = [...BUDGET_CATEGORIES]
 
   // If current budget has a category not in our predefined list, add it
   if (

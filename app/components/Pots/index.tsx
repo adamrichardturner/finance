@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Button } from '../ui/button'
 import { PotCard } from './PotCard'
 import { AddPotModal } from './AddPotModal'
@@ -14,7 +14,11 @@ interface PotModalState {
 
 interface PotsProps {
   pots: Pot[]
-  actionData?: any
+  actionData?: {
+    error?: string
+    pot?: Pot
+    success?: boolean
+  }
   currentBalance?: number
   budgets?: Budget[]
 }
@@ -32,6 +36,19 @@ export function Pots({
   const [deleteModal, setDeleteModal] = useState<PotModalState>({
     isOpen: false,
   })
+
+  // Close modals when action is successful
+  useEffect(() => {
+    if (actionData?.success) {
+      // Close any open modals upon successful action
+      setAddModalOpen(false)
+      setEditModal({ isOpen: false })
+
+      // For delete modals, we now handle the closing in the DeletePotModal component
+      // so we don't need to close it here based on actionData
+      // This prevents trying to access a deleted pot
+    }
+  }, [actionData])
 
   const handleOpenAddModal = useCallback(() => setAddModalOpen(true), [])
   const handleCloseAddModal = useCallback(() => setAddModalOpen(false), [])
@@ -59,7 +76,7 @@ export function Pots({
   const memoizedPotCards = useMemo(() => {
     if (pots.length === 0) {
       return (
-        <div className='text-center py-8 bg-white rounded-lg'>
+        <div className='text-center py-8 bg-white rounded-lg min-h-[320px] flex flex-col items-center justify-center'>
           <h3 className='text-xl font-medium text-gray-700 mb-2'>
             No Saving Pots Yet
           </h3>
@@ -123,22 +140,25 @@ export function Pots({
       <AddPotModal
         isOpen={addModalOpen}
         onClose={handleCloseAddModal}
-        pots={pots}
+        pots={Array.isArray(pots) ? pots : []}
         usedColors={budgetColors}
+        currentBalance={currentBalance}
       />
 
       <EditPotModal
         isOpen={editModal.isOpen}
         potId={editModal.potId}
         onClose={handleCloseEditModal}
-        pots={pots}
+        pots={Array.isArray(pots) ? pots : []}
         usedColors={budgetColors}
+        currentBalance={currentBalance}
       />
 
       <DeletePotModal
         isOpen={deleteModal.isOpen}
         potId={deleteModal.potId}
         onClose={handleCloseDeleteModal}
+        pots={Array.isArray(pots) ? pots : []}
       />
     </div>
   )

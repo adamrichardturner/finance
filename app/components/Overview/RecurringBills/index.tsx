@@ -1,5 +1,4 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import Pointer from '/assets/icons/Pointer.svg?url'
 import { AppTransaction } from '~/utils/transform-data'
 import { useNavigate } from '@remix-run/react'
 import { useMemo } from 'react'
@@ -14,10 +13,6 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
   title = 'Recurring Bills',
 }) => {
   const navigate = useNavigate()
-
-  if (!bills || bills.length === 0) {
-    return null
-  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -46,6 +41,14 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
   }
 
   const summaryData = useMemo(() => {
+    if (!bills || bills.length === 0) {
+      return {
+        paidBills: { count: 0, amount: 0 },
+        totalUpcoming: { count: 0, amount: 0 },
+        dueSoon: { count: 0, amount: 0 },
+      }
+    }
+
     const paidBillsList = bills.filter((bill) => isPaid(bill))
 
     const upcomingBillsList = bills.filter((bill) => !isPaid(bill))
@@ -89,21 +92,8 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
     }
   }, [bills])
 
-  const formatDueDay = (day: number): string => {
-    if (day >= 11 && day <= 13) {
-      return `${day}th`
-    }
-
-    switch (day % 10) {
-      case 1:
-        return `${day}st`
-      case 2:
-        return `${day}nd`
-      case 3:
-        return `${day}rd`
-      default:
-        return `${day}th`
-    }
+  if (!bills || bills.length === 0) {
+    return null
   }
 
   return (
@@ -113,10 +103,21 @@ const RecurringBills: React.FC<RecurringBillsProps> = ({
         <div
           className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex flex-row gap-1'
           onClick={() => navigate('/recurring-bills')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              navigate('/recurring-bills')
+            }
+          }}
+          tabIndex={0}
+          role='button'
         >
           See Details
           <span className='flex items-center'>
-            <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2 ml-2`} />
+            <img
+              src='/assets/icons/Pointer.svg'
+              alt='Pointer Icon'
+              className={`h-2 w-2 ml-2`}
+            />
           </span>
         </div>
       </CardHeader>

@@ -12,6 +12,8 @@ import { Pot } from '~/types/finance.types'
 import { usePotMutations } from '~/hooks/use-pots/use-pot-mutations'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
+import { formatCurrency } from '~/utils/number-formatter'
+import { CurrencyInput } from '../ui/currency-input'
 
 interface PotCardProps {
   pot: Pot
@@ -66,15 +68,6 @@ export function PotCard({
     const percentage = (pot.total / pot.target) * 100
     return Math.min(100, Math.max(0, percentage))
   }, [pot.total, pot.target])
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount)
-  }
 
   const handleAddMoney = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -239,7 +232,7 @@ export function PotCard({
       <Dialog open={addMoneyOpen} onOpenChange={closeAddMoneyDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Add to '{pot.name}'</DialogTitle>
+            <DialogTitle>Add to &apos;{pot.name}&apos;</DialogTitle>
           </DialogHeader>
           <div className='space-y-6 py-4'>
             <p className='text-sm text-gray-500'>
@@ -255,8 +248,14 @@ export function PotCard({
             )}
 
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>New Amount</label>
-              <div className='text-3xl font-bold' key={newAddTotal}>
+              <label htmlFor='add-new-amount' className='text-sm font-medium'>
+                New Amount
+              </label>
+              <div
+                id='add-new-amount'
+                className='text-3xl font-bold'
+                key={newAddTotal}
+              >
                 {formatCurrency(newAddTotal)}
               </div>
 
@@ -278,30 +277,29 @@ export function PotCard({
             </div>
 
             <div className='space-y-2 mt-4'>
-              <label className='text-sm font-medium'>Amount to Add</label>
-              <div className='relative'>
-                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                  <span className='text-gray-500'>£</span>
-                </div>
-                <Input
-                  type='text'
-                  inputMode='decimal'
-                  placeholder='Enter amount'
-                  value={amount}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9.]/g, '')
-                    const numValue = parseFloat(value || '0')
-                    if (
-                      !value ||
-                      isNaN(numValue) ||
-                      numValue <= currentBalance
-                    ) {
-                      setAmount(value)
+              <label htmlFor='add-amount' className='text-sm font-medium'>
+                Amount to Add
+              </label>
+              <CurrencyInput
+                id='add-amount'
+                placeholder='Enter amount'
+                value={amount}
+                onChange={(value, numericValue) => {
+                  // Prevent entering values higher than available balance
+                  if (numericValue > currentBalance) {
+                    setAmount(currentBalance.toString())
+                    setError(
+                      `Cannot add more than your available balance of ${formatCurrency(currentBalance)}`
+                    )
+                  } else {
+                    setAmount(value)
+                    if (error && error.includes('available balance')) {
+                      setError(null)
                     }
-                  }}
-                  className='pl-7'
-                />
-              </div>
+                  }
+                }}
+                decimals={2}
+              />
               <p className='text-xs text-gray-500 mt-1'>
                 Available balance: {formatCurrency(currentBalance)}
               </p>
@@ -320,7 +318,7 @@ export function PotCard({
       <Dialog open={withdrawOpen} onOpenChange={closeWithdrawDialog}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Withdraw from '{pot.name}'</DialogTitle>
+            <DialogTitle>Withdraw from &apos;{pot.name}&apos;</DialogTitle>
           </DialogHeader>
           <div className='space-y-6 py-4'>
             <p className='text-sm text-gray-500'>
@@ -335,8 +333,17 @@ export function PotCard({
             )}
 
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>New Amount</label>
-              <div className='text-3xl font-bold' key={newWithdrawTotal}>
+              <label
+                htmlFor='withdraw-new-amount'
+                className='text-sm font-medium'
+              >
+                New Amount
+              </label>
+              <div
+                id='withdraw-new-amount'
+                className='text-3xl font-bold'
+                key={newWithdrawTotal}
+              >
                 {formatCurrency(newWithdrawTotal)}
               </div>
 
@@ -358,26 +365,29 @@ export function PotCard({
             </div>
 
             <div className='space-y-2 mt-4'>
-              <label className='text-sm font-medium'>Amount to Withdraw</label>
-              <div className='relative'>
-                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                  <span className='text-gray-500'>£</span>
-                </div>
-                <Input
-                  type='text'
-                  inputMode='decimal'
-                  placeholder='Enter amount'
-                  value={amount}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9.]/g, '')
-                    const numValue = parseFloat(value || '0')
-                    if (!value || isNaN(numValue) || numValue <= pot.total) {
-                      setAmount(value)
+              <label htmlFor='withdraw-amount' className='text-sm font-medium'>
+                Amount to Withdraw
+              </label>
+              <CurrencyInput
+                id='withdraw-amount'
+                placeholder='Enter amount'
+                value={amount}
+                onChange={(value, numericValue) => {
+                  // Prevent entering values higher than pot balance
+                  if (numericValue > pot.total) {
+                    setAmount(pot.total.toString())
+                    setError(
+                      `Cannot withdraw more than the available pot balance of ${formatCurrency(pot.total)}`
+                    )
+                  } else {
+                    setAmount(value)
+                    if (error && error.includes('pot balance')) {
+                      setError(null)
                     }
-                  }}
-                  className='pl-7'
-                />
-              </div>
+                  }
+                }}
+                decimals={2}
+              />
               <p className='text-xs text-gray-500 mt-1'>
                 Available in pot: {formatCurrency(pot.total)}
               </p>

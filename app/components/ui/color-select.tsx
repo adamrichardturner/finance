@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   Select,
   SelectContent,
@@ -7,7 +6,6 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { THEME_COLORS } from '~/utils/budget-categories'
-import { SelectItemIndicator } from '@radix-ui/react-select'
 
 interface ColorSelectProps {
   value: string

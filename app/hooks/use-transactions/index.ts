@@ -4,9 +4,14 @@ import { useTransactionSorting } from './use-transaction-sorting'
 import { useTransactionPagination } from './use-transaction-pagination'
 import { useTransactionFormatting } from './use-transaction-formatting'
 import { useTransactionNavigation } from './use-transaction-navigation'
+import { useTransactionGrouping } from './use-transaction-grouping'
 import { AppTransaction } from '~/utils/transform-data'
 import { useEffect } from 'react'
-import { SortOption } from './use-transaction-sorting'
+import {
+  SortOption,
+  TransactionFilterStrategy,
+} from '~/strategies/transactions'
+import { useQueryClient } from '@tanstack/react-query'
 
 export interface UseTransactionsResult {
   // Data and loading state
@@ -14,6 +19,7 @@ export interface UseTransactionsResult {
   error: unknown
   transactions: AppTransaction[] | undefined
   categories: string[]
+  refreshTransactions: () => Promise<boolean>
 
   // Filtering state
   searchQuery: string
@@ -21,10 +27,29 @@ export interface UseTransactionsResult {
   debouncedSearchQuery: string
   category: string
   setCategory: (category: string) => void
+  activeFilters: TransactionFilterStrategy[]
+  addFilter: (filter: TransactionFilterStrategy) => void
+  removeFilter: (filterName: string) => void
+  clearFilters: () => void
+  clearSearch: () => void
 
   // Sorting state
   sortBy: SortOption
   setSortBy: (sort: SortOption) => void
+  availableSortOptions: Array<{
+    value: SortOption
+    label: string
+  }>
+
+  // Grouping state
+  groupBy: string | null
+  setGroupBy: (groupOption: string | null) => void
+  groupedTransactions: Record<string, AppTransaction[]> | null
+  availableGroupOptions: Array<{
+    value: string
+    label: string
+  }>
+  isGrouped: boolean
 
   // Results
   visibleTransactions: AppTransaction[]
@@ -45,10 +70,12 @@ export interface UseTransactionsResult {
 
 /**
  * Main transactions hook that composes all specialized hooks
+ * using the Strategy pattern for data operations
  */
 export function useTransactions(): UseTransactionsResult {
   // Base data fetching
   const { transactions, isLoading, error, categories } = useTransactionBase()
+  const queryClient = useQueryClient()
 
   // Filtering logic
   const {
@@ -57,22 +84,38 @@ export function useTransactions(): UseTransactionsResult {
     debouncedSearchQuery,
     category,
     setCategory,
-    urlSearchQuery,
-    setUrlSearchQuery,
+    clearUrlSearch,
     filteredTransactions,
     filteredCount,
+    activeFilters,
+    addFilter,
+    removeFilter,
+    clearFilters,
   } = useTransactionFilters({
     transactions,
   })
 
   // Sorting logic
-  const { sortBy, setSortBy, sortedTransactions } = useTransactionSorting({
-    transactions: filteredTransactions,
+  const { sortBy, setSortBy, sortedTransactions, availableSortOptions } =
+    useTransactionSorting({
+      transactions: filteredTransactions,
+    })
+
+  // Grouping logic
+  const {
+    groupBy,
+    setGroupBy,
+    groupedTransactions,
+    availableGroupOptions,
+    isGrouped,
+  } = useTransactionGrouping({
+    transactions: sortedTransactions,
   })
 
   // Pagination logic
   const { visibleTransactions, loadMore, hasMore, resetPagination } =
     useTransactionPagination({
+      // If we're grouping, we'll handle pagination differently
       transactions: sortedTransactions,
     })
 
@@ -88,13 +131,36 @@ export function useTransactions(): UseTransactionsResult {
   const { handleCategoryClick, handleSenderClick } = useTransactionNavigation({
     setCategory,
     setSearchQuery,
-    setUrlSearchQuery,
+    clearUrlSearch,
   })
 
-  // Reset pagination when filter or sort changes
+  // Simple function to clear search
+  const clearSearch = () => {
+    clearUrlSearch() // This already clears the search query and updates the URL
+  }
+
+  // Reset pagination when filter, sort, or group changes
   useEffect(() => {
     resetPagination()
-  }, [category, debouncedSearchQuery, urlSearchQuery, sortBy, resetPagination])
+  }, [category, debouncedSearchQuery, sortBy, groupBy, resetPagination])
+
+  // Add refreshTransactions implementation
+  const refreshTransactions = async (): Promise<boolean> => {
+    try {
+      // Reset pagination first
+      resetPagination()
+
+      // Then invalidate the relevant queries to force a refresh
+      await queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      await queryClient.invalidateQueries({ queryKey: ['financialData'] })
+
+      console.log('Transactions refreshed successfully')
+      return true
+    } catch (error) {
+      console.error('Error refreshing transactions:', error)
+      return false
+    }
+  }
 
   return {
     // Data and loading state
@@ -102,6 +168,7 @@ export function useTransactions(): UseTransactionsResult {
     error,
     transactions,
     categories,
+    refreshTransactions,
 
     // Filtering state
     searchQuery,
@@ -109,10 +176,23 @@ export function useTransactions(): UseTransactionsResult {
     debouncedSearchQuery,
     category,
     setCategory,
+    activeFilters,
+    addFilter,
+    removeFilter,
+    clearFilters,
+    clearSearch,
 
     // Sorting state
     sortBy,
     setSortBy,
+    availableSortOptions,
+
+    // Grouping state
+    groupBy,
+    setGroupBy,
+    groupedTransactions,
+    availableGroupOptions,
+    isGrouped,
 
     // Results
     visibleTransactions,
@@ -137,6 +217,7 @@ export {
   useTransactionBase,
   useTransactionFilters,
   useTransactionSorting,
+  useTransactionGrouping,
   useTransactionPagination,
   useTransactionFormatting,
   useTransactionNavigation,

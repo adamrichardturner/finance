@@ -7,10 +7,10 @@ import {
   refreshTokenCookie,
   useRefreshToken,
   createUserRefreshToken,
+  authCookie,
 } from '~/services/auth/auth.service'
 
 import { createCookieSessionStorage } from '@remix-run/node'
-import { authCookie } from '~/services/auth/auth.service'
 import type { Request, Response, NextFunction } from 'express'
 
 const sessionStorage = createCookieSessionStorage({

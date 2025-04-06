@@ -1,6 +1,5 @@
 import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import Pointer from '/assets/icons/Pointer.svg?url'
-import { formatDistanceToNow, format, isAfter, subMonths } from 'date-fns'
+import { format } from 'date-fns'
 import { AppTransaction } from '~/utils/transform-data'
 import React, { useMemo } from 'react'
 import { renderAvatar } from '~/utils/avatar-utils'
@@ -17,20 +16,18 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
 }) => {
   const navigate = useNavigate()
 
+  const filteredTransactions = useMemo(() => {
+    if (!transactions || transactions.length === 0) {
+      return []
+    }
+
+    // Don't filter out pot transactions, show all transactions
+    return transactions
+  }, [transactions])
+
   if (!transactions || transactions.length === 0) {
     return null
   }
-
-  const filteredTransactions = useMemo(() => {
-    return transactions.filter((tx) => {
-      const isPotTransaction =
-        tx.description.toLowerCase().includes('pot') ||
-        tx.category.toLowerCase().includes('pot') ||
-        tx.description.toLowerCase().includes('savings')
-
-      return !isPotTransaction
-    })
-  }, [transactions])
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -41,21 +38,11 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
     }).format(amount)
   }
 
-  const isOverAMonthOld = (date: Date): boolean => {
-    const oneMonthAgo = subMonths(new Date(), 1)
-    return !isAfter(date, oneMonthAgo)
-  }
-
   const formatDate = (dateString: string | Date) => {
     try {
       const date =
         typeof dateString === 'string' ? new Date(dateString) : dateString
-
-      if (isOverAMonthOld(date)) {
-        return format(date, 'dd/MM/yyyy')
-      }
-
-      return formatDistanceToNow(date, { addSuffix: true })
+      return format(date, 'dd/MM/yyyy')
     } catch (error) {
       return 'Invalid date'
     }
@@ -72,10 +59,21 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
         <div
           className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors items-center flex flex-row gap-1'
           onClick={() => navigate('/transactions')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              navigate('/transactions')
+            }
+          }}
+          tabIndex={0}
+          role='button'
         >
           View All
           <span>
-            <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2 ml-2`} />
+            <img
+              src='/assets/icons/Pointer.svg'
+              alt='Pointer Icon'
+              className={`h-2 w-2 ml-2`}
+            />
           </span>
         </div>
       </CardHeader>
@@ -89,6 +87,15 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
                 `/transactions?search=${encodeURIComponent(transaction.description)}`
               )
             }
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                navigate(
+                  `/transactions?search=${encodeURIComponent(transaction.description)}`
+                )
+              }
+            }}
+            tabIndex={0}
+            role='button'
           >
             <div className='flex items-center justify-between'>
               <div className='flex items-center'>

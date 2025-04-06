@@ -1,8 +1,7 @@
-import { Card, CardTitle, CardHeader } from '~/components/ui/card'
-import Pointer from '/assets/icons/Pointer.svg?url'
-import PiggyBank from '/assets/icons/PiggyBank.svg?url'
+import { Card, CardTitle, CardHeader, CardContent } from '~/components/ui/card'
 import { Pot } from '~/types/finance.types'
 import { transformPotsToOverview } from '~/transformers/potTransformer'
+import { PlusCircle } from 'lucide-react'
 
 interface PotsProps {
   pots: Pot[]
@@ -15,8 +14,35 @@ interface PotTotal {
 const Pots: React.FC<PotsProps> = ({ pots }) => {
   const { formattedTotal } = transformPotsToOverview(pots)
 
-  if (!pots) {
-    return null
+  if (!pots || pots.length === 0) {
+    return (
+      <Card className='p-[32px] flex flex-col gap-4 shadow-none'>
+        <CardHeader className='flex p-0 flex-row justify-between items-center w-full'>
+          <CardTitle className='text-[20px]'>Pots</CardTitle>
+          <div className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors items-center flex flex-row gap-1'>
+            See Details
+            <span>
+              <img
+                src='/assets/icons/Pointer.svg'
+                alt='Pointer Icon'
+                className='h-2 w-2 ml-2'
+              />
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent className='p-0 mt-4'>
+          <div className='flex flex-col items-center justify-center h-[180px] text-center'>
+            <PlusCircle className='w-12 h-12 text-gray-300 mb-3' />
+            <p className='text-gray-500 font-medium'>
+              No savings pots available
+            </p>
+            <p className='text-gray-400 text-sm mt-1'>
+              Create pots to save for specific goals
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -26,7 +52,11 @@ const Pots: React.FC<PotsProps> = ({ pots }) => {
         <div className='text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors items-center flex flex-row gap-1'>
           See Details
           <span>
-            <img src={Pointer} alt='Pointer Icon' className={`h-2 w-2 ml-2`} />
+            <img
+              src='/assets/icons/Pointer.svg'
+              alt='Pointer Icon'
+              className={`h-2 w-2 ml-2`}
+            />
           </span>
         </div>
       </CardHeader>
@@ -55,7 +85,7 @@ export const PotTotal: React.FC<PotTotal> = ({ total }) => {
     <div className='p-4 bg-[#F8F4F0] flex items-center w-full sm:w-full rounded-lg'>
       <div>
         <img
-          src={PiggyBank}
+          src='/assets/icons/PiggyBank.svg'
           alt='Piggy Bank'
           className={`h-[40px] w-[40px] mb-1`}
         />

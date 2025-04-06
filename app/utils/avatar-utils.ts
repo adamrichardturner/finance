@@ -98,29 +98,33 @@ export function renderAvatar(
 
   const processedAvatarUrl = processAvatarPath(avatarUrl)
 
-  return React.createElement('div', {
-    className: 'relative rounded-full overflow-hidden flex-shrink-0',
-    style: { width: `${size}px`, height: `${size}px` },
-    children: [
-      processedAvatarUrl &&
-        React.createElement('img', {
-          key: 'avatar-img',
-          src: processedAvatarUrl,
-          alt: `${name} avatar`,
-          className: 'h-full w-full object-cover',
-          loading: 'lazy',
-          onError: (e: React.SyntheticEvent<HTMLImageElement>) => {
-            const target = e.target as HTMLImageElement
-            target.style.display = 'none'
-            const fallbackDiv =
-              target.parentElement?.querySelector('.avatar-fallback')
-            if (fallbackDiv && fallbackDiv instanceof HTMLElement) {
-              fallbackDiv.style.display = 'flex'
-            }
-          },
-        }),
+  return React.createElement(
+    'div',
+    {
+      className: 'relative rounded-full overflow-hidden flex-shrink-0',
+      style: { width: `${size}px`, height: `${size}px` },
+    },
+    processedAvatarUrl &&
+      React.createElement('img', {
+        key: 'avatar-img',
+        src: processedAvatarUrl,
+        alt: `${name} avatar`,
+        className: 'h-full w-full object-cover',
+        loading: 'lazy',
+        onError: (e: React.SyntheticEvent<HTMLImageElement>) => {
+          const target = e.target as HTMLImageElement
+          target.style.display = 'none'
+          const fallbackDiv =
+            target.parentElement?.querySelector('.avatar-fallback')
+          if (fallbackDiv && fallbackDiv instanceof HTMLElement) {
+            fallbackDiv.style.display = 'flex'
+          }
+        },
+      }),
 
-      React.createElement('div', {
+    React.createElement(
+      'div',
+      {
         key: 'avatar-fallback',
         className:
           'avatar-fallback absolute inset-0 flex items-center justify-center text-white font-medium',
@@ -129,8 +133,8 @@ export function renderAvatar(
           display: processedAvatarUrl ? 'none' : 'flex',
           fontSize: size > 32 ? '1rem' : '0.875rem',
         },
-        children: initials,
-      }),
-    ],
-  })
+      },
+      initials
+    )
+  )
 }

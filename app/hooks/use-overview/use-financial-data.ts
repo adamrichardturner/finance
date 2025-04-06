@@ -35,8 +35,8 @@ export function useFinancialData() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['financialData'],
     queryFn: fetchFinancialData,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000, // 30 seconds
+    refetchOnWindowFocus: true,
     placeholderData: initialFinancialData,
     retry: 3,
     retryDelay: (attempt: number) =>

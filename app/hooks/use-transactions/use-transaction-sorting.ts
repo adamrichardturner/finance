@@ -1,14 +1,6 @@
 import { useMemo, useState } from 'react'
 import { AppTransaction } from '~/utils/transform-data'
-import orderBy from 'lodash/orderBy'
-
-export type SortOption =
-  | 'latest'
-  | 'oldest'
-  | 'a-z'
-  | 'z-a'
-  | 'highest'
-  | 'lowest'
+import { SortOption, SortStrategyFactory } from '~/strategies/transactions'
 
 export interface TransactionSortingProps {
   transactions: AppTransaction[]
@@ -18,58 +10,45 @@ export interface TransactionSortingResult {
   sortBy: SortOption
   setSortBy: (sortOption: SortOption) => void
   sortedTransactions: AppTransaction[]
+  availableSortOptions: Array<{
+    value: SortOption
+    label: string
+  }>
 }
 
 /**
- * Hook for sorting transaction data
+ * Hook for sorting transaction data using the Strategy pattern
  */
 export function useTransactionSorting({
   transactions,
 }: TransactionSortingProps): TransactionSortingResult {
   const [sortBy, setSortBy] = useState<SortOption>('latest')
 
+  // Get all available sort strategies
+  const availableSortOptions = useMemo(() => {
+    return SortStrategyFactory.getAllStrategies().map((strategy) => ({
+      value: strategy.sortOption,
+      label: strategy.displayName,
+    }))
+  }, [])
+
+  // Apply the selected sort strategy to transactions
   const sortedTransactions = useMemo(() => {
     if (!transactions || transactions.length === 0) {
       return []
     }
 
-    switch (sortBy) {
-      case 'latest':
-        return orderBy(
-          transactions,
-          [(tx: AppTransaction) => new Date(tx.date).getTime()],
-          ['desc']
-        )
-      case 'oldest':
-        return orderBy(
-          transactions,
-          [(tx: AppTransaction) => new Date(tx.date).getTime()],
-          ['asc']
-        )
-      case 'a-z':
-        return orderBy(transactions, ['description'], ['asc'])
-      case 'z-a':
-        return orderBy(transactions, ['description'], ['desc'])
-      case 'highest':
-        return orderBy(
-          transactions,
-          [(tx: AppTransaction) => (tx.amount >= 0 ? 1 : 0), 'amount'],
-          ['desc', 'desc']
-        )
-      case 'lowest':
-        return orderBy(
-          transactions,
-          [(tx: AppTransaction) => (tx.amount < 0 ? 0 : 1), 'amount'],
-          ['asc', 'asc']
-        )
-      default:
-        return transactions
-    }
+    // Get the appropriate sort strategy based on the selected option
+    const sortStrategy = SortStrategyFactory.getStrategy(sortBy)
+
+    // Execute the strategy on the transactions
+    return sortStrategy.execute(transactions)
   }, [transactions, sortBy])
 
   return {
     sortBy,
     setSortBy,
     sortedTransactions,
+    availableSortOptions,
   }
 }

@@ -30,8 +30,8 @@ import { Button } from '~/components/ui/button'
 import { useTransactions } from '~/hooks/use-transactions/index'
 import { getThemeForCategory } from '~/utils/budget-categories'
 import { AppTransaction } from '~/utils/transform-data'
-import Pointer from '/assets/icons/Pointer.svg?url'
-import { SortOption } from '~/hooks/use-transactions/use-transaction-sorting'
+import { SortOption } from '~/strategies/transactions'
+import React from 'react'
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -66,7 +66,31 @@ export function Transactions() {
     renderTransactionAvatar,
     handleCategoryClick,
     handleSenderClick,
+    clearSearch,
   } = useTransactions()
+
+  // Debug: Count pot transactions
+  React.useEffect(() => {
+    if (transactions?.length) {
+      const potTransactions = transactions.filter(
+        (tx) =>
+          tx.category?.toLowerCase() === 'savings' ||
+          tx.category?.toLowerCase() === 'withdrawal' ||
+          tx.category?.toLowerCase() === 'return' ||
+          tx.description?.toLowerCase().includes('pot') ||
+          tx.description?.toLowerCase().includes('savings') ||
+          tx.description?.toLowerCase().includes('transfer')
+      )
+
+      console.log(
+        `Debug: Found ${potTransactions.length} pot transactions out of ${transactions.length} total transactions`
+      )
+
+      if (potTransactions.length > 0) {
+        console.log('Sample pot transaction:', potTransactions[0])
+      }
+    }
+  }, [transactions])
 
   if (isLoading) {
     return (
@@ -222,10 +246,21 @@ export function Transactions() {
             <span
               className='mt-2 sm:mt-0 text-[14px] text-gray-500 cursor-pointer hover:text-black transition-colors flex items-center'
               onClick={() => setCategory('all')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setCategory('all')
+                }
+              }}
+              tabIndex={0}
+              role='button'
             >
               View all transactions
               <span className='ml-2'>
-                <img src={Pointer} alt='Pointer Icon' className='h-2 w-2' />
+                <img
+                  src='/assets/icons/Pointer.svg'
+                  alt='Pointer Icon'
+                  className='h-2 w-2'
+                />
               </span>
             </span>
           )}
@@ -254,7 +289,15 @@ export function Transactions() {
             {searchQuery && (
               <div
                 className='absolute right-8 top-1/2 -translate-y-1/2 cursor-pointer'
-                onClick={() => setSearchQuery('')}
+                onClick={clearSearch}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    clearSearch()
+                  }
+                }}
+                tabIndex={0}
+                role='button'
+                aria-label='Clear search'
               >
                 <X className='h-4 w-4 text-gray-500 hover:text-gray-800 transition-colors' />
               </div>
@@ -263,7 +306,10 @@ export function Transactions() {
 
           <div className='hidden sm:flex items-center space-x-4'>
             <div className='relative'>
-              <label className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'>
+              <label
+                htmlFor='sort-transactions'
+                className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'
+              >
                 Sort by
               </label>
               <Select
@@ -273,7 +319,10 @@ export function Transactions() {
                   setSearchQuery('')
                 }}
               >
-                <SelectTrigger className='w-[160px] border border-gray-100 text-[14px] text-color-grey-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
+                <SelectTrigger
+                  id='sort-transactions'
+                  className='w-[160px] border border-gray-100 text-[14px] text-color-grey-100 hover:shadow-lg transition-shadow duration-200 shadow-md'
+                >
                   <SelectValue placeholder='Sort by' />
                 </SelectTrigger>
                 <SelectContent className='min-w-[160px]'>
@@ -288,7 +337,10 @@ export function Transactions() {
             </div>
 
             <div className='relative'>
-              <label className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'>
+              <label
+                htmlFor='category-filter'
+                className='absolute -top-3 left-2 text-[10px] bg-white px-1 z-10 text-muted-foreground'
+              >
                 Category
               </label>
               <Select
@@ -298,15 +350,24 @@ export function Transactions() {
                   setSearchQuery('')
                 }}
               >
-                <SelectTrigger className='w-[180px] border text-[14px] border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md'>
-                  <SelectValue placeholder='Category' />
+                <SelectTrigger
+                  id='category-filter'
+                  className='w-[180px] border text-[14px] border-gray-100 hover:shadow-lg transition-shadow duration-200 shadow-md text-gray-800'
+                >
+                  <SelectValue>
+                    {category === 'all'
+                      ? 'All Transactions'
+                      : categories.find(
+                          (cat) => cat.toLowerCase() === category
+                        )}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className='min-w-[180px] max-h-[300px] overflow-y-auto'>
                   <SelectItem value='all'>All Transactions</SelectItem>
                   {categories.map(
                     (cat: string) =>
                       cat !== 'All Transactions' && (
-                        <SelectItem key={cat} value={cat}>
+                        <SelectItem key={cat} value={cat.toLowerCase()}>
                           {cat}
                         </SelectItem>
                       )
@@ -519,6 +580,16 @@ export function Transactions() {
                                       e.stopPropagation()
                                       handleSenderClick(transaction.description)
                                     }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter' || e.key === ' ') {
+                                        e.stopPropagation()
+                                        handleSenderClick(
+                                          transaction.description
+                                        )
+                                      }
+                                    }}
+                                    tabIndex={0}
+                                    role='button'
                                   >
                                     {transaction.description}
                                   </span>
@@ -528,19 +599,33 @@ export function Transactions() {
                                     className='flex items-center justify-start gap-2 cursor-pointer hover:font-[600] transition-all'
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      handleCategoryClick(transaction.category)
+                                      handleCategoryClick(
+                                        transaction.category || 'Uncategorized'
+                                      )
                                     }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter' || e.key === ' ') {
+                                        e.stopPropagation()
+                                        handleCategoryClick(
+                                          transaction.category ||
+                                            'Uncategorized'
+                                        )
+                                      }
+                                    }}
+                                    tabIndex={0}
+                                    role='button'
                                   >
                                     <div
                                       className='h-2 w-2 rounded-full flex-shrink-0 text-[12px]'
                                       style={{
                                         backgroundColor: getThemeForCategory(
-                                          transaction.category
+                                          transaction.category ||
+                                            'Uncategorized'
                                         ),
                                       }}
                                     />
                                     <span className='text-[12px] text-color-grey-500'>
-                                      {transaction.category}
+                                      {transaction.category || 'Uncategorized'}
                                     </span>
                                   </div>
                                 </TableCell>
@@ -586,6 +671,14 @@ export function Transactions() {
                                     e.stopPropagation()
                                     handleSenderClick(transaction.description)
                                   }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.stopPropagation()
+                                      handleSenderClick(transaction.description)
+                                    }
+                                  }}
+                                  tabIndex={0}
+                                  role='button'
                                 >
                                   {transaction.description}
                                 </span>
@@ -593,18 +686,30 @@ export function Transactions() {
                                   className='text-xs text-gray-500 font-normal flex items-center gap-1 cursor-pointer hover:font-[700] transition-all mt-1'
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    handleCategoryClick(transaction.category)
+                                    handleCategoryClick(
+                                      transaction.category || 'Uncategorized'
+                                    )
                                   }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.stopPropagation()
+                                      handleCategoryClick(
+                                        transaction.category || 'Uncategorized'
+                                      )
+                                    }
+                                  }}
+                                  tabIndex={0}
+                                  role='button'
                                 >
                                   <div
                                     className='h-2 w-2 rounded-full flex-shrink-0'
                                     style={{
                                       backgroundColor: getThemeForCategory(
-                                        transaction.category
+                                        transaction.category || 'Uncategorized'
                                       ),
                                     }}
                                   />
-                                  {transaction.category}
+                                  {transaction.category || 'Uncategorized'}
                                 </span>
                               </div>
                             </div>

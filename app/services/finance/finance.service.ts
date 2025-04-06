@@ -78,11 +78,13 @@ export async function createPot({
   name,
   target,
   theme,
+  initialAmount = 0,
 }: {
   userId: string
   name: string
   target: number
   theme: string
+  initialAmount?: number
 }): Promise<Pot> {
   const existingPot = await db('pots')
     .where('user_id', userId)
@@ -93,19 +95,63 @@ export async function createPot({
     throw new Error(`A pot with the name "${name}" already exists`)
   }
 
-  const [pot] = await db('pots')
-    .insert({
-      user_id: userId,
-      name,
-      target,
-      total: 0,
-      theme,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .returning('*')
+  // Check if initialAmount is valid
+  const numInitialAmount = Number(initialAmount || 0)
 
-  return pot
+  // If user is adding initial funds, check if they have enough balance
+  if (numInitialAmount > 0) {
+    const userBalance = await db('balance').where('user_id', userId).first()
+
+    if (!userBalance || userBalance.current < numInitialAmount) {
+      throw new Error(
+        `Cannot add more than your available balance of ${userBalance ? userBalance.current : 0}`
+      )
+    }
+  }
+
+  return db.transaction(async (trx) => {
+    // Create the pot with the initial amount
+    const [pot] = await trx('pots')
+      .insert({
+        user_id: userId,
+        name,
+        target,
+        total: numInitialAmount,
+        theme,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .returning('*')
+
+    // If initial amount is provided, update the user's balance
+    if (numInitialAmount > 0) {
+      // Update the user's balance by subtracting the initial amount
+      await trx('balance')
+        .where('user_id', userId)
+        .update({
+          current: trx.raw('current - ?', [numInitialAmount]),
+          updated_at: new Date().toISOString(),
+        })
+
+      // Add a transaction record for the initial funds
+      const now = new Date()
+      const transactionData = {
+        avatar: '/assets/icons/savings.svg',
+        name: `Initial funds for ${name} Savings Pot`,
+        category: 'Savings',
+        date: now,
+        amount: -numInitialAmount, // Negative amount since it's being deducted from balance
+        recurring: false,
+        user_id: userId,
+        created_at: now,
+        updated_at: now,
+      }
+
+      await trx('transactions').insert(transactionData)
+    }
+
+    return pot
+  })
 }
 
 export async function updatePot({
@@ -169,7 +215,40 @@ export async function deletePot({
     throw new Error('Pot not found')
   }
 
-  await db('pots').where('id', id).where('user_id', userId).delete()
+  // Check if the pot has any balance to return to the main account
+  const potTotal = Number(pot.total || 0)
+
+  return db.transaction(async (trx) => {
+    // Delete the pot
+    await trx('pots').where('id', id).where('user_id', userId).delete()
+
+    // If the pot had a balance, return it to the main account
+    if (potTotal > 0) {
+      // Update the user's balance by adding the pot total
+      await trx('balance')
+        .where('user_id', userId)
+        .update({
+          current: trx.raw('current + ?', [potTotal]),
+          updated_at: new Date().toISOString(),
+        })
+
+      // Add a transaction record for the returned funds
+      const now = new Date()
+      const transactionData = {
+        avatar: '/assets/icons/withdraw.svg',
+        name: `Returned funds from deleted ${pot.name} Savings Pot`,
+        category: 'Return',
+        date: now,
+        amount: potTotal, // Positive amount since it's going back to main balance
+        recurring: false,
+        user_id: userId,
+        created_at: now,
+        updated_at: now,
+      }
+
+      await trx('transactions').insert(transactionData)
+    }
+  })
 }
 
 export async function updatePotBalance({
@@ -187,6 +266,17 @@ export async function updatePotBalance({
 
   if (!pot) {
     throw new Error('Pot not found')
+  }
+
+  // If adding money to the pot, check if user has enough balance
+  if (numAmount > 0) {
+    const userBalance = await db('balance').where('user_id', userId).first()
+
+    if (!userBalance || userBalance.current < numAmount) {
+      throw new Error(
+        `Cannot add more than your available balance of ${userBalance ? userBalance.current : 0}`
+      )
+    }
   }
 
   const currentTotal = Number(pot.total || 0)

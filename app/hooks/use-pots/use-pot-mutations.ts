@@ -1,137 +1,235 @@
 import { useFetcher } from '@remix-run/react'
-import { Pot } from '~/types/finance.types'
+import { useState, useCallback } from 'react'
+import { useFactories } from '~/factories'
+import {
+  PotCommandExecutor,
+  CreatePotParams as CommandCreatePotParams,
+  UpdatePotParams as CommandUpdatePotParams,
+  DeletePotParams,
+  MoneyTransactionParams,
+} from '~/commands/pots'
 
-interface CreatePotParams {
-  name: string
-  target: number
-  theme: string
-}
-
-interface UpdatePotParams {
-  potId: string
-  name: string
-  target: number
-  theme: string
-  icon?: string
-  color?: string
-}
-
-interface DeletePotParams {
-  potId: string
-}
-
-interface AddMoneyParams {
-  potId: string
-  amount: number
-}
-
-interface PotResponse {
-  pot: Pot
-  error?: string
-}
-
-interface DeleteResponse {
-  success: boolean
-  error?: string
-}
-
+/**
+ * Hook that provides pot mutation capabilities using the Command pattern
+ * and Factory pattern for entity creation and validation
+ */
 export const usePotMutations = () => {
   const fetcher = useFetcher()
+  const [isPending, setIsPending] = useState(false)
+  const { pots: potFactory } = useFactories()
 
+  // Create the command executor with the submit function
+  const commandExecutor = new PotCommandExecutor(
+    useCallback(
+      async (
+        formData: FormData,
+        options: {
+          method: 'get' | 'post' | 'put' | 'patch' | 'delete'
+          action: string
+        }
+      ) => {
+        fetcher.submit(formData, options)
+
+        // Wait for the fetcher to complete
+        return new Promise((resolve) => {
+          const checkData = () => {
+            // If we have completed the submission and have data
+            if (fetcher.state === 'idle' && fetcher.data) {
+              resolve(fetcher.data)
+            } else if (fetcher.state === 'idle' && !fetcher.data) {
+              // If we've reached idle state with no data, this likely means
+              // the operation was successful but didn't return data.
+              const intent = formData.get('intent') as string
+
+              // For any successful operation, return success
+              if (
+                intent === 'create' ||
+                intent === 'update' ||
+                intent === 'delete' ||
+                intent === 'add-money' ||
+                intent === 'withdraw'
+              ) {
+                resolve({ success: true })
+              } else {
+                resolve({ error: 'No response received from server' })
+              }
+            } else {
+              // Otherwise wait and check again
+              setTimeout(checkData, 100)
+            }
+          }
+
+          checkData()
+        })
+      },
+      [fetcher]
+    )
+  )
+
+  // Create a wrapper for the create command
   const createPot = {
-    mutateAsync: async (data: CreatePotParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'create')
-      formData.append('name', data.name)
-      formData.append('target', data.target.toString())
-      formData.append('theme', data.theme)
+    mutateAsync: async (params: CommandCreatePotParams) => {
+      // Validate using our factory first
+      try {
+        // Validate basic requirements before sending to backend
+        potFactory.validate({
+          name: params.name,
+          target: params.target,
+          theme: params.theme,
+        })
 
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/pots',
-      })
-
-      return result as unknown as PotResponse
+        setIsPending(true)
+        const result = await commandExecutor.create(params)
+        // No need to check for undefined result as commandExecutor handles it
+        if (result.error) {
+          throw new Error(result.error)
+        }
+        return { success: true }
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error
+        }
+        throw new Error('Failed to create pot')
+      } finally {
+        setIsPending(false)
+      }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Create a wrapper for the update command
   const updatePot = {
-    mutateAsync: async (data: UpdatePotParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'update')
-      formData.append('potId', data.potId)
-      formData.append('name', data.name)
-      formData.append('target', data.target.toString())
-      formData.append('theme', data.theme)
+    mutateAsync: async (params: CommandUpdatePotParams) => {
+      try {
+        // Validate basic requirements
+        if (params.name !== undefined) {
+          potFactory.validate({
+            name: params.name,
+            target: 1, // Dummy value for validation
+            theme: 'dummy', // Dummy value for validation
+          })
+        }
 
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/pots',
-      })
+        if (
+          params.target !== undefined &&
+          (typeof params.target !== 'number' || params.target <= 0)
+        ) {
+          throw new Error('Target amount must be a positive number')
+        }
 
-      return result as unknown as PotResponse
+        setIsPending(true)
+        const result = await commandExecutor.update(params)
+        // No need to check for undefined result as commandExecutor handles it
+        if (result.error) {
+          throw new Error(result.error)
+        }
+        return { success: true }
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error
+        }
+        throw new Error('Failed to update pot')
+      } finally {
+        setIsPending(false)
+      }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Create a wrapper for the delete command
   const deletePot = {
     mutateAsync: async (data: DeletePotParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'delete')
-      formData.append('potId', data.potId)
+      setIsPending(true)
+      try {
+        if (!data.potId) {
+          throw new Error('Pot ID is required')
+        }
 
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/pots',
-      })
+        const result = await commandExecutor.delete(data)
 
-      return result as unknown as DeleteResponse
+        // Don't check for undefined result since commandExecutor.delete now handles that case
+        if (result.error) {
+          throw new Error(result.error)
+        }
+
+        return { success: true }
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error
+        }
+        throw new Error('Failed to delete pot')
+      } finally {
+        setIsPending(false)
+      }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Create a wrapper for the add money command
   const addMoney = {
-    mutateAsync: async (data: AddMoneyParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'add-money')
-      formData.append('potId', data.potId)
+    mutateAsync: async (data: MoneyTransactionParams) => {
+      // Validate the amount
+      if (typeof data.amount !== 'number' || data.amount <= 0) {
+        throw new Error('Amount must be a positive number')
+      }
 
-      formData.append('amount', String(data.amount))
-
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/pots',
-      })
-
-      return result as unknown as PotResponse
+      setIsPending(true)
+      try {
+        const result = await commandExecutor.addMoney(data)
+        // No need to check for undefined result as commandExecutor handles it
+        if (result.error) {
+          throw new Error(result.error)
+        }
+        return { success: true }
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error
+        }
+        throw new Error('Failed to add money to pot')
+      } finally {
+        setIsPending(false)
+      }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Create a wrapper for the withdraw command
   const withdraw = {
-    mutateAsync: async (data: AddMoneyParams) => {
-      const formData = new FormData()
-      formData.append('intent', 'withdraw')
-      formData.append('potId', data.potId)
+    mutateAsync: async (data: MoneyTransactionParams) => {
+      // Validate the amount
+      if (typeof data.amount !== 'number' || data.amount <= 0) {
+        throw new Error('Amount must be a positive number')
+      }
 
-      formData.append('amount', String(data.amount))
-
-      const result = await fetcher.submit(formData, {
-        method: 'post',
-        action: '/pots',
-      })
-
-      return result as unknown as PotResponse
+      setIsPending(true)
+      try {
+        const result = await commandExecutor.withdraw(data)
+        // No need to check for undefined result as commandExecutor handles it
+        if (result.error) {
+          throw new Error(result.error)
+        }
+        return { success: true }
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error
+        }
+        throw new Error('Failed to withdraw from pot')
+      } finally {
+        setIsPending(false)
+      }
     },
-    isPending: fetcher.state === 'submitting',
+    isPending: isPending || fetcher.state === 'submitting',
   }
 
+  // Return the same interface as before to maintain compatibility
   return {
     createPot,
     updatePot,
     deletePot,
     addMoney,
     withdraw,
+    // Add command history access for debugging or future undo functionality
+    getCommandHistory: () => commandExecutor.getCommandHistory(),
+    clearCommandHistory: () => commandExecutor.clearHistory(),
   }
 }

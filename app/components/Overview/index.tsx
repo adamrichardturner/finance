@@ -71,12 +71,28 @@ const Overview: React.FC<OverviewProps> = ({
         </div>
         <div className='flex flex-col max-[1457px]:flex-col min-[1457px]:grid min-[1457px]:grid-cols-12 gap-[32px]'>
           <div className='w-full min-[1457px]:col-span-7 flex flex-col gap-[32px] cursor-pointer'>
-            <div onClick={() => handleNavigate('/pots')}>
+            <div
+              onClick={() => handleNavigate('/pots')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleNavigate('/pots')
+                }
+              }}
+              tabIndex={0}
+              role='button'
+            >
               <Pots pots={pots} />
             </div>
 
             <div
               onClick={() => handleNavigate('/transactions')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleNavigate('/transactions')
+                }
+              }}
+              tabIndex={0}
+              role='button'
               className='cursor-pointer'
             >
               <TransactionsOverview transactions={transactions} />
@@ -86,6 +102,13 @@ const Overview: React.FC<OverviewProps> = ({
           <div className='w-full min-[1457px]:col-span-5 flex flex-col gap-[32px]'>
             <div
               onClick={() => handleNavigate('/budgets')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleNavigate('/budgets')
+                }
+              }}
+              tabIndex={0}
+              role='button'
               className='cursor-pointer'
             >
               <BudgetChart budgets={budgets} />
@@ -93,6 +116,13 @@ const Overview: React.FC<OverviewProps> = ({
 
             <div
               onClick={() => handleNavigate('/recurring-bills')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleNavigate('/recurring-bills')
+                }
+              }}
+              tabIndex={0}
+              role='button'
               className='flex-1 cursor-pointer'
             >
               {recurringBills.length > 0 && (

@@ -1,8 +1,7 @@
 import { Knex } from 'knex'
 import fs from 'fs'
-import path from 'path'
+import path, { dirname } from 'path'
 import { fileURLToPath } from 'url'
-import { dirname } from 'path'
 import dotenv from 'dotenv'
 
 // Load environment variables based on NODE_ENV
@@ -23,6 +22,19 @@ if (!process.env.DEMO_USER_ID || !process.env.DEMO_PASSWORD_HASH) {
 
 const DEMO_USER_ID = process.env.DEMO_USER_ID
 const DEMO_PASSWORD_HASH = process.env.DEMO_PASSWORD_HASH
+
+// Define types for JSON data
+interface Category {
+  name: string
+  defaultTheme: string
+}
+
+interface Pot {
+  name: string
+  target: number
+  total: number
+  theme: string
+}
 
 export async function seed(knex: Knex): Promise<void> {
   console.log('Seeding demo user data from data.json...')
@@ -93,7 +105,7 @@ export async function seed(knex: Knex): Promise<void> {
   if (jsonData.categories && Array.isArray(jsonData.categories)) {
     const categoryRows = await knex('categories')
       .insert(
-        jsonData.categories.map((category: any) => ({
+        jsonData.categories.map((category: Category) => ({
           name: category.name,
           default_theme: category.defaultTheme,
           user_id: DEMO_USER_ID,
@@ -185,7 +197,7 @@ export async function seed(knex: Knex): Promise<void> {
   // Insert pot data
   if (jsonData.pots && Array.isArray(jsonData.pots)) {
     await knex('pots').insert(
-      jsonData.pots.map((pot: any) => ({
+      jsonData.pots.map((pot: Pot) => ({
         ...pot,
         user_id: DEMO_USER_ID,
         created_at: new Date(),

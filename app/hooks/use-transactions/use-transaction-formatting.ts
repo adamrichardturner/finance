@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { AppTransaction } from '~/utils/transform-data'
-import { format, formatDistanceToNow, subMonths } from 'date-fns'
+import { format } from 'date-fns'
 import { renderAvatar } from '~/utils/avatar-utils'
 
 export interface TransactionFormattingResult {
@@ -22,26 +22,23 @@ export function useTransactionFormatting(): TransactionFormattingResult {
     }).format(Math.abs(amount))
   }, [])
 
-  // Check if date is over a month old
+  // Check if date is over a month old - keeping this for potential future use
   const isOverAMonthOld = useCallback((dateString: string): boolean => {
     const date = new Date(dateString)
-    const oneMonthAgo = subMonths(new Date(), 1)
+    const oneMonthAgo = new Date()
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
     return date < oneMonthAgo
   }, [])
 
-  // Format transaction date based on age
-  const formatTransactionDate = useCallback(
-    (dateString: string): string => {
+  // Format transaction date - always use dd/MM/yyyy format
+  const formatTransactionDate = useCallback((dateString: string): string => {
+    try {
       const date = new Date(dateString)
-
-      if (isOverAMonthOld(dateString)) {
-        return format(date, 'dd/MM/yyyy')
-      }
-
-      return formatDistanceToNow(date, { addSuffix: true })
-    },
-    [isOverAMonthOld]
-  )
+      return format(date, 'dd/MM/yyyy')
+    } catch (error) {
+      return 'Invalid date'
+    }
+  }, [])
 
   // Render avatar for transaction
   const renderTransactionAvatar = useCallback(

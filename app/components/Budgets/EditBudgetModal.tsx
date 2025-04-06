@@ -14,6 +14,8 @@ import { THEME_COLORS, getAvailableCategories } from '~/utils/budget-categories'
 import { Budget } from '~/types/finance.types'
 import isEqual from 'lodash/isEqual'
 import { ColorSelect } from '~/components/ui/color-select'
+import { CurrencyInput } from '~/components/ui/currency-input'
+import { formatCurrency } from '~/utils/number-formatter'
 
 interface BudgetFormValues {
   category: string
@@ -32,6 +34,7 @@ interface EditBudgetModalProps {
   onClose: () => void
   budgets: Budget[]
   usedColors?: string[] // Colors already used by pots
+  monthlyIncome?: number // Monthly income for validation
 }
 
 export function EditBudgetModal({
@@ -39,7 +42,17 @@ export function EditBudgetModal({
   budgetId,
   onClose,
   budgets,
+  usedColors = [],
+  monthlyIncome = 0,
 }: EditBudgetModalProps) {
+  // PostgreSQL numeric limit (precision 10, scale 2)
+  const MAX_BUDGET_AMOUNT = 99999999.99
+
+  // Calculate total of existing budgets
+  const totalBudgeted = useMemo(() => {
+    return budgets.reduce((sum, budget) => sum + parseFloat(budget.maximum), 0)
+  }, [budgets])
+
   const { updateBudget } = useBudgetMutations()
 
   const [formState, setFormState] = useState<FormState>({
@@ -62,12 +75,17 @@ export function EditBudgetModal({
   }, [formState])
 
   // Extract used colors from existing budgets (excluding current budget)
-  const usedColors = useMemo(() => {
+  const budgetColors = useMemo(() => {
     if (!budgets) return []
     return budgets
       .filter((budget) => String(budget.id) !== budgetId)
       .map((budget) => budget.theme)
   }, [budgets, budgetId])
+
+  // Combine budget colors with external used colors
+  const allUsedColors = useMemo(() => {
+    return [...budgetColors, ...usedColors]
+  }, [budgetColors, usedColors])
 
   useEffect(() => {
     if (isOpen && budgetId && budgets) {
@@ -131,18 +149,57 @@ export function EditBudgetModal({
     }
   }
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAmountChange = (value: string, numericValue: number) => {
     setFormState((prev) => ({
       ...prev,
       current: {
         ...prev.current,
-        amount: e.target.value,
+        amount: value,
       },
     }))
+
+    // Perform real-time validation
+    if (value) {
+      // Check if amount exceeds PostgreSQL limit
+      if (numericValue > MAX_BUDGET_AMOUNT) {
+        setError(
+          `Maximum amount cannot exceed ${formatCurrency(MAX_BUDGET_AMOUNT)}`
+        )
+        return
+      }
+
+      // Get current budget to calculate difference
+      const currentBudget = budgets.find((b) => String(b.id) === budgetId)
+      if (currentBudget) {
+        const currentAmount = parseFloat(currentBudget.maximum)
+
+        // Calculate the new total (excluding current budget then adding the new amount)
+        const totalWithoutCurrent = totalBudgeted - currentAmount
+        const newTotal = totalWithoutCurrent + numericValue
+
+        // Check if budget exceeds monthly income
+        if (monthlyIncome > 0 && numericValue > monthlyIncome) {
+          setError(
+            `Budget cannot exceed your monthly income of ${formatCurrency(monthlyIncome)}`
+          )
+          return
+        }
+
+        // Check if new total would exceed monthly income
+        if (monthlyIncome > 0 && newTotal > monthlyIncome) {
+          setError(
+            `Updating this budget would exceed your monthly income. New total would be ${formatCurrency(newTotal)}, Monthly income: ${formatCurrency(monthlyIncome)}`
+          )
+          return
+        }
+      }
+    }
+
+    // If we get here, clear any previous errors
+    setError(null)
   }
 
   const handleThemeChange = (value: string) => {
-    console.log('Theme changed to:', value)
     setFormState((prev) => ({
       ...prev,
       current: {
@@ -150,6 +207,8 @@ export function EditBudgetModal({
         theme: value,
       },
     }))
+    // Clear error when user changes the theme
+    setError(null)
   }
 
   const availableCategories = getAvailableCategories(
@@ -157,6 +216,80 @@ export function EditBudgetModal({
     budgetId,
     formState.original.category
   )
+
+  // Check if current form values are valid (but don't set error messages)
+  const isFormValid = useMemo(() => {
+    // Basic form validation
+    if (
+      !formState.current.category ||
+      !formState.current.amount ||
+      !formState.current.theme
+    ) {
+      return false
+    }
+
+    // Check for duplicates (only if category has changed)
+    if (
+      formState.current.category.toLowerCase().trim() !==
+      formState.original.category.toLowerCase().trim()
+    ) {
+      const normalizedSelectedCategory = formState.current.category
+        .toLowerCase()
+        .trim()
+      const isDuplicate = budgets.some(
+        (budget) =>
+          String(budget.id) !== budgetId &&
+          budget.category.toLowerCase().trim() === normalizedSelectedCategory
+      )
+      if (isDuplicate) {
+        return false
+      }
+    }
+
+    // Parse amounts for validation
+    const newAmount = parseFloat(formState.current.amount)
+    if (isNaN(newAmount) || newAmount <= 0) {
+      return false
+    }
+
+    // Check if amount exceeds PostgreSQL limit
+    if (newAmount > MAX_BUDGET_AMOUNT) {
+      return false
+    }
+
+    // Get current budget to calculate difference
+    const currentBudget = budgets.find((b) => String(b.id) === budgetId)
+    const currentAmount = currentBudget ? parseFloat(currentBudget.maximum) : 0
+
+    // Calculate the new total (excluding current budget then adding the new amount)
+    const totalWithoutCurrent = totalBudgeted - currentAmount
+    const newTotal = totalWithoutCurrent + newAmount
+
+    // Check if budget exceeds monthly income
+    if (monthlyIncome > 0 && newAmount > monthlyIncome) {
+      return false
+    }
+
+    // Check if new total would exceed monthly income
+    if (monthlyIncome > 0 && newTotal > monthlyIncome) {
+      return false
+    }
+
+    return true
+  }, [
+    formState.current,
+    formState.original,
+    budgets,
+    budgetId,
+    totalBudgeted,
+    MAX_BUDGET_AMOUNT,
+    monthlyIncome,
+  ])
+
+  // Update button's disabled state
+  const isButtonDisabled = useMemo(() => {
+    return updateBudget.isPending || !hasChanges || !isFormValid
+  }, [updateBudget.isPending, hasChanges, isFormValid])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -188,21 +321,59 @@ export function EditBudgetModal({
       }
     }
 
+    // Parse amounts for validation
+    const newAmount = parseFloat(formState.current.amount)
+
+    // Check if amount exceeds PostgreSQL limit
+    if (newAmount > MAX_BUDGET_AMOUNT) {
+      setError(
+        `Maximum amount cannot exceed ${formatCurrency(MAX_BUDGET_AMOUNT)}`
+      )
+      return
+    }
+
+    // Get current budget to calculate difference
+    const currentBudget = budgets.find((b) => String(b.id) === budgetId)
+    const currentAmount = currentBudget ? parseFloat(currentBudget.maximum) : 0
+    const amountDifference = newAmount - currentAmount
+
+    // Calculate the new total (excluding current budget then adding the new amount)
+    const totalWithoutCurrent = totalBudgeted - currentAmount
+    const newTotal = totalWithoutCurrent + newAmount
+
+    // Check if budget exceeds monthly income
+    if (monthlyIncome > 0 && newAmount > monthlyIncome) {
+      setError(
+        `Budget cannot exceed your monthly income of ${formatCurrency(monthlyIncome)}`
+      )
+      return
+    }
+
+    // Check if new total would exceed monthly income
+    if (monthlyIncome > 0 && newTotal > monthlyIncome) {
+      setError(
+        `Updating this budget would exceed your monthly income. New total would be ${formatCurrency(newTotal)}, Monthly income: ${formatCurrency(monthlyIncome)}`
+      )
+      return
+    }
+
     try {
-      console.log('Updating budget with theme:', formState.current.theme)
+      setError(null)
       await updateBudget.mutateAsync({
-        budgetId,
+        id: parseInt(budgetId),
         category: formState.current.category,
-        maxAmount: parseFloat(formState.current.amount),
+        maxAmount: newAmount,
         theme: formState.current.theme,
+        userId: 'temp', // Will be replaced by the session user ID on the server
       })
+
+      // Always close the modal after server responds (successful)
       onClose()
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message)
-      } else {
-        setError('Failed to update budget')
-      }
+      // Only in case of errors, we keep the modal open
+      const message =
+        error instanceof Error ? error.message : 'Failed to update budget'
+      setError(message)
     }
   }
 
@@ -219,13 +390,18 @@ export function EditBudgetModal({
             </div>
           )}
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Budget Category</label>
+            <label
+              htmlFor='edit-budget-category'
+              className='text-sm font-medium'
+            >
+              Budget Category
+            </label>
             <Select
               value={formState.current.category}
               onValueChange={handleCategoryChange}
               required
             >
-              <SelectTrigger>
+              <SelectTrigger id='edit-budget-category'>
                 <SelectValue placeholder='Select a category'>
                   {formState.current.category && (
                     <div className='flex items-center gap-2'>
@@ -255,43 +431,38 @@ export function EditBudgetModal({
           </div>
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Maximum Spend</label>
-            <div className='relative'>
-              <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                <span className='text-gray-500'>£</span>
-              </div>
-              <Input
-                type='number'
-                placeholder='e.g. 2000'
-                value={formState.current.amount}
-                onChange={handleAmountChange}
-                min='0'
-                step='0.01'
-                required
-                className='pl-7'
-              />
-            </div>
+            <label htmlFor='edit-max-spend' className='text-sm font-medium'>
+              Maximum Spend
+            </label>
+            <CurrencyInput
+              id='edit-max-spend'
+              placeholder='e.g. 2,000.00'
+              value={formState.current.amount}
+              onChange={handleAmountChange}
+              decimals={2}
+              required
+            />
           </div>
 
           <div className='space-y-2'>
-            <label className='text-sm font-medium'>Theme</label>
-            <ColorSelect
-              value={formState.current.theme}
-              onValueChange={handleThemeChange}
-              required
-              usedColors={usedColors}
-            />
+            <label id='edit-theme-label' className='text-sm font-medium'>
+              Theme
+            </label>
+            <div aria-labelledby='edit-theme-label'>
+              <ColorSelect
+                value={formState.current.theme}
+                onValueChange={handleThemeChange}
+                required
+                usedColors={allUsedColors}
+                allowCurrentColor
+              />
+            </div>
           </div>
 
           <Button
             type='submit'
             className='w-full bg-black text-white hover:bg-black/90'
-            disabled={
-              updateBudget.isPending ||
-              !!error ||
-              !formState.current.category ||
-              !hasChanges
-            }
+            disabled={isButtonDisabled}
           >
             {updateBudget.isPending ? 'Saving...' : 'Save Budget'}
           </Button>

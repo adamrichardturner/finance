@@ -1,22 +1,22 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
-import { useFinancialData } from '~/hooks/use-overview/use-financial-data'
 import { useBudgetMutations } from '~/hooks/use-budgets/use-budget-mutations'
 
 interface DeleteBudgetModalProps {
   isOpen: boolean
   budgetId?: string
+  budgetName?: string
   onClose: () => void
 }
 
 export function DeleteBudgetModal({
   isOpen,
   budgetId,
+  budgetName = 'Budget',
   onClose,
 }: DeleteBudgetModalProps) {
   const [error, setError] = useState<string | null>(null)
-  const { financialData } = useFinancialData()
   const { deleteBudget } = useBudgetMutations()
 
   const handleClose = () => {
@@ -24,31 +24,22 @@ export function DeleteBudgetModal({
     onClose()
   }
 
-  const budgetName = useMemo(() => {
-    if (budgetId && financialData?.budgets) {
-      const budget = financialData.budgets.find(
-        (b) => String(b.id) === budgetId
-      )
-      return budget?.category || 'Budget'
-    }
-    return 'Budget'
-  }, [budgetId, financialData?.budgets])
-
   const handleDelete = async () => {
     if (!budgetId) {
       return
     }
 
     try {
+      setError(null)
       await deleteBudget.mutateAsync({ budgetId })
+
+      // Always close the modal after server responds (successful)
       onClose()
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message)
-      } else {
-        setError('Failed to delete budget')
-      }
-      console.error('Failed to delete budget:', error)
+      // Only in case of errors, we keep the modal open
+      const message =
+        error instanceof Error ? error.message : 'Failed to delete budget'
+      setError(message)
     }
   }
 
@@ -59,8 +50,9 @@ export function DeleteBudgetModal({
           <DialogTitle>Delete Budget</DialogTitle>
         </DialogHeader>
         <div className='text-sm text-gray-600 mt-1 mb-4'>
-          Are you sure you want to delete "{budgetName}"? This action cannot be
-          undone and all the associated data will be permanently removed.
+          Are you sure you want to delete &quot;{budgetName}&quot;? This action
+          cannot be undone and all the associated data will be permanently
+          removed.
         </div>
 
         {error && (
