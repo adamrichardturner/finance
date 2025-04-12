@@ -4,9 +4,19 @@ import { LoaderFunctionArgs, redirect } from '@remix-run/node'
 import { getUserId } from '~/services/auth/session.server'
 
 export const meta: MetaFunction = () => {
+  const url = 'https://finance.adamrichardturner.dev'
   return [
-    { title: 'Banking App' },
+    { title: 'Finance App | Adam Richard Turner' },
     { name: 'description', content: 'Finance and Banking Dashboard' },
+    { property: 'og:title', content: 'Finance App | Adam Richard Turner' },
+    { property: 'og:description', content: 'Finance and Banking Dashboard' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:image', content: `${url}/og-image.png` },
+    { property: 'og:url', content: url },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Finance App | Adam Richard Turner' },
+    { name: 'twitter:description', content: 'Finance and Banking Dashboard' },
+    { name: 'twitter:image', content: `${url}/og-image.png` },
   ]
 }
 
