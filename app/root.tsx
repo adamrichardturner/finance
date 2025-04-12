@@ -13,10 +13,10 @@ import { QueryProvider } from './providers/query-client'
 import { HydrationBoundary } from '@tanstack/react-query'
 
 export const meta: MetaFunction = () => {
-  const title = 'FinanceApp - Take control of your finances'
+  const title = 'Finance | Adam Richard Turner'
   const description =
     'Track expenses, set budgets, and achieve your financial goals with our intuitive finance management application.'
-  const imageUrl = 'https://finance.adamrichardturner.dev/og-image.jpg'
+  const imageUrl = 'https://finance.adamrichardturner.dev/og-image.png'
 
   return [
     { title },
@@ -41,7 +41,7 @@ export const meta: MetaFunction = () => {
     { name: 'twitter:description', content: description },
     { name: 'twitter:image', content: imageUrl },
     { name: 'twitter:image:alt', content: 'FinanceApp dashboard preview' },
-    { name: 'twitter:creator', content: '@adamrichardturner' },
+    { name: 'twitter:creator', content: '@devadam88' },
   ]
 }
 
